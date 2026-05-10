@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHouseCameraConfig } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
-import {createShowcaseCameraConfig} from '@/app/lib/showcase/showcase';
+import {createShowcaseCameraConfig, createBirdShowcaseCameraConfig} from '@/app/lib/showcase/showcase';
 
 interface sceneConfig {
     cameraConfig: {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         // Scene mit Häusern, Lichtern etc. erstellen
         const scenario = request.nextUrl.searchParams.get('scenario');
 
-        const cameraConfig = scenario == scenarios.showcase ? createShowcaseCameraConfig() : createHouseCameraConfig();
+        const cameraConfig = scenario == scenarios.showcase ? createShowcaseCameraConfig() : scenario == scenarios.birdShowcase ? createBirdShowcaseCameraConfig() : createHouseCameraConfig();
 
         const returnSceneConfig: sceneConfig = {
             cameraConfig: cameraConfig

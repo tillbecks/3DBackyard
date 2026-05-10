@@ -7,6 +7,8 @@ import { glbToObject } from '@/app/lib/config/importExportUtils';
 import { initRenderer, initCamera, initSky } from '@/app/lib/scene/scene';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { initSunlight, initAmbientLight } from '../lib/scene/light';
+import { birdController, birdFlogGenerator } from '../lib/birds/birdController';
+import bird from '../lib/birds/bird';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -16,6 +18,7 @@ export default function SceneViewer() {
 
     useEffect(() => {
         const scenario = scenarios.backyard; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
+        const animations: ((...args: undefined[]) => void)[] = [];
 
         if (!containerRef.current) return;
 
@@ -68,11 +71,27 @@ export default function SceneViewer() {
                 }
                 const glb = await contentResponse.arrayBuffer();
                 const loadedScene = await glbToObject(glb);
+                loadedScene.traverse((child) => {
+                    if (child instanceof THREE.Mesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
                 scene.add(loadedScene);
             } catch (error) {
                 console.error('Error loading scene:', error);
             }
         };
+
+        let birdFlog: birdController;
+
+        if(scenario == scenarios.backyard ){
+            birdFlog = birdFlogGenerator();
+            for(const bird of birdFlog.birds){
+                scene.add(bird.birdGeometry);
+            }
+            animations.push(() => birdFlog.update());
+        }
 
         initScene(scenario);
         loadContent(scenario);
@@ -82,6 +101,7 @@ export default function SceneViewer() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
+            animations.forEach((f: (...args: undefined[]) => void) => f());
         };
         animate();
 
