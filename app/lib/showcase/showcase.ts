@@ -3,6 +3,7 @@ import { terrestrialAntenna_generator } from '../house/antennas/terrestrial_ante
 import { houseGroupGenerator } from '../house/houseBody';
 import { createCameraConfig } from '../config/importExportUtils';
 import * as TDUTILS from '../config/3dUtils';
+import BirdModel from '../birds/birdModel';
 
 export function generateShowcaseContent(){
     const returnGroup = new THREE.Group();
@@ -13,6 +14,17 @@ export function generateShowcaseContent(){
 
     const house = createHouse();
     returnGroup.add(house);
+
+    return returnGroup;
+}
+
+export function generateBirdShowcaseContent(){
+    const returnGroup = new THREE.Group();
+
+    const birdModel = new BirdModel();
+    returnGroup.add(createPresentationPlatform());
+
+    returnGroup.add(birdModel.get3DObject()); 
 
     return returnGroup;
 }
@@ -32,5 +44,9 @@ export function createHouse(){
 
 export function createShowcaseCameraConfig(){
     return createCameraConfig(new THREE.Vector3(0, 150, 80), new THREE.Vector3(0, 120, 0));
+}
+
+export function createBirdShowcaseCameraConfig(){
+    return createCameraConfig(new THREE.Vector3(0, 5, 10), new THREE.Vector3(0, 0, 0));
 }
 

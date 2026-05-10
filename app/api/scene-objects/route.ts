@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateHouses } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
-import {generateShowcaseContent} from '@/app/lib/showcase/showcase';
+import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
 import * as THREE from 'three';
 
 export async function GET(request: NextRequest) {
@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
 
         if(scenario == scenarios.showcase){
             object = generateShowcaseContent();
-        }else{
+        }else if(scenario == scenarios.birdShowcase){
+            object = generateBirdShowcaseContent();
+        }else {
             object = generateHouses();
         }
 

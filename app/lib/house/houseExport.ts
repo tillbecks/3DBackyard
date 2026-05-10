@@ -20,5 +20,5 @@ export function generateHouses(): THREE.Group{
 }
 
 export function createHouseCameraConfig(){
-    return createCameraConfig(new THREE.Vector3(0, 80, 210), new THREE.Vector3(0, 0, 0));
+    return createCameraConfig(new THREE.Vector3(0, 80, 180), new THREE.Vector3(0, 30, 0));
 }
