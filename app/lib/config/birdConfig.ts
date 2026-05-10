@@ -64,3 +64,6 @@ export function set_matching_factor(x: number) {matching_factor = x};
 export const FLAP_POSITIONS = [0, 20, 40, 20, 0, -20];
 
 export const LEAN_ANGLE_FACTOR = 30 ;
+
+export const ID_LEFT_WING = 'wing_left';
+export const ID_RIGHT_WING = 'wing_right';

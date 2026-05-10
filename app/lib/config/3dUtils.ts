@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
-export function createAxesHelper(mesh: THREE.Mesh | THREE.Group, length: number = 2): THREE.AxesHelper {
-    const axesHelper = new THREE.AxesHelper(length);
-    axesHelper.position.copy(mesh.position);
-    axesHelper.rotation.copy(mesh.rotation);
-    return axesHelper;
+export function createAxisHelper(mesh: THREE.Mesh | THREE.Group, length: number = 2): THREE.AxesHelper {
+    const axisHelper = new THREE.AxesHelper(length);
+    axisHelper.position.copy(mesh.position);
+    axisHelper.rotation.copy(mesh.rotation);
+    return axisHelper;
 }
 
 export function markerRing(radius: number = 0.5, color: number = 0xff0000): THREE.Mesh {

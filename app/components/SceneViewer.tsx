@@ -83,18 +83,37 @@ export default function SceneViewer() {
             }
         };
 
-        let birdFlog: birdController;
+        const loadBirds = async (scenario: string) => {
+            try {
+                if(scenario === scenarios.backyard){
+                    const birdModelResponse = await fetch('/api/birds');
+                    if (!birdModelResponse.ok) {
+                        throw new Error(`HTTP error! status: ${birdModelResponse.status}`);
+                    }
+                    const birdModelGlb = await birdModelResponse.arrayBuffer();
+                    const birdModel = await glbToObject(birdModelGlb);
+                    birdModel.traverse((child) => {
+                        if (child instanceof THREE.Mesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
 
-        if(scenario == scenarios.backyard ){
-            birdFlog = birdFlogGenerator();
-            for(const bird of birdFlog.birds){
-                scene.add(bird.birdGeometry);
+                const birdFlog = birdFlogGenerator(birdModel);
+                    for(const bird of birdFlog.birds){
+                        scene.add(bird.birdGeometry);
+                    }
+                animations.push(() => birdFlog.update());
+                }
+            } catch (error) {
+                console.error('Error loading birds:', error);
+                return null;
             }
-            animations.push(() => birdFlog.update());
         }
 
         initScene(scenario);
         loadContent(scenario);
+        loadBirds(scenario);
 
         // Animation Loop
         const animate = () => {

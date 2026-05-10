@@ -13,14 +13,14 @@ export class birdController{
 
     circle: Trajectory;
 
-    constructor(){
+    constructor(model: THREE.Group | THREE.Object3D){
         this.mode = BC.FLIGHT_MODES.CIRCLE;
         this.goal = new THREE.Vector3(0, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
 
         this.birds = [];
         for (let i=0; i<BC.BIRD_COUNT; i++){
-            const new_bird = birdGenerator();
+            const new_bird = birdGenerator(model);
             this.birds.push(new_bird);
         }
         this.circle = new FollowCircle(BC.SURROUNDING_CENTER, BC.SURROUNDING_RADIUS_WIDTH*0.9, BC.SURROUNDING_RADIUS_DEPTH*0.7, BC.MAX_SPEED * 0.95);
@@ -102,8 +102,8 @@ function addTrailPoint(position: THREE.Vector3, scene: THREE.Scene, color=0xff00
   scene.add(point);
 }
 
-export function birdFlogGenerator(): birdController{
-    return new birdController();
+export function birdFlogGenerator(model: THREE.Group | THREE.Object3D): birdController{
+    return new birdController(model);
 }
 
 ////x rechts-links, z vorne-hinten, y oben-unten
