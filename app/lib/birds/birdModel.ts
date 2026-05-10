@@ -1,56 +1,54 @@
 import * as THREE from 'three';
 import * as TDUTILS from '../config/3dUtils';
-import { degToRad } from 'three/src/math/MathUtils.js';
-import { FLAP_POSITIONS } from '../config/birdConfig';
+import { ID_LEFT_WING, ID_RIGHT_WING } from '../config/birdConfig';
 
 
 export default class BirdModel {
     model: THREE.Group;
     leftWing: THREE.Mesh;
     rightWing: THREE.Mesh;
-    flapPosition: number;
 
     constructor(){
-
-        this.flapPosition = 0;
-        const bodySize = 0.7;
+        const bodySize = 0.5;
 
         const birdParameter = {
             bodySize: bodySize,
-            wingScaley: 2.4 * bodySize,
-            wingScalex: 4.2 * bodySize,
-            bodyLength: 4 * bodySize,
+            wingScaley: 3 * bodySize,
+            wingScalex: 5 * bodySize,
+            bodyLength: 5 * bodySize,
             wingThickness: 0.2 * bodySize,
             wingShiftUp: 0.3 * bodySize,
             wingShiftOutside: 0.4 * bodySize,
-            bodyCenterPercentage: 0.6,
+            bodyCenterPercentage: 0.55,
             tailScale: 0.4,
             tailLength: 3 * bodySize,
             bodyNormalLength: 1.1,
         }
 
         this.model = new THREE.Group();
-
-        const wing_material = new THREE.MeshStandardMaterial({color: 0x666666, side: THREE.DoubleSide});
+        const bird_color = '#534535'
+        const wing_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
         this.leftWing = new THREE.Mesh(wingGeometry(birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wing_material);
         this.leftWing.position.y += birdParameter.wingShiftUp;
         this.leftWing.position.x -= birdParameter.wingShiftOutside;
         this.leftWing.castShadow = true;
         this.leftWing.receiveShadow = true;
+        this.leftWing.name= ID_LEFT_WING;
         this.rightWing = new THREE.Mesh(wingGeometry(-birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wing_material);
         this.rightWing.position.y += birdParameter.wingShiftUp;
         this.rightWing.position.x += birdParameter.wingShiftOutside;
         this.rightWing.castShadow = true;
         this.rightWing.receiveShadow = true;
+        this.rightWing.name = ID_RIGHT_WING;
 
-        const tail_material = new THREE.MeshStandardMaterial({color: 0x666666, side: THREE.DoubleSide});
+        const tail_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
         const tail = new THREE.Mesh(tailGeometry(birdParameter.tailScale, birdParameter.tailLength), tail_material);
         tail.castShadow = true;
         tail.receiveShadow = true;
         tail.position.z =  - birdParameter.bodyLength * birdParameter.bodyNormalLength * birdParameter.bodyCenterPercentage * birdParameter.tailScale;
         tail.position.y = birdParameter.bodySize * 0.1;
 
-        const body_material = new THREE.MeshStandardMaterial({color: 0x666666, side: THREE.DoubleSide});
+        const body_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
         const body = new THREE.Mesh(bodyGeometry(birdParameter.bodyLength, birdParameter.bodySize, birdParameter.bodyCenterPercentage), body_material);
         body.castShadow = true;
         body.receiveShadow = true;
@@ -60,20 +58,8 @@ export default class BirdModel {
         this.model.add(body);
         this.model.add(this.leftWing);
         this.model.add(this.rightWing);
-        this.model.add(TDUTILS.createAxesHelper(this.model,0.5));
     }
 
-    flap(){
-        this.flapPosition = (this.flapPosition + 1) % FLAP_POSITIONS.length;
-        this.leftWing.rotation.z = -degToRad(FLAP_POSITIONS[this.flapPosition]);
-        this.rightWing.rotation.z = degToRad(FLAP_POSITIONS[this.flapPosition]);
-    }
-
-    glide(){
-        this.leftWing.rotation.z = 0;
-        this.rightWing.rotation.z = 0;
-        this.flapPosition = 0;
-    }
 
     get3DObject(){
         return this.model;

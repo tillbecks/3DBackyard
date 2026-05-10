@@ -1,24 +1,42 @@
 import * as bc from '../config/birdConfig';
 import * as THREE from 'three';
 import {randomInRangeFloat} from '../config/utils';
-import BirdModel from './birdModel';
+import { FLAP_POSITIONS } from '../config/birdConfig';
+import { angleToRad } from '../config/utils';
 
 export default class bird{
     position: THREE.Vector3;
     velocity: THREE.Vector3;
-    birdGeometry: THREE.Group | THREE.Mesh;
-    birdModel: BirdModel;
+    birdGeometry: THREE.Group | THREE.Mesh | THREE.Object3D;
+    //birdModel: BirdModel;
     lastVelocity: THREE.Vector3;
+    leftWing: THREE.Mesh|null;
+    rightWing: THREE.Mesh|null;
+    flapPosition: number;
 
-    constructor(position: THREE.Vector3, velocity: THREE.Vector3){
+    constructor(position: THREE.Vector3, velocity: THREE.Vector3, model: THREE.Group | THREE.Object3D){
 
         this.position = new THREE.Vector3(position.x, position.y, position.z);
         this.velocity = new THREE.Vector3(velocity.x, velocity.y, velocity.z);
         this.lastVelocity = this.velocity.clone();
 
-        const birdModel = new BirdModel();
-        this.birdModel = birdModel;
-        this.birdGeometry = birdModel.get3DObject();
+        this.flapPosition = 0;
+        this.leftWing = null;
+        this.rightWing = null;
+
+        this.birdGeometry = model.clone();
+        try{
+            this.birdGeometry.traverse((child) => {
+                if (child.name === bc.ID_LEFT_WING) {
+                    this.leftWing = child as THREE.Mesh;
+                }
+                if (child.name === bc.ID_RIGHT_WING) {
+                    this.rightWing = child as THREE.Mesh;
+                }
+            });
+        }catch(error){
+            console.error("Error traversing bird model to find wings:", error);
+        }
         
         this.birdGeometry.position.copy(this.position);
         // Ausrichtung nach Bewegungsrichtung und Center
@@ -29,10 +47,10 @@ export default class bird{
 
     animation(){
         if(this.velocity.length() < this.lastVelocity.length()){
-            this.birdModel.glide();
+            this.glide();
         }
         else{
-            this.birdModel.flap();
+            this.flap();
         }
         this.birdGeometry.position.copy(this.position);
 
@@ -45,6 +63,25 @@ export default class bird{
         this.birdGeometry.quaternion.setFromRotationMatrix(matrix);
         this.birdGeometry.rotation.z += this.calculateOutlean();
         this.lastVelocity = this.velocity.clone();
+    }
+
+    glide(){
+        if(this.leftWing && this.rightWing && this.flapPosition !== 0){
+            this.leftWing.rotation.z = -angleToRad(FLAP_POSITIONS[0]);
+            this.rightWing.rotation.z = angleToRad(FLAP_POSITIONS[0]);
+            this.flapPosition = 0;
+        }
+    }
+
+    flap(){
+        if(this.leftWing && this.rightWing){
+            this.flapPosition = (this.flapPosition + 1) % FLAP_POSITIONS.length;
+            this.leftWing.rotation.z = -angleToRad(FLAP_POSITIONS[this.flapPosition]);
+            this.rightWing.rotation.z = angleToRad(FLAP_POSITIONS[this.flapPosition]);
+        }else{
+            //console.log("No wings found for flapping animation.");
+            //console.log(this.leftWing, this.rightWing);
+        }
     }
 
     calculateOutlean(){
@@ -170,11 +207,11 @@ export default class bird{
     }
 }
 
-export function birdGenerator(){
+export function birdGenerator(model: THREE.Group | THREE.Object3D){
     const get_velocity = () => randomInRangeFloat(bc.INIT_SPEED_MIN, bc.INIT_SPEED_MAX);
     const init_velocity = new THREE.Vector3(get_velocity(), get_velocity(), get_velocity());
     const get_position = () => randomInRangeFloat(-bc.INIT_CENTER_DISTANCE, bc.INIT_CENTER_DISTANCE);
     const init_position = new THREE.Vector3(bc.SURROUNDING_CENTER.x + get_position(), bc.SURROUNDING_CENTER.y + get_position(), bc.SURROUNDING_CENTER.z + get_position());
-    return new bird(init_position, init_velocity);
+    return new bird(init_position, init_velocity, model);
 }
 

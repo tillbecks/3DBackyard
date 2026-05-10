@@ -9,20 +9,12 @@ class Balcony{
         this.balcony_width = balcony_width;
     }
 
-    get3DObject(balcony_position: number, story_count: number, story_height: number, house_depth: number, window_count: number, window: number){
+    get3DObject(balcony_position: number, story_count: number, story_height: number, house_depth: number, balcony_space: {left: number, right: number}){
         const balconies: THREE.Group = new THREE.Group();
 
-        let position_x: number;
-
-        if(window == 0){
-            position_x = this.balcony_width/2 - BALCONY_MIN_OFFSET_FROM_CENTER;
-        }
-        else if(window == window_count - 1){
-            position_x = -this.balcony_width/2 + BALCONY_MIN_OFFSET_FROM_CENTER;
-        }
-        else{
-            position_x = 0;
-        }
+        const total_space = balcony_space.left + balcony_space.right;
+        const position_x = ((balcony_space.right - balcony_space.left) / total_space) * this.balcony_width / 2;
+        
 
         const railing_type: string = randomFromObject(BALCONY_RAILING_TYPES);
 
@@ -51,10 +43,12 @@ class Balcony{
 
 }
 
-export function balconyGenerator(balcony_position: number, story_count: number, story_height: number, house_depth: number, window_count: number, window: number): THREE.Group {
-    const balcony_width: number = randomInRangeInt(BALCONY_WIDTH_MIN, BALCONY_WIDTH_MAX);
+export function balconyGenerator(balcony_position: number, story_count: number, story_height: number, house_depth: number, balcony_space: {left: number, right: number}): THREE.Group {
+    const max_width = Math.min(BALCONY_WIDTH_MAX, balcony_space.left+balcony_space.right);
+    const min_width = Math.min(BALCONY_WIDTH_MIN, max_width);
+    const balcony_width: number = randomInRangeInt(min_width, max_width);
     const balconies: Balcony = new Balcony(balcony_width);
-    return balconies.get3DObject(balcony_position, story_count, story_height, house_depth, window_count, window);
+    return balconies.get3DObject(balcony_position, story_count, story_height, house_depth, balcony_space);
 }
 
 class BalconyRailings{

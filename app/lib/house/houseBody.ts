@@ -75,6 +75,7 @@ class HouseBody{
         this.house_group.add(roof);
         windows["window_panes"].forEach(story => {
             story.forEach(window => {
+                console.log("added");
                 this.house_group.add(window);
             })
         })

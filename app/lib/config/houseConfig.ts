@@ -24,6 +24,18 @@ export const WINDOW_HEIGHT_PERCENTAGE: number = 0.4;
 export const WINDOW_START_BOTTOM: number = 0.4;
 export const WINDOW_DEPTH: number = 3;
 
+export const WINDOW_SPLIT_VERTICAL_MIN_WIDTH: number = 8;
+export const WINDOW_SPLIT_VERTICAL_PROBABILITY: number = 0.3;
+export const WINDOW_SPLIT_HORIZONTAL_PROBABILITY: number = 0.3;
+export const WINDOW_SPLIT_HORIZONTAL_PERCENTAGE: number = 0.3;
+
+export const WINDOW_FRAME_THICKNESS: number = 0.4;
+export const WINDOW_FRAME_DEPTH: number = 0.5;
+export const WINDOW_FRAME_COLOR_HEX: string = "#fafafa";
+export const SINGLE_WINDOW_ID: string = "single_window";
+export const DOUBLE_WINDOW_LEFT_ID: string = "double_window_left";
+export const DOUBLE_WINDOW_RIGHT_ID: string = "double_window_right";
+
 export const WINDOW_SPACING_SCHEME = {
     EQUALLY_SPACED: "equal" as const,
     BREAK_MIDDLE: "break" as const
@@ -52,6 +64,7 @@ export const BALCONY_START_BOTTOM: number = 0.2;
 export const BALCONY_WIDTH_MIN: number = 10;
 export const BALCONY_WIDTH_MAX: number = 20;
 export const BALCONY_MIN_OFFSET_FROM_CENTER: number = WINDOW_MAX_WIDTH / 2 + 1;
+export const BALCONY_DIST_OTHER_WINDOWS: number = 2;
 
 export const BALCONY_RAILING_HEIGHT: number = 5;
 export const BALCONY_RAILING_DIST_EDGE: number = 0.5;
