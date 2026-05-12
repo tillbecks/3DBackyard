@@ -2,7 +2,6 @@ import { birdGenerator} from './bird';
 import bird from './bird';
 import * as BC from '../config/birdConfig';
 import * as THREE from 'three';
-import { velocity } from 'three/tsl';
 import { Trajectory, FollowCircle, MoveToTarget, LoopingGoal } from './birdTrajectory';
 
 export class birdController{
@@ -28,8 +27,8 @@ export class birdController{
 
     update(){
         const nextCirclePosition = this.circle.getNextPosition();
-        if (this.mode == 'flight_to_goal' && nextCirclePosition==true){
-            this.mode = 'loop';
+        if (this.mode == BC.FLIGHT_MODES.FLIGHT_TO_GOAL && nextCirclePosition==true){
+            this.mode = BC.FLIGHT_MODES.LOOP;
             BC.set_turn_factor(0);
             BC.set_bias_factor(0.005);
             BC.set_avoid_factor(0.001);
@@ -54,8 +53,10 @@ export class birdController{
 
     switchToGoal(target: THREE.Vector3){
         
-        this.mode = 'flight_to_goal'; //Wenn zu nah return false oder so, damit der nochmal reroaled
+        this.mode = BC.FLIGHT_MODES.FLIGHT_TO_GOAL; //Wenn zu nah return false oder so, damit der nochmal reroaled
         this.goal = target;
+
+        console.log("Flight to Goal initialized: " + target.x + ", " + target.y + ", " + target.z);
 
 
         BC.set_bias_factor(0.0025);

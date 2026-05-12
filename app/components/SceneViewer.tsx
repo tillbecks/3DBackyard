@@ -7,8 +7,9 @@ import { glbToObject } from '@/app/lib/config/importExportUtils';
 import { initRenderer, initCamera, initSky } from '@/app/lib/scene/scene';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { initSunlight, initAmbientLight } from '../lib/scene/light';
-import { birdController, birdFlogGenerator } from '../lib/birds/birdController';
-import bird from '../lib/birds/bird';
+import { birdFlogGenerator, birdController } from '../lib/birds/birdController';
+import { bindMouseMovementToRaycaster } from '../lib/config/windowUtils';
+import { calcCenterOfGeometries } from '../lib/config/3dUtils';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -104,16 +105,53 @@ export default function SceneViewer() {
                         scene.add(bird.birdGeometry);
                     }
                 animations.push(() => birdFlog.update());
+                return birdFlog;
                 }
             } catch (error) {
                 console.error('Error loading birds:', error);
                 return null;
             }
+        };
+
+        const getOnWindowClick = (birdFlog: birdController)=>{
+            console.log("Generating onWindowClick function for birdFlog");
+            return (windows: THREE.Object3D[]) => {
+                console.log("test");
+                const center = calcCenterOfGeometries(windows);
+                birdFlog?.switchToGoal(center);
+            }
+        };
+
+        const loadBackyard = async () => {
+            const scenario = scenarios.backyard;
+            try{
+                await initScene(scenario);
+                await loadContent(scenario);
+                const birdFlog = await loadBirds(scenario);
+                if(containerRef.current) bindMouseMovementToRaycaster(camera, scene, containerRef.current, birdFlog instanceof birdController ? getOnWindowClick(birdFlog) : () => {});
+                return birdFlog; 
+            }
+            catch(error){
+                console.error('Error loading backyard scenario:', error);
+                return null;
+            }
         }
 
-        initScene(scenario);
-        loadContent(scenario);
-        loadBirds(scenario);
+        const loadScenario = async (scenario: string) => {
+            try {
+                if(scenario === scenarios.backyard){
+                  await loadBackyard();
+                }        
+                else{        
+                    await initScene(scenario);
+                    await loadContent(scenario);
+                }
+            } catch (error) {
+                console.error('Error loading scenario:', error);
+            }
+        };
+
+        loadScenario(scenario);
 
         // Animation Loop
         const animate = () => {

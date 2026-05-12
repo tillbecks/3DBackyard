@@ -4,6 +4,7 @@ import * as THREE from "three";
 import {Brush, Evaluator, ADDITION } from 'three-bvh-csg';
 import { balconyGenerator } from "./balcony";
 import { createAxisHelper } from '../config/3dUtils';
+import { PANE_MATERIAL } from '../config/materials';
 
 class Windows{
     window_cnt_per_story: number;
@@ -20,7 +21,7 @@ class Windows{
         this.balcony_window = balcony_window;
     }
 
-    get3DObject(story_cnt: number, story_height: number, house_width: number, house_depth: number): {"window_holes": THREE.BoxGeometry[][], "window_panes": (THREE.Mesh | THREE.Group)[][], "stair_window_holes": THREE.BoxGeometry[][], "stair_window_panes": (THREE.Mesh | THREE.Group) [], "balcony_position": number, "balcony_space": {left: number, right: number}}{
+    get3DObject(story_cnt: number, story_height: number, house_width: number, house_depth: number, getID: () => string): {"window_holes": THREE.BoxGeometry[][], "window_panes": (THREE.Mesh | THREE.Group)[][], "stair_window_holes": THREE.BoxGeometry[][], "stair_window_panes": (THREE.Mesh | THREE.Group) [], "balcony_position": number, "balcony_space": {left: number, right: number}}{
         const window_material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({color:new THREE.Color().setRGB( 1, 1, 1 )});
         const window_hole_geometries: THREE.BoxGeometry[][] = [];
         const stair_window_holes: THREE.BoxGeometry[][] = []
@@ -71,7 +72,7 @@ class Windows{
                     window_hole_story_group.push(window_geometry);
                     //window_pane_story_geometries.push(new THREE.Mesh(window_pane_geometry, window_material));
                     const window_frame = new WindowFrame(this.window_width, window_height, !is_balcony && windows_split_vertical, !is_balcony && windows_split_horizontal);
-                    const frame_3d = window_frame.get3DObject();
+                    const frame_3d = window_frame.get3DObject(getID);
                     frame_3d.position.set(translate_x, translate_y, house_depth/2 - 1);
                     window_pane_story_geometries.push(frame_3d);
                 }
@@ -129,7 +130,7 @@ class Windows{
                     //window_pane_geometry.translate(translate_x, translate_y, house_depth/2 - 1);
                     window_hole_story_group.push(window_geometry);
                     const window_frame = new WindowFrame(this.window_width, window_height, !is_balcony && windows_split_vertical, !is_balcony && windows_split_horizontal);
-                    const frame_3d = window_frame.get3DObject();
+                    const frame_3d = window_frame.get3DObject(getID);
                     frame_3d.position.set(translate_x, translate_y, house_depth/2 - 1);
                     window_pane_story_geometries.push(frame_3d);
 
@@ -159,7 +160,7 @@ class Windows{
                     //window_pane_geometry.translate(translate_x, translate_y,  house_depth/2 - 1);
                     window_hole_story_group.push(window_geometry);
                     const window_frame = new WindowFrame(this.window_width, window_height, !is_balcony && windows_split_vertical, !is_balcony && windows_split_horizontal);
-                    const frame_3d = window_frame.get3DObject();
+                    const frame_3d = window_frame.get3DObject(getID);
                     frame_3d.position.set(translate_x, translate_y, house_depth/2 - 1);
                     window_pane_story_geometries.push(frame_3d);
                     //window_pane_story_geometries.push(new THREE.Mesh(window_pane_geometry, window_material));
@@ -175,7 +176,7 @@ class Windows{
                     stair_window_pane_geometry.translate(x_position, y_position, house_depth/2 - 1);
                     stair_window_holes.push([stair_window_geometry]); //In extra array, so it's handled by create_window_brush
                     const window_frame = new WindowFrame(this.window_width, story_height * HC.WINDOW_HEIGHT_PERCENTAGE);
-                    const frame_3d = window_frame.get3DObject();
+                    const frame_3d = window_frame.get3DObject(getID);
                     frame_3d.position.set(x_position, y_position, house_depth/2 - 1);
                     stair_window_pane_geometries.push(frame_3d);
                     //stair_window_pane_geometries.push(new THREE.Mesh(stair_window_pane_geometry, window_material));
@@ -194,7 +195,7 @@ class Windows{
 
 }
 
-export function window_generator(house_width: number, story_cnt: number, story_height: number, house_depth: number): {"windows": {"window_holes": THREE.BoxGeometry[][], "window_panes": (THREE.Mesh | THREE.Group)[][], "stair_window_holes": THREE.BoxGeometry[][], "stair_window_panes": (THREE.Mesh | THREE.Group)[]}, "balconies"?: THREE.Group}{
+export function window_generator(house_width: number, story_cnt: number, story_height: number, house_depth: number, getID: () => string): {"windows": {"window_holes": THREE.BoxGeometry[][], "window_panes": (THREE.Mesh | THREE.Group)[][], "stair_window_holes": THREE.BoxGeometry[][], "stair_window_panes": (THREE.Mesh | THREE.Group)[]}, "balconies"?: THREE.Group}{
     const window_cnt_per_story: number = randomInRangeInt(HC.WINDOW_MIN_PER_STORY, HC.WINDOW_MAX_PER_STORY);
     
     const window_width: number = randomInRangeInt(HC.WINDOW_MIN_WIDTH, HC.WINDOW_MAX_WIDTH);
@@ -205,7 +206,7 @@ export function window_generator(house_width: number, story_cnt: number, story_h
     const balcony_window = randomInRangeInt(0, window_cnt_per_story-1);
 
     const windows: Windows = new Windows(window_cnt_per_story, window_width, window_breaking_scheme, has_balcony, balcony_window);
-    const windows_geometries = windows.get3DObject(story_cnt, story_height, house_width, house_depth);
+    const windows_geometries = windows.get3DObject(story_cnt, story_height, house_width, house_depth, getID);
     let balconies: THREE.Group | undefined = undefined;
     if (has_balcony)
         balconies = balconyGenerator(windows_geometries["balcony_position"], story_cnt, story_height, house_depth, windows_geometries["balcony_space"]);
@@ -241,8 +242,9 @@ class WindowFrame{
         this.horizontal_split = horizontal_split;
     }
 
-    get3DObject(): THREE.Group{
+    get3DObject(getID: () => string): THREE.Group{
         const frame_material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color:HC.WINDOW_FRAME_COLOR_HEX});
+        const pane_material = PANE_MATERIAL;
         
         const frame_group = new THREE.Group();
 
@@ -259,8 +261,11 @@ class WindowFrame{
             b3.translateX(- this.window_width/2 + HC.WINDOW_FRAME_THICKNESS/2);
             const b4 = new THREE.Mesh(b3_geo, frame_material);
             b4.translateX(this.window_width/2 - HC.WINDOW_FRAME_THICKNESS/2);
+
+            const pane_geo = new THREE.BoxGeometry(this.window_width - 2 * HC.WINDOW_FRAME_THICKNESS, upper_window_height - 2 * HC.WINDOW_FRAME_THICKNESS, HC.WINDOW_PANE_THICKNESS);
+            const pane = new THREE.Mesh(pane_geo, pane_material);
             
-            upper_window.add(b1, b2, b3, b4);
+            upper_window.add(b1, b2, b3, b4, pane);
             upper_window.translateY(this.window_height/2 - upper_window_height/2);
             frame_group.add(upper_window);
         }
@@ -281,20 +286,25 @@ class WindowFrame{
             b3.translateX(- half_width/2 + HC.WINDOW_FRAME_THICKNESS/2);
             const b4 = new THREE.Mesh(b3_geo, frame_material);
             b4.translateX(half_width/2 - HC.WINDOW_FRAME_THICKNESS/2);
-            left_window.add(b1,b2,b3,b4);
+            const pane_geo = new THREE.BoxGeometry(half_width - 2 * HC.WINDOW_FRAME_THICKNESS, lower_window_height - 2 * HC.WINDOW_FRAME_THICKNESS, HC.WINDOW_PANE_THICKNESS);
+            const pane_left = new THREE.Mesh(pane_geo, pane_material);
+            pane_left.name = HC.WINDOW_PANE_ID;
+
+            left_window.add(b1,b2,b3,b4,pane_left);
             const right_window = new THREE.Group();
-            right_window.add(b1.clone(), b2.clone(), b3.clone(), b4.clone());
+            right_window.add(b1.clone(), b2.clone(), b3.clone(), b4.clone(), pane_left.clone());
             left_window.children.forEach(child => child.translateX(half_width/2));
             right_window.children.forEach(child => child.translateX(-half_width/2));
 
-            left_window.name = HC.DOUBLE_WINDOW_LEFT_ID;
-            right_window.name = HC.DOUBLE_WINDOW_RIGHT_ID;
+            const id = getID();
+
+            left_window.name = HC.DOUBLE_WINDOW_LEFT_ID + "_" + id;
+            right_window.name = HC.DOUBLE_WINDOW_RIGHT_ID + "_" + id;
 
             left_window.translateX(-half_width);
             right_window.translateX(half_width);
 
             lower_window.add(left_window, right_window);
-            lower_window.add(createAxisHelper(left_window));
         }
         else{
             const b1_geo = new THREE.BoxGeometry(this.window_width, HC.WINDOW_FRAME_THICKNESS, HC.WINDOW_FRAME_DEPTH);
@@ -307,9 +317,14 @@ class WindowFrame{
             b3.translateX(- this.window_width/2 + HC.WINDOW_FRAME_THICKNESS/2);
             const b4 = new THREE.Mesh(b3_geo, frame_material);
             b4.translateX(this.window_width/2 - HC.WINDOW_FRAME_THICKNESS/2);
+            const pane_geo = new THREE.BoxGeometry(this.window_width - 2 * HC.WINDOW_FRAME_THICKNESS, lower_window_height - 2 * HC.WINDOW_FRAME_THICKNESS, HC.WINDOW_PANE_THICKNESS);
+            const pane = new THREE.Mesh(pane_geo, pane_material);
+            pane.name = HC.WINDOW_PANE_ID;
 
-            lower_window.add(b1, b2, b3, b4);
-            lower_window.name = HC.SINGLE_WINDOW_ID;
+            lower_window.add(b1, b2, b3, b4, pane);
+            lower_window.children.forEach(child => child.translateX(- this.window_width/2));
+            lower_window.translateX(this.window_width/2);
+            lower_window.name = HC.SINGLE_WINDOW_ID + "_" + getID();
         }
 
         lower_window.translateY(- this.window_height/2 + lower_window_height/2);

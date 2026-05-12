@@ -11,6 +11,7 @@ import { SUBTRACTION, Brush, Evaluator } from 'three-bvh-csg';
 class HouseBody{
     house_group: THREE.Group;
     id: number;
+    child_id: number;
     story_count: number;
     story_height: number;
     house_width: number;
@@ -28,6 +29,11 @@ class HouseBody{
         this.color = color;
         this.left_size = left_size;
         this.right_size = right_size;
+        this.child_id = 0;
+    }
+
+    getNewChildId(): string{
+        return `${this.id}_${this.child_id++}`;
     }
 
     get3dContent(): THREE.Group {
@@ -47,7 +53,7 @@ class HouseBody{
         const roof: THREE.Group = roof_generator(HOUSE_DEPTH, this.house_width, brickSize, material, this.left_size, this.right_size, house_height);
         roof.position.setY(house_height/2);
 
-        const windows_balcon = window_generator(this.house_width, this.story_count, this.story_height, HOUSE_DEPTH);
+        const windows_balcon = window_generator(this.house_width, this.story_count, this.story_height, HOUSE_DEPTH, () => this.getNewChildId());
         const balconies: THREE.Group | undefined = windows_balcon["balconies"];
         if(balconies)
             this.house_group.add(balconies);
@@ -75,7 +81,6 @@ class HouseBody{
         this.house_group.add(roof);
         windows["window_panes"].forEach(story => {
             story.forEach(window => {
-                console.log("added");
                 this.house_group.add(window);
             })
         })

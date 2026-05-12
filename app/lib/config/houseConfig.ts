@@ -29,6 +29,9 @@ export const WINDOW_SPLIT_VERTICAL_PROBABILITY: number = 0.3;
 export const WINDOW_SPLIT_HORIZONTAL_PROBABILITY: number = 0.3;
 export const WINDOW_SPLIT_HORIZONTAL_PERCENTAGE: number = 0.3;
 
+export const WINDOW_PANE_THICKNESS: number = 0.1;
+export const WINDOW_PANE_ID: string = "window_pane";
+
 export const WINDOW_FRAME_THICKNESS: number = 0.4;
 export const WINDOW_FRAME_DEPTH: number = 0.5;
 export const WINDOW_FRAME_COLOR_HEX: string = "#fafafa";
