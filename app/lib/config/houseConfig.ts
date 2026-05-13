@@ -156,10 +156,10 @@ export const ANTENNA_POLE_MIN_HEIGHT: number = 5;
 export const ANTENNA_POLE_SPACE_BOTTOM: number = 6;
 export const ANTENNA_POLE_RANDOM_EXTRA_HEIGHT: number = 20;
 
-export const ANTENNA_PROBABILITY: number = 0.6;
+export const ANTENNA_PROBABILITY: number = 0.8;
 
 export const MAX_SATELLITE_RECEIVERS: number = 3;
-export const SATELLITE_RECEIVER_PROBABILITY: number = 0.4;
+export const SATELLITE_RECEIVER_PROBABILITY: number = 0.5;
 
 export const EXTRA_DIST_ROOF_ELEMENTS: number = 2;
 export const ANTENNA_ROOF_POSITION_FROM_TOP: number = 0.5;

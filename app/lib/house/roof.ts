@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MAX_ROOF_HEIGHT, MAX_ROOF_OVERHANG, MIN_ROOF_HEIGHT, MIN_ROOF_OVERHANG, ROOF_WALL_THICKNESS , ROOF_OVERHANG_SIDES, ANTENNA_PROBABILITY, SATELLITE_RECEIVER_PROBABILITY, MAX_SATELLITE_RECEIVERS, ANTENNA_ROOF_POSITION_FROM_TOP} from '../config/houseConfig';
-import { adjustColor, randomInRangeInt, angleToRad, randomBoolean, randomPointOnPlane, collision } from '../config/utils';
+import { adjustColor, randomInRangeInt, angleToRad, randomBoolean, randomPointOnPlane, collision, randomFromObject } from '../config/utils';
 /*import { brickFragmentShader } from '../../procedural_textures/brick_texture';
 import { vertexShader } from '../../procedural_textures/general_texture';
 import { roofTileShader } from '../../procedural_textures/roof_texture';*/
@@ -10,45 +10,31 @@ import * as TDUTILS from '../config/3dUtils';
 import { antenna_generator } from './antennas/satellite_antenna';
 import { HouseElement } from './houseElement';
 import { positionRoofDecorations, randomRoofDecorationPosition, RoofDecorations, testDot } from './roofDecorations';
+import * as TYPES from '../../types/typeIndex';
+import { calcUVS } from '../config/3dUtils';
+import { getRoofMaterials } from '../textures/materials';
 
 
 
 class Roof extends HouseElement{
     roof_height: number;
     overhang: number;
-    roof_color: string;
 
-    constructor(roof_height: number, overhang: number, roof_color: string){
+    constructor(roof_height: number, overhang: number){
         super();
         this.roof_height = roof_height;
         this.overhang = overhang;
-        this.roof_color = roof_color;
     }
 
-    get3DObject(house_depth: number, house_width: number, brick_size: { x: number; y: number }, house_material: THREE.Material, left_house: number, right_house: number, house_height: number): THREE.Group{
-        const roof_material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: this.roof_color});
+    get3DObject(house_depth: number, house_width: number, house_material: TYPES.MaterialMix, left_house: number, right_house: number, house_height: number): THREE.Group{
+        const roof_material_mix: TYPES.MaterialMix = randomFromObject(getRoofMaterials());
+        const roof_material = roof_material_mix.standardMaterial;
         const roof_pitch_length: number = Math.sqrt(Math.pow(this.roof_height, 2) + Math.pow(house_depth/2, 2));
         //const roof_angle = Math.asin(this.roof_height/roof_pitch_length);
         const roof_angle: number = angleToRad(90)-Math.atan(this.roof_height/(house_depth/2));
 
         const pitch_front_height: number = roof_pitch_length + ROOF_WALL_THICKNESS + this.overhang;
-        
-        /*const tileSize: { x: number; y: number } = {x:3, y: 4};
-        const uniforms_roof = {
-                        tileSize: { value: new THREE.Vector2(tileSize.x, tileSize.y) }, // Set brick width and height in world units
-                        roofSize: { value: new THREE.Vector2(this.house_width, pitch_front_height) },   // Wall size in world units
-                        gapThickness: {value:0.2},
-                        randomNr: {value: Math.random()*10}
-                    };*/
-        //const roof_material = new THREE.ShaderMaterial({uniforms: uniforms_roof, vertexShader: vertexShader, fragmentShader: roofTileShader});
-        /*const uniforms= {
-                        brickSize: { value: new THREE.Vector2(brick_size.x, brick_size.y) }, // Set brick width and height in world units
-                        wallSize: { value: new THREE.Vector2(house_depth, this.roof_height) },   // Wall size in world units
-                        mortarThickness: {value:0},
-                        randomNr: {value: Math.random()*10}
-                    }*/
-        //const roof_house_material = new THREE.ShaderMaterial({uniforms: uniforms, vertexShader: vertexShader, fragmentShader: brickFragmentShader});
-        const roof_house_material: THREE.Material = house_material;
+        const roof_house_material = house_material.standardMaterial;
         roof_house_material.side = THREE.DoubleSide;
         const roof_group: THREE.Group = new THREE.Group();
         
@@ -68,6 +54,8 @@ class Roof extends HouseElement{
         const roof_side_a: THREE.Mesh = new THREE.Mesh(roof_side_a_geometry, roof_house_material);
         roof_side_a.castShadow = true;
         roof_side_a.receiveShadow = true;
+        roof_side_a.userData.shader = house_material.shaderMaterial;
+        calcUVS(roof_side_a.geometry);
         roof_group.add(roof_side_a);
 
         const roof_side_b_geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -86,6 +74,8 @@ class Roof extends HouseElement{
         const roof_side_b: THREE.Mesh = new THREE.Mesh(roof_side_b_geometry, roof_house_material);
         roof_side_b.castShadow = true;
         roof_side_b.receiveShadow = true;
+        roof_side_b.userData.shader = house_material.shaderMaterial;
+        calcUVS(roof_side_b.geometry);
         roof_group.add(roof_side_b);
 
         const roof_width: number = house_width + (left_house+right_house)*ROOF_OVERHANG_SIDES;
@@ -94,7 +84,8 @@ class Roof extends HouseElement{
         const roof_pitch_front: THREE.BoxGeometry = new THREE.BoxGeometry(roof_width, pitch_front_height, ROOF_WALL_THICKNESS);
         const roof_pitch_front_mesh: THREE.Mesh = new THREE.Mesh(roof_pitch_front, roof_material);
         roof_pitch_front_mesh.castShadow = true;
-        roof_pitch_front_mesh.receiveShadow = true;
+        roof_pitch_front_mesh.receiveShadow = true; 
+        roof_pitch_front_mesh.userData.shader = roof_material_mix.shaderMaterial;
         if(left_house + right_house == 1){
             roof_pitch_front_mesh.translateX((right_house - left_house)*(ROOF_OVERHANG_SIDES/2));
         }
@@ -109,6 +100,7 @@ class Roof extends HouseElement{
         const roof_pitch_back_mesh: THREE.Mesh = new THREE.Mesh(roof_pitch_back, roof_material);
         roof_pitch_back_mesh.castShadow = true;
         roof_pitch_back_mesh.receiveShadow = true;
+        roof_pitch_back_mesh.userData.shader = roof_material_mix.shaderMaterial;
         if(left_house + right_house == 1){
             roof_pitch_back_mesh.translateX((right_house - left_house)*(ROOF_OVERHANG_SIDES/2));
         }
@@ -117,6 +109,8 @@ class Roof extends HouseElement{
         roof_pitch_back_mesh.translateY(move_y_back);
         roof_pitch_back_mesh.translateZ(-ROOF_WALL_THICKNESS/2);
 
+        calcUVS(roof_pitch_front_mesh.geometry);
+        calcUVS(roof_pitch_back_mesh.geometry);
         roof_group.add(roof_pitch_front_mesh);
         roof_group.add(roof_pitch_back_mesh);
 
@@ -157,18 +151,18 @@ class Roof extends HouseElement{
         }
 
         const roof_decorations_group = positionRoofDecorations(roof_decoration, new THREE.Vector3(0, this.roof_height + ROOF_WALL_THICKNESS, 0));
-    
+        
         roof_group.add(roof_decorations_group);
         return roof_group;
     }
 }
 
-export function roof_generator(house_depth: number, house_width: number, brick_size: { x: number, y: number }, house_material: THREE.Material, left_house: number, right_house: number, house_height: number): THREE.Group {
+export function roof_generator(house_depth: number, house_width: number, house_material: TYPES.MaterialMix, left_house: number, right_house: number, house_height: number): THREE.Group {
     const roof_height: number =  randomInRangeInt(MAX_ROOF_HEIGHT, MIN_ROOF_HEIGHT);
     const roof_overhang: number = randomInRangeInt(MAX_ROOF_OVERHANG, MIN_ROOF_OVERHANG);
-    const roof_color: string =  adjustColor("#8e8e8e", 20);
+    //const roof_color: string =  adjustColor("#8e8e8e", 20);
 
-    const roof = new Roof(roof_height, roof_overhang, roof_color);
+    const roof = new Roof(roof_height, roof_overhang);
     
-    return roof.get3DObject(house_depth, house_width, brick_size, house_material, left_house, right_house, house_height);
+    return roof.get3DObject(house_depth, house_width, house_material, left_house, right_house, house_height);
 }

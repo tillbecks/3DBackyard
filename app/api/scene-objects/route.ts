@@ -4,6 +4,7 @@ import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
 import * as THREE from 'three';
+import { loadShader } from '@/app/lib/textures/shader/shaderConfig';
 
 export async function GET(request: NextRequest) {
     try {        

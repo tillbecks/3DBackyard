@@ -41,3 +41,44 @@ export function calcCenterOfGeometries(object: THREE.Object3D | THREE.Object3D[]
 
     return center;
 }
+
+export function calcUVS(geometry: THREE.BufferGeometry){
+    geometry.computeBoundingBox();
+    geometry.computeVertexNormals();
+    
+    const bbox = geometry.boundingBox;
+    if (bbox) {
+        const uvAttribute = new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 2), 2);
+        const positions = geometry.attributes.position;
+        const normals = geometry.attributes.normal;
+        
+        for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            
+            let u: number, v: number;
+            
+            if (normals) {
+                const nx = Math.abs(normals.getX(i));
+                const ny = Math.abs(normals.getY(i));
+                const nz = Math.abs(normals.getZ(i));
+                
+                // Reine Welt-/Lokalkoordinaten ohne Division = Kein Verzerren
+                if (nx >= ny && nx >= nz) {
+                    u = z; v = y; // Seitenwände
+                } else if (nz >= nx && nz >= ny) {
+                    u = x; v = y; // Vorder-/Rückseite
+                } else {
+                    u = x; v = z; // Decke/Boden
+                }
+            } else {
+                u = x; v = y;
+            }
+            
+            uvAttribute.setXY(i, u, v);
+        }
+        
+        geometry.setAttribute('uv', uvAttribute);
+    }
+}

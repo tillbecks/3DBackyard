@@ -124,7 +124,7 @@ export function initRenderer(width: number, height: number): THREE.WebGLRenderer
     renderer.setSize(width, height);
 
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
 
     renderer.autoClear = false;
 

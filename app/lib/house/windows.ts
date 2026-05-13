@@ -3,8 +3,7 @@ import { randomInRangeInt, randomFromObject, randomBoolean } from "../config/uti
 import * as THREE from "three";
 import {Brush, Evaluator, ADDITION } from 'three-bvh-csg';
 import { balconyGenerator } from "./balcony";
-import { createAxisHelper } from '../config/3dUtils';
-import { PANE_MATERIAL } from '../config/materials';
+import { PANE_MATERIAL } from '../textures/materials';
 
 class Windows{
     window_cnt_per_story: number;

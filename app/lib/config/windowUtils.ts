@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { SINGLE_WINDOW_ID, DOUBLE_WINDOW_LEFT_ID, DOUBLE_WINDOW_RIGHT_ID, WINDOW_PANE_ID } from "./houseConfig";
-import { PANE_MATERIAL , PANE_HIGHLIGHT_MATERIAL } from "./materials";
+import { PANE_MATERIAL , PANE_HIGHLIGHT_MATERIAL } from "../textures/materials";
 
 
 export function openWindow(window: THREE.Object3D, open_angle: number): void {

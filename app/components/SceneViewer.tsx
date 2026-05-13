@@ -10,6 +10,7 @@ import { initSunlight, initAmbientLight } from '../lib/scene/light';
 import { birdFlogGenerator, birdController } from '../lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '../lib/config/windowUtils';
 import { calcCenterOfGeometries } from '../lib/config/3dUtils';
+import { loadShader } from '../lib/textures/shader/shaderConfig';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -114,9 +115,7 @@ export default function SceneViewer() {
         };
 
         const getOnWindowClick = (birdFlog: birdController)=>{
-            console.log("Generating onWindowClick function for birdFlog");
             return (windows: THREE.Object3D[]) => {
-                console.log("test");
                 const center = calcCenterOfGeometries(windows);
                 birdFlog?.switchToGoal(center);
             }
@@ -146,6 +145,7 @@ export default function SceneViewer() {
                     await initScene(scenario);
                     await loadContent(scenario);
                 }
+                loadShader(scene);
             } catch (error) {
                 console.error('Error loading scenario:', error);
             }
@@ -155,10 +155,15 @@ export default function SceneViewer() {
 
         // Animation Loop
         const animate = () => {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-            animations.forEach((f: (...args: undefined[]) => void) => f());
+            try {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+                animations.forEach((f: (...args: undefined[]) => void) => f());
+            } catch (error) {
+                console.error('Render error:', error);
+                return;
+            }
         };
         animate();
 

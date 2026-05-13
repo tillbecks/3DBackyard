@@ -1,11 +1,14 @@
 import { MAX_STORY_COUNT, MIN_STORY_COUNT, MAX_STORY_HEIGHT, MIN_STORY_HEIGHT, MAX_HOUSE_WIDTH, MIN_HOUSE_WIDTH, HOUSE_DEPTH } from "../config/houseConfig";
 import * as THREE from 'three';
-import { randomInRangeInt, randomInRangeIntDividableTwo, adjustColor } from "../config/utils";
+import { randomInRangeInt, randomInRangeIntDividableTwo, adjustColor, randomFromObject } from "../config/utils";
 import { roof_generator } from "./roof";
 import { window_generator, create_windows_brush } from "./windows";
 /*import { brickFragmentShader } from "../../procedural_textures/brick_texture";
 import { vertexShader } from "../../procedural_textures/general_texture";*/
 import { SUBTRACTION, Brush, Evaluator } from 'three-bvh-csg';
+import { getHouseMaterials } from "../textures/materials";
+import * as TYPES from '../../types/typeIndex';
+import { calcUVS } from "../config/3dUtils";
 
 
 class HouseBody{
@@ -39,18 +42,13 @@ class HouseBody{
     get3dContent(): THREE.Group {
         const house_height: number = this.story_count * this.story_height;
         const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.house_width, house_height, HOUSE_DEPTH);
-        const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: this.color});
-        const brickSize: { x: number; y: number } = {x: 2, y: 1};
+        //const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: this.color});
+        const mixedMaterial = randomFromObject(getHouseMaterials());
 
-        /*const uniforms= {
-                brickSize: { value: new THREE.Vector2(brickSize.x, brickSize.y) }, // Set brick width and height in world units
-                wallSize: { value: new THREE.Vector2(this.house_width, this.story_count*this.story_height) },   // Wall size in world units
-                mortarThickness: {value:0},
-                randomNr: {value: Math.random()*10}
-            }
-        const material = new THREE.ShaderMaterial({uniforms: uniforms, vertexShader: vertexShader, fragmentShader: brickFragmentShader});*/
+        const material = mixedMaterial.standardMaterial;
+        const shaderMaterial = mixedMaterial.shaderMaterial;
 
-        const roof: THREE.Group = roof_generator(HOUSE_DEPTH, this.house_width, brickSize, material, this.left_size, this.right_size, house_height);
+        const roof: THREE.Group = roof_generator(HOUSE_DEPTH, this.house_width, mixedMaterial, this.left_size, this.right_size, house_height);
         roof.position.setY(house_height/2);
 
         const windows_balcon = window_generator(this.house_width, this.story_count, this.story_height, HOUSE_DEPTH, () => this.getNewChildId());
@@ -73,9 +71,14 @@ class HouseBody{
         if(windows_stair_brush) house_without_windows = evaluator.evaluate(house_without_windows, windows_stair_brush, SUBTRACTION);
         if(windows_brush) house_without_windows = evaluator.evaluate(house_without_windows, windows_brush, SUBTRACTION);
 
+        // Generate UVs nach der CSG-Operation
+        calcUVS(house_without_windows.geometry);
+
         house_without_windows.castShadow = true;
         house_without_windows.receiveShadow = true;
         house_without_windows.material = material;
+        house_without_windows.userData = {shader: shaderMaterial};
+        house_without_windows.name = "house";
 
         this.house_group.add(house_without_windows);
         this.house_group.add(roof);
