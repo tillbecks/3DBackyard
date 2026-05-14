@@ -9,12 +9,14 @@ export function initSunlight(){
     sunLight.position.copy(sunPosition);
     sunLight.target.position.set(0,0,0);
     sunLight.castShadow = true;
-    sunLight.shadow.camera.left   = -300;
-    sunLight.shadow.camera.right  =  300;
+    sunLight.shadow.camera.left   = -400;
+    sunLight.shadow.camera.right  =  400;
     sunLight.shadow.camera.top    =  250;
     sunLight.shadow.camera.bottom = -250;
     sunLight.shadow.mapSize.width  = 4096;
     sunLight.shadow.mapSize.height = 4096;
+    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.normalBias = 0.1;
     
     sunLight.shadow.camera.near = 1;
     sunLight.shadow.camera.far  = 500;

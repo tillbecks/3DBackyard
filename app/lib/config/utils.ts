@@ -75,3 +75,8 @@ export function collision(pos1: { x: number; z: number }, radius1: number, pos2:
     const distance = Math.sqrt(dx * dx + dz * dz);
     return distance < (radius1 + radius2 + extraDistance);
 }
+
+export function simplexNoise(x: number, y: number): number {
+    // Placeholder for simplex noise function, you can replace this with an actual implementation
+    return Math.random() * 2 - 1; // Returns a value between -1 and 1
+}

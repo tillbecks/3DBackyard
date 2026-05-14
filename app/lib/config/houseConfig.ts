@@ -164,4 +164,5 @@ export const SATELLITE_RECEIVER_PROBABILITY: number = 0.5;
 export const EXTRA_DIST_ROOF_ELEMENTS: number = 2;
 export const ANTENNA_ROOF_POSITION_FROM_TOP: number = 0.5;
 
+export const LAWN_FIELDS_PER_SIZE: number = 0.5;
 

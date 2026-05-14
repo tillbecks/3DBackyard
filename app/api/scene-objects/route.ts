@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateHouses } from '@/app/lib/house/houseExport';
+import { generateHouses, generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         }else if(scenario == scenarios.birdShowcase){
             object = generateBirdShowcaseContent();
         }else {
-            object = generateHouses();
+            object = generateHousesWithLawn();
         }
 
         const glbBuffer = await objectToGLB(object);

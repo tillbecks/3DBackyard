@@ -136,6 +136,8 @@ export default function SceneViewer() {
             }
         }
 
+        let loaded = false;
+
         const loadScenario = async (scenario: string) => {
             try {
                 if(scenario === scenarios.backyard){
@@ -146,17 +148,18 @@ export default function SceneViewer() {
                     await loadContent(scenario);
                 }
                 loadShader(scene);
+                loaded =  true;
             } catch (error) {
                 console.error('Error loading scenario:', error);
+                loaded = false;
             }
         };
-
-        loadScenario(scenario);
 
         // Animation Loop
         const animate = () => {
             try {
                 requestAnimationFrame(animate);
+                if(!loaded) return;
                 controls.update();
                 renderer.render(scene, camera);
                 animations.forEach((f: (...args: undefined[]) => void) => f());
@@ -165,6 +168,8 @@ export default function SceneViewer() {
                 return;
             }
         };
+
+        loadScenario(scenario);
         animate();
 
         // Window Resize Handler

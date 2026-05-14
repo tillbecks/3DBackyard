@@ -26,7 +26,7 @@ export default class BirdModel {
         }
 
         this.model = new THREE.Group();
-        const bird_color = '#534535'
+        const bird_color = '#574128'
         const wing_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
         this.leftWing = new THREE.Mesh(wingGeometry(birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wing_material);
         this.leftWing.position.y += birdParameter.wingShiftUp;

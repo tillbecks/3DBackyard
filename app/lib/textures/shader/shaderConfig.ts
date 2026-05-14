@@ -4,6 +4,7 @@ import * as TCONFIG from '../textureConfig';
 import { hexNumberToVec3 } from "../colors";
 import * as TYPE from "../../../types/typeIndex";
 import { roofTileShader, flatTileShader, norfolkTileShader } from "./roofTextures";
+import { grassShader } from "./grassTextures";
 
 
 export const BRICK_SHADER = {id: "brick", getShaderMaterialConfig: (color: number) => {
@@ -52,6 +53,16 @@ export const ROOF_NORFOLK_TILE_SHADER = {id: "roof_norfolk_tile", getShaderMater
     }
 }};
 
+export const GRASS_SHADER = {id: "grass", getShaderMaterialConfig: (color: number) => {
+    return {
+        id: "grass",
+        uniforms: {
+            grassColor: { value: hexNumberToVec3(color) },
+            randomNr: { value: Math.random()*10 },
+        }
+    }
+}};
+
 export function getShader(id: string, uniforms: Record<string, { value: unknown }>, material: THREE.MeshStandardMaterial): THREE.MeshStandardMaterial {
     try{
     let fragmentShader: TYPE.fragmentShaderType;
@@ -64,6 +75,8 @@ export function getShader(id: string, uniforms: Record<string, { value: unknown 
             fragmentShader = flatTileShader; break;
         case ROOF_NORFOLK_TILE_SHADER.id:
             fragmentShader = norfolkTileShader; break;
+        case GRASS_SHADER.id:
+            fragmentShader = grassShader; break;
         default: throw new Error(`Shader ${id} not found`);
     }
     const materialClone = material.clone();

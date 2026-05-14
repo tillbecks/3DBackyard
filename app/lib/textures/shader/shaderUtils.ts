@@ -18,8 +18,8 @@ export const generalFunctions =
     // https://www.shadertoy.com/view/XdXGW8
     // modified with 0.25
     float noise(vec2 st) {
-        vec2 i = floor(st*0.25);
-        vec2 f = fract(st*0.25);
+        vec2 i = floor(st);
+        vec2 f = fract(st);
 
         vec2 u = f*f*(3.0-2.0*f);
 

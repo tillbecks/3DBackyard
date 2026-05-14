@@ -4,7 +4,7 @@ export const SUN_CONFIG = {
     //Sun elevation in degrees (0° on the horizon, 90° at the zenith)
     elevation: 60,
 
-    sun_intensity: 10,
+    sun_intensity: 7,
 
     sun_distance: 300
 };
