@@ -166,3 +166,5 @@ export const ANTENNA_ROOF_POSITION_FROM_TOP: number = 0.5;
 
 export const LAWN_FIELDS_PER_SIZE: number = 0.5;
 
+export const WALL_THICKNESS: number = 2;
+export const FLOOR_THICKNESS: number = 2;

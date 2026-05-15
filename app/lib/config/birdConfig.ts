@@ -6,11 +6,11 @@ export const SURROUNDING_RADIUS_WIDTH = 80;
 export const SURROUNDING_RADIUS_HEIGHT = 50;
 export const BIRD_COUNT = 7;
 
-export let avoid_factor = 0.1;
-export let matching_factor = 0.08;
-export let centering_factor = 0.001;
-export let turn_factor = 0.3;
-export let bias_factor = 0.0005;
+export let avoidFactor = 0.1;
+export let matchingFactor = 0.08;
+export let centeringFactor = 0.001;
+export let turnFactor = 0.3;
+export let biasFactor = 0.0005;
 
 export const MAX_SPEED = 1.1;
 export const MIN_SPEED = 0.5;
@@ -55,11 +55,11 @@ export const LOOPING_TYPES = {
     INLINE: 'inline'
 }
 
-export function set_turn_factor(x: number) {turn_factor = x};
-export function set_bias_factor(x: number) {bias_factor = x};
-export function set_avoid_factor(x: number) {avoid_factor = x};
-export function set_centering_factor(x: number) {centering_factor = x};
-export function set_matching_factor(x: number) {matching_factor = x};
+export function setTurnFactor(x: number) {turnFactor = x};
+export function setBiasFactor(x: number) {biasFactor = x};
+export function setAvoidFactor(x: number) {avoidFactor = x};
+export function setCenteringFactor(x: number) {centeringFactor = x};
+export function setMatchingFactor(x: number) {matchingFactor = x};
 
 export const FLAP_POSITIONS = [0, 20, 40, 20, 0, -20];
 

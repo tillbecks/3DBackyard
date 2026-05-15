@@ -4,7 +4,7 @@ import {randomInRangeFloat} from '../config/utils';
 import { FLAP_POSITIONS } from '../config/birdConfig';
 import { angleToRad } from '../config/utils';
 
-export default class bird{
+export default class Bird{
     position: THREE.Vector3;
     velocity: THREE.Vector3;
     birdGeometry: THREE.Group | THREE.Mesh | THREE.Object3D;
@@ -55,8 +55,8 @@ export default class bird{
         this.birdGeometry.position.copy(this.position);
 
         const forward = this.velocity.clone().normalize();
-        const dist_center = new THREE.Vector3(bc.SURROUNDING_CENTER.x, this.position.y, bc.SURROUNDING_CENTER.z).sub(this.position).normalize();
-        const right = new THREE.Vector3().crossVectors(forward, dist_center).normalize();
+        const distCenter = new THREE.Vector3(bc.SURROUNDING_CENTER.x, this.position.y, bc.SURROUNDING_CENTER.z).sub(this.position).normalize();
+        const right = new THREE.Vector3().crossVectors(forward, distCenter).normalize();
         const matrix = new THREE.Matrix4();
 
         matrix.lookAt(this.position, this.position.clone().sub(forward), right);   
@@ -91,19 +91,19 @@ export default class bird{
         return angle * bc.LEAN_ANGLE_FACTOR;
     }
 
-    updatePosition(birds: bird[]){
+    updatePosition(birds: Bird[]){
         this.updateVelocity(birds);
         this.position.add(this.velocity);
         this.animation();
     }
 
-    updatePositionWithBias(birds: bird[], point: THREE.Vector3){
+    updatePositionWithBias(birds: Bird[], point: THREE.Vector3){
         this.updateVelocityWithBias(birds, point);
         this.position.add(this.velocity);
         this.animation();
     }
 
-    updateVelocity(birds: bird[]){
+    updateVelocity(birds: Bird[]){
         this.seperation(birds);
         this.alignment(birds);
         this.cohesion(birds);
@@ -111,7 +111,7 @@ export default class bird{
         this.speedNormalize();
     }
 
-    updateVelocityWithBias(birds: bird[], point: THREE.Vector3){
+    updateVelocityWithBias(birds: Bird[], point: THREE.Vector3){
         this.seperation(birds);
         this.alignment(birds);
         this.cohesion(birds);
@@ -130,7 +130,7 @@ export default class bird{
         }
     }
 
-    seperation(birds: bird[]){    
+    seperation(birds: Bird[]){    
         const difference = new THREE.Vector3(0,0,0);
         for (const bird of birds){
             const distance = this.position.distanceTo(bird.position);
@@ -140,78 +140,78 @@ export default class bird{
 
         }
 
-        this.velocity.add(difference.multiplyScalar(bc.avoid_factor));
+        this.velocity.add(difference.multiplyScalar(bc.avoidFactor));
     }
 
-    alignment(birds: bird[]){
-        const avg_velocity = new THREE.Vector3(0,0,0);
-        let neighbor_count = 0;
+    alignment(birds: Bird[]){
+        const avgVelocity = new THREE.Vector3(0,0,0);
+        let neighborCount = 0;
         
         for (const bird of birds){
             const distance = this.position.distanceTo(bird.position);
             if (distance < bc.VISUAL_RANGE){
-                avg_velocity.add(bird.velocity);
-                neighbor_count += 1;
+                avgVelocity.add(bird.velocity);
+                neighborCount += 1;
             }
         }
-        if (neighbor_count > 0) {
-            avg_velocity.divideScalar(neighbor_count);
-            avg_velocity.sub(this.velocity);
+        if (neighborCount > 0) {
+            avgVelocity.divideScalar(neighborCount);
+            avgVelocity.sub(this.velocity);
         }
-        this.velocity.add(avg_velocity.multiplyScalar(bc.matching_factor));
+        this.velocity.add(avgVelocity.multiplyScalar(bc.matchingFactor));
     }
 
-    cohesion(birds: bird[]){
-        const center_of_mass = new THREE.Vector3(0,0,0);
-        let neighbor_count = 0;
+    cohesion(birds: Bird[]){
+        const centerOfMass = new THREE.Vector3(0,0,0);
+        let neighborCount = 0;
 
         for (const bird of birds){
             const distance = this.position.distanceTo(bird.position);
             if (distance < bc.VISUAL_RANGE){
-                center_of_mass.add(bird.position);
-                neighbor_count += 1;
+                centerOfMass.add(bird.position);
+                neighborCount += 1;
             }
         }
-        if (neighbor_count > 0) {
-            center_of_mass.divideScalar(neighbor_count);
-            center_of_mass.sub(this.position);
+        if (neighborCount > 0) {
+            centerOfMass.divideScalar(neighborCount);
+            centerOfMass.sub(this.position);
         }
-        this.velocity.add(center_of_mass.multiplyScalar(bc.centering_factor));
+        this.velocity.add(centerOfMass.multiplyScalar(bc.centeringFactor));
     }
 
     areaBoundaries(){
-        const to_center = new THREE.Vector3(bc.SURROUNDING_CENTER.x, bc.SURROUNDING_CENTER.y, bc.SURROUNDING_CENTER.z).sub(this.position);
-        if (to_center.x > bc.SURROUNDING_RADIUS_WIDTH){
-            this.velocity.x += bc.turn_factor;
+        const toCenter = new THREE.Vector3(bc.SURROUNDING_CENTER.x, bc.SURROUNDING_CENTER.y, bc.SURROUNDING_CENTER.z).sub(this.position);
+        if (toCenter.x > bc.SURROUNDING_RADIUS_WIDTH){
+            this.velocity.x += bc.turnFactor;
         }
-        if (to_center.x < -bc.SURROUNDING_RADIUS_WIDTH){
-            this.velocity.x -= bc.turn_factor;
+        if (toCenter.x < -bc.SURROUNDING_RADIUS_WIDTH){
+            this.velocity.x -= bc.turnFactor;
         }
-        if (to_center.y > bc.SURROUNDING_RADIUS_HEIGHT){
-            this.velocity.y += bc.turn_factor;
+        if (toCenter.y > bc.SURROUNDING_RADIUS_HEIGHT){
+            this.velocity.y += bc.turnFactor;
         }
-        if (to_center.y < -bc.SURROUNDING_RADIUS_HEIGHT){
-            this.velocity.y -= bc.turn_factor;
+        if (toCenter.y < -bc.SURROUNDING_RADIUS_HEIGHT){
+            this.velocity.y -= bc.turnFactor;
         }
-        if (to_center.z > bc.SURROUNDING_RADIUS_DEPTH){
-            this.velocity.z += bc.turn_factor;
+        if (toCenter.z > bc.SURROUNDING_RADIUS_DEPTH){
+            this.velocity.z += bc.turnFactor;
         } 
-        if (to_center.z < -bc.SURROUNDING_RADIUS_DEPTH){
-            this.velocity.z -= bc.turn_factor;
+        if (toCenter.z < -bc.SURROUNDING_RADIUS_DEPTH){
+            this.velocity.z -= bc.turnFactor;
         }
     }    
 
     biasPoint(point: THREE.Vector3){
-        const to_point = new THREE.Vector3(point.x, point.y, point.z).sub(this.position);
-        this.velocity.add(to_point.multiplyScalar(bc.bias_factor));
+        const toPoint = new THREE.Vector3(point.x, point.y, point.z).sub(this.position);
+        this.velocity.add(toPoint.multiplyScalar(bc.biasFactor));
     }
 }
 
 export function birdGenerator(model: THREE.Group | THREE.Object3D){
-    const get_velocity = () => randomInRangeFloat(bc.INIT_SPEED_MIN, bc.INIT_SPEED_MAX);
-    const init_velocity = new THREE.Vector3(get_velocity(), get_velocity(), get_velocity());
-    const get_position = () => randomInRangeFloat(-bc.INIT_CENTER_DISTANCE, bc.INIT_CENTER_DISTANCE);
-    const init_position = new THREE.Vector3(bc.SURROUNDING_CENTER.x + get_position(), bc.SURROUNDING_CENTER.y + get_position(), bc.SURROUNDING_CENTER.z + get_position());
-    return new bird(init_position, init_velocity, model);
+    const getVelocity = () => randomInRangeFloat(bc.INIT_SPEED_MIN, bc.INIT_SPEED_MAX);
+    const initVelocity = new THREE.Vector3(getVelocity(), getVelocity(), getVelocity());
+    const getPosition = () => randomInRangeFloat(-bc.INIT_CENTER_DISTANCE, bc.INIT_CENTER_DISTANCE);
+    const initPosition = new THREE.Vector3(bc.SURROUNDING_CENTER.x + getPosition(), bc.SURROUNDING_CENTER.y + getPosition(), bc.SURROUNDING_CENTER.z + getPosition());
+    return new Bird(initPosition, initVelocity, model);
 }
 

@@ -19,29 +19,29 @@ export abstract class RoofDecorations extends HouseElement{
         this.y = 0;
     }
 
-    calculate_y_position(roof_pitch_area_depth: number, roof_angle: number){
-        const roofSlope = Math.tan(roof_angle);
-        //this.y = - roofSlope * (roof_pitch_area_depth / 2 - this.z);
+    calculateYPosition(roofPitchAreaDepth: number, roofAngle: number){
+        const roofSlope = Math.tan(roofAngle);
+        //this.y = - roofSlope * (roofPitchAreaDepth / 2 - this.z);
         this.y = - roofSlope * this.z;
     }
 }
 
-export function randomRoofDecorationPosition(roof_pitch_area_width: number, roof_pitch_area_depth: number, roof_angle: number, existing_decorations: RoofDecorations[], new_decoration: RoofDecorations): RoofDecorations[] {
+export function randomRoofDecorationPosition(roofPitchAreaWidth: number, roofPitchAreaDepth: number, roofAngle: number, existingDecorations: RoofDecorations[], newDecoration: RoofDecorations): RoofDecorations[] {
     let positionValid = false;
 
     while(!positionValid){
-        const tempPos = UTILS.randomPointOnPlane(roof_pitch_area_width-new_decoration.diameter*2, roof_pitch_area_depth-new_decoration.diameter*2);
-        new_decoration.x = tempPos.x;
-        new_decoration.z = tempPos.z + roof_pitch_area_depth / 2;
-        new_decoration.calculate_y_position(roof_pitch_area_depth, roof_angle);
+        const tempPos = UTILS.randomPointOnPlane(roofPitchAreaWidth-newDecoration.diameter*2, roofPitchAreaDepth-newDecoration.diameter*2);
+        newDecoration.x = tempPos.x;
+        newDecoration.z = tempPos.z + roofPitchAreaDepth / 2;
+        newDecoration.calculateYPosition(roofPitchAreaDepth, roofAngle);
         positionValid = true;
-        for(const existing of existing_decorations){
-            positionValid = !UTILS.collision({x: new_decoration.x, z: new_decoration.z}, new_decoration.diameter/2, {x: existing.x, z: existing.z}, existing.diameter/2, EXTRA_DIST_ROOF_ELEMENTS);
+        for(const existing of existingDecorations){
+            positionValid = !UTILS.collision({x: newDecoration.x, z: newDecoration.z}, newDecoration.diameter/2, {x: existing.x, z: existing.z}, existing.diameter/2, EXTRA_DIST_ROOF_ELEMENTS);
             if(!positionValid) break;
         }
     }
-    existing_decorations.push(new_decoration);
-    return existing_decorations;
+    existingDecorations.push(newDecoration);
+    return existingDecorations;
 }
 
 export function positionRoofDecorations(decorations: RoofDecorations[], offset: THREE.Vector3): THREE.Group{

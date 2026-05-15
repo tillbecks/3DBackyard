@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { SUN_CONFIG } from '../config/sceneConfig';
 
 export function initSunlight(){
-    const sunLight = new THREE.DirectionalLight(0xffffff, SUN_CONFIG.sun_intensity);
+    const sunLight = new THREE.DirectionalLight(0xffffff, SUN_CONFIG.sunIntensity);
 
     const sunPosition = calcSunPosition(SUN_CONFIG.azimuth, SUN_CONFIG.elevation);
 
@@ -30,7 +30,7 @@ function calcSunPosition(azimuthDegr: number, elevationDegr: number){
     const phi = THREE.MathUtils.degToRad(90 - azimuthDegr);
     const theta = THREE.MathUtils.degToRad(90 -elevationDegr);
 
-    pos.setFromSphericalCoords(SUN_CONFIG.sun_distance, theta, phi);
+    pos.setFromSphericalCoords(SUN_CONFIG.sunDistance, theta, phi);
 
     return pos;
 }

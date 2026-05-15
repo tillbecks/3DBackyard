@@ -30,8 +30,8 @@ export function generateHousesWithLawn(): THREE.Group{
 }
 
 export function generateHouses(): THREE.Group{
-    const house_group = houseGroupGenerator(12, [0,0,0]);
-    return house_group;
+    const houseGroup = houseGroupGenerator(12, [0,0,0]);
+    return houseGroup;
 }
 
 export function createHouseCameraConfig(){

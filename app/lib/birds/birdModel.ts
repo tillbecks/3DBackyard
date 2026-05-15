@@ -26,30 +26,30 @@ export default class BirdModel {
         }
 
         this.model = new THREE.Group();
-        const bird_color = '#574128'
-        const wing_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
-        this.leftWing = new THREE.Mesh(wingGeometry(birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wing_material);
+        const birdColor = '#574128'
+        const wingMaterial = new THREE.MeshStandardMaterial({color: birdColor, side: THREE.DoubleSide});
+        this.leftWing = new THREE.Mesh(wingGeometry(birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wingMaterial);
         this.leftWing.position.y += birdParameter.wingShiftUp;
         this.leftWing.position.x -= birdParameter.wingShiftOutside;
         this.leftWing.castShadow = true;
         this.leftWing.receiveShadow = true;
         this.leftWing.name= ID_LEFT_WING;
-        this.rightWing = new THREE.Mesh(wingGeometry(-birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wing_material);
+        this.rightWing = new THREE.Mesh(wingGeometry(-birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wingMaterial);
         this.rightWing.position.y += birdParameter.wingShiftUp;
         this.rightWing.position.x += birdParameter.wingShiftOutside;
         this.rightWing.castShadow = true;
         this.rightWing.receiveShadow = true;
         this.rightWing.name = ID_RIGHT_WING;
 
-        const tail_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
-        const tail = new THREE.Mesh(tailGeometry(birdParameter.tailScale, birdParameter.tailLength), tail_material);
+        const tailMaterial = new THREE.MeshStandardMaterial({color: birdColor, side: THREE.DoubleSide});
+        const tail = new THREE.Mesh(tailGeometry(birdParameter.tailScale, birdParameter.tailLength), tailMaterial);
         tail.castShadow = true;
         tail.receiveShadow = true;
         tail.position.z =  - birdParameter.bodyLength * birdParameter.bodyNormalLength * birdParameter.bodyCenterPercentage * birdParameter.tailScale;
         tail.position.y = birdParameter.bodySize * 0.1;
 
-        const body_material = new THREE.MeshStandardMaterial({color: bird_color, side: THREE.DoubleSide});
-        const body = new THREE.Mesh(bodyGeometry(birdParameter.bodyLength, birdParameter.bodySize, birdParameter.bodyCenterPercentage), body_material);
+        const bodyMaterial = new THREE.MeshStandardMaterial({color: birdColor, side: THREE.DoubleSide});
+        const body = new THREE.Mesh(bodyGeometry(birdParameter.bodyLength, birdParameter.bodySize, birdParameter.bodyCenterPercentage), bodyMaterial);
         body.castShadow = true;
         body.receiveShadow = true;
 
@@ -73,13 +73,13 @@ function wingGeometry(xscale = 1, yscale = 1, depth = 0.1): THREE.BufferGeometry
     const start = new THREE.Vector2(0 * xscale, 0 * yscale);
 
     const cp1 = new THREE.Vector2(0.5 * xscale, 0 * yscale);
-    const wing_tip = new THREE.Vector2(1 * xscale, -0.7 * yscale);
+    const wingTip = new THREE.Vector2(1 * xscale, -0.7 * yscale);
 
     const cp2 = new THREE.Vector2(0.5 * xscale, -0.3 * yscale);
     const end = new THREE.Vector2(0 * xscale, -0.5 * yscale);
     
     shape.moveTo(start.x, start.y);
-    shape.quadraticCurveTo(cp1.x, cp1.y, wing_tip.x, wing_tip.y);
+    shape.quadraticCurveTo(cp1.x, cp1.y, wingTip.x, wingTip.y);
     shape.quadraticCurveTo(cp2.x, cp2.y, end.x, end.y);
     shape.moveTo(start.x, start.y);
 

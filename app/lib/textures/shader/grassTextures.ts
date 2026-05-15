@@ -1,7 +1,7 @@
 import * as TYPES from "../../../types/typeIndex";
 import {generalFunctions} from "./shaderUtils";
 
-export const grassShader: TYPES.fragmentShaderType = {
+export const grassShader: TYPES.FragmentShaderType = {
     functions: `
         uniform vec3 grassColor;
         uniform float randomNr;

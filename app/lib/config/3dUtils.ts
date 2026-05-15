@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ADDITION, Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg';
 
 export function createAxisHelper(mesh: THREE.Mesh | THREE.Group, length: number = 2): THREE.AxesHelper {
     const axisHelper = new THREE.AxesHelper(length);
@@ -80,5 +81,37 @@ export function calcUVS(geometry: THREE.BufferGeometry){
         }
         
         geometry.setAttribute('uv', uvAttribute);
+    }
+}
+
+export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group, subtractGeometry: THREE.Mesh | THREE.Group): Brush {
+    const evaluator = new Evaluator();
+    evaluator.attributes = ['position', 'normal'];
+    
+    let subtractionBrush: Brush | null = null;
+    let subtractFromBrush: Brush | null = null;
+
+    subtractGeometry.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.geometry) {
+            const childBrush = new Brush(child.geometry);
+            subtractionBrush = subtractionBrush ? evaluator.evaluate(subtractionBrush, childBrush, ADDITION) : childBrush;
+        }
+    });
+
+    subtractFromGeometry.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.geometry) {
+            const childBrush = new Brush(child.geometry);
+            subtractFromBrush = subtractFromBrush ? evaluator.evaluate(subtractFromBrush, childBrush, ADDITION) : childBrush;
+        }
+    });
+
+    if(subtractFromBrush  && subtractionBrush) {
+        return evaluator.evaluate(subtractFromBrush, subtractionBrush, SUBTRACTION);
+    } else {
+        if(subtractFromBrush) {
+            return subtractFromBrush;
+        } else {
+            throw new Error("No valid geometry found for subtraction.");
+        }
     }
 }

@@ -3,68 +3,68 @@ import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '../config/house
 import { randomFromObject } from '../config/utils';
 
 
-const Gutter_Pos: { LEFT: string; RIGHT: string } = {
+const GUTTER_POS: { LEFT: string; RIGHT: string } = {
     LEFT : "left",
     RIGHT: "right"
 }
 
-class Roof_Gutter{
+class RoofGutter{
 
-    left_or_right: string;
-    constructor(left_or_right: string){
-        this.left_or_right = left_or_right;
+    leftOrRight: string;
+    constructor(leftOrRight: string){
+        this.leftOrRight = leftOrRight;
     }
     
-    get3DObject(roof_width: number, house_width: number, house_height: number, left_house: number, right_house: number): THREE.Group{
-        const gutter_group: THREE.Group = new THREE.Group();
+    get3DObject(roofWidth: number, houseWidth: number, houseHeight: number, leftHouse: number, rightHouse: number): THREE.Group{
+        const gutterGroup: THREE.Group = new THREE.Group();
 
-        const geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(1, 1, roof_width, 32, 1, false,0,Math.PI);
+        const geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(1, 1, roofWidth, 32, 1, false,0,Math.PI);
         //material with a grey color like a roof gutter
         const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: 0x7a7a7a});
         material.side = THREE.DoubleSide;
         const gutter: THREE.Mesh = new THREE.Mesh(geometry, material);
         gutter.castShadow = true;
         gutter.receiveShadow = true;
-        gutter_group.add(gutter);
-        gutter_group.rotateZ(-0.5*Math.PI)
+        gutterGroup.add(gutter);
+        gutterGroup.rotateZ(-0.5*Math.PI)
 
 
-        let pos_x: number = 0;
-        if(this.left_or_right == Gutter_Pos.LEFT){
-            pos_x = - (house_width/2 - GUTTER_TUBE_DISTANCE_SIDES);
+        let posX: number = 0;
+        if(this.leftOrRight == GUTTER_POS.LEFT){
+            posX = - (houseWidth/2 - GUTTER_TUBE_DISTANCE_SIDES);
         }
         else{
-            pos_x = (house_width/2 - GUTTER_TUBE_DISTANCE_SIDES);
+            posX = (houseWidth/2 - GUTTER_TUBE_DISTANCE_SIDES);
         }
 
-        if(left_house == 1){
-            pos_x -= ROOF_OVERHANG_SIDES;
+        if(leftHouse == 1){
+            posX -= ROOF_OVERHANG_SIDES;
         }
-        if(right_house == 1){
-            pos_x += ROOF_OVERHANG_SIDES;
+        if(rightHouse == 1){
+            posX += ROOF_OVERHANG_SIDES;
         }
 
-        const gutter_curve: CustomFloorGutterCurve = new CustomFloorGutterCurve({
-            height: house_height,
+        const gutterCurve: CustomFloorGutterCurve = new CustomFloorGutterCurve({
+            height: houseHeight,
             offsetZ: 2,
             bendStart: 5,
             bendEnd: 8,});
-        const curve_geometry: THREE.TubeGeometry = new THREE.TubeGeometry(gutter_curve, house_height, 0.7, 8, false);
-        const curve: THREE.Mesh = new THREE.Mesh(curve_geometry, material);
+        const curveGeometry: THREE.TubeGeometry = new THREE.TubeGeometry(gutterCurve, houseHeight, 0.7, 8, false);
+        const curve: THREE.Mesh = new THREE.Mesh(curveGeometry, material);
         curve.castShadow = true;
         curve.receiveShadow = true;
         curve.rotateZ(0.5*Math.PI);
-        curve.translateX(-pos_x);
-        gutter_group.add(curve);
+        curve.translateX(-posX);
+        gutterGroup.add(curve);
         
-        return gutter_group;
+        return gutterGroup;
     }
 }
 
-export function roof_gutter_generator(roof_width: number, house_width: number, house_height: number, left_house: number, right_house: number): THREE.Group{ 
-    const left_or_right: string = randomFromObject(Gutter_Pos);
-    const gutter: Roof_Gutter = new Roof_Gutter(left_or_right);
-    return gutter.get3DObject(roof_width, house_width, house_height, left_house, right_house);
+export function roofGutterGenerator(roofWidth: number, houseWidth: number, houseHeight: number, leftHouse: number, rightHouse: number): THREE.Group{ 
+    const leftOrRight: string = randomFromObject(GUTTER_POS);
+    const gutter: RoofGutter = new RoofGutter(leftOrRight);
+    return gutter.get3DObject(roofWidth, houseWidth, houseHeight, leftHouse, rightHouse);
 }
 
 class CustomFloorGutterCurve extends THREE.Curve<THREE.Vector3> {

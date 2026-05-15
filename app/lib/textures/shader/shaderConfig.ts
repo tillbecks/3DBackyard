@@ -65,7 +65,7 @@ export const GRASS_SHADER = {id: "grass", getShaderMaterialConfig: (color: numbe
 
 export function getShader(id: string, uniforms: Record<string, { value: unknown }>, material: THREE.MeshStandardMaterial): THREE.MeshStandardMaterial {
     try{
-    let fragmentShader: TYPE.fragmentShaderType;
+    let fragmentShader: TYPE.FragmentShaderType;
     switch(id) {
         case BRICK_SHADER.id:
             fragmentShader = brickFragmentShader; break;
@@ -96,33 +96,21 @@ export function getShader(id: string, uniforms: Record<string, { value: unknown 
 }
 
 export function loadShader(scene: THREE.Scene | THREE.Group): void {
-    console.log("Loading shaders...");
     for (const child of scene.children) {
         child.traverse((mesh) => {
             if(mesh instanceof THREE.Mesh && mesh.userData.shader){
-                console.log(`Found mesh with shader config:`, mesh.name, mesh.userData.shader);
                 try {
                     const shaderMaterial = getShader(mesh.userData.shader.id, mesh.userData.shader.uniforms, mesh.material);
-                    console.log(`Created shader material:`, shaderMaterial);
                     mesh.material = shaderMaterial;
-                    console.log(`Applied shader to ${mesh.name}`);
                 } catch (error) {
                     console.error(`Error loading shader for ${mesh.name}:`, error);
                 }
             }
         });
     }
-
-    for(const child of scene.children) {
-        child.traverse((mesh) => {
-            if(mesh instanceof THREE.Mesh && mesh.userData.shader){
-                console.log(`Final check - mesh: ${mesh.name}, material:`, mesh.material);
-            }
-        });
-    }
 }
 
-export function injectShader(shader: THREE.WebGLProgramParametersWithUniforms, fragmentShader: TYPE.fragmentShaderType){
+export function injectShader(shader: THREE.WebGLProgramParametersWithUniforms, fragmentShader: TYPE.FragmentShaderType){
     shader.fragmentShader = shader.fragmentShader.replace(
         'void main() {', fragmentShader.functions + 'void main() {'
     );

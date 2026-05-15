@@ -100,15 +100,15 @@ interface Content{
 function initContent(scene: BaseScene): Content{
     //const camera = initCamera(scene.);
 
-    const house_group = houseGroupGenerator(12, [0,-30,0]);
+    const houseGroup = houseGroupGenerator(12, [0,-30,0]);
     /*const bird_flog = birdFlogGenerator(scene.scene);
     initBirdGui(scene.gui, bird_flog);*/
     
-    scene.add(house_group);
+    scene.add(houseGroup);
     //bird_flog.bird_flog.forEach(bird => scene.add(bird.bird_mesh));
 
     return{
-        house_group: house_group,
+        houseGroup: houseGroup,
         //bird_flog: bird_flog,
         //camera: camera,
         cameraAim: new THREE.Vector3(0,0,0),

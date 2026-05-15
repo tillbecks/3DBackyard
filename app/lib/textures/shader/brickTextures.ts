@@ -1,7 +1,7 @@
 import * as TYPES from "../../../types/typeIndex";
 import {generalFunctions} from "./shaderUtils";
 
-export const brickFragmentShader: TYPES.fragmentShaderType = {
+export const brickFragmentShader: TYPES.FragmentShaderType = {
     functions: `
     uniform vec2 brickSize;
     uniform float mortarThickness;

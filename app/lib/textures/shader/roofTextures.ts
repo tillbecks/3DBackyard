@@ -1,7 +1,7 @@
 import * as TYPE from "../../../types/typeIndex";
 import {generalFunctions} from "./shaderUtils";
 
-export const roofTileShader: TYPE.fragmentShaderType = {functions: `
+export const roofTileShader: TYPE.FragmentShaderType = {functions: `
     uniform vec2 tileSize;
     uniform float gapThickness;
     uniform float randomNr;
@@ -60,7 +60,7 @@ export const roofTileShader: TYPE.fragmentShaderType = {functions: `
         diffuseColor.rgb = finalColor * shadowFactor;`
 };
 
-export const flatTileShader: TYPE.fragmentShaderType = {functions: `
+export const flatTileShader: TYPE.FragmentShaderType = {functions: `
     uniform vec2 tileSize;
     uniform float randomNr;
     uniform vec3 roofTileColor;` + generalFunctions
@@ -140,7 +140,7 @@ export const flatTileShader: TYPE.fragmentShaderType = {functions: `
         diffuseColor.rgb = finalColor * shadowFactor;`
 };
 
-export const norfolkTileShader: TYPE.fragmentShaderType = {functions: `
+export const norfolkTileShader: TYPE.FragmentShaderType = {functions: `
     uniform vec2 tileSize;
     uniform float randomNr;
     uniform vec3 roofTileColor;` + generalFunctions

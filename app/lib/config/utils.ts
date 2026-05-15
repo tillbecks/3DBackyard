@@ -4,7 +4,7 @@ export function randomInRangeInt(min: number, max: number): number {
 }
 
 export function randomInRangeIntDividableTwo(min: number, max: number): number {
-    const firstRand = randomInRangeInt(max, min);
+    const firstRand = randomInRangeInt(min, max);
     return firstRand % 2 == 0 ? firstRand : firstRand + 1;
 }
 

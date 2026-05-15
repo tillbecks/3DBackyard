@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { terrestrialAntenna_generator } from '../house/antennas/terrestrial_antenna';
+import { terrestrialAntennaGenerator } from '../house/antennas/terrestrialAntenna';
 import { houseGroupGenerator } from '../house/houseBody';
 import { createCameraConfig } from '../config/importExportUtils';
 import * as TDUTILS from '../config/3dUtils';

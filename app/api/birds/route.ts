@@ -1,11 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generateHouses } from '@/app/lib/house/houseExport';
-import { scenarios } from '@/app/lib/config/routeConfig';
+import { NextResponse } from 'next/server';
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
-import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
 import BirdModel from '@/app/lib/birds/birdModel';
-import * as THREE from 'three';
-
 export async function GET() {
     try {        
         const model = new BirdModel();

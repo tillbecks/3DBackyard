@@ -7,7 +7,7 @@ import { glbToObject } from '@/app/lib/config/importExportUtils';
 import { initRenderer, initCamera, initSky } from '@/app/lib/scene/scene';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { initSunlight, initAmbientLight } from '../lib/scene/light';
-import { birdFlogGenerator, birdController } from '../lib/birds/birdController';
+import { birdFlogGenerator, BirdController } from '../lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '../lib/config/windowUtils';
 import { calcCenterOfGeometries } from '../lib/config/3dUtils';
 import { loadShader } from '../lib/textures/shader/shaderConfig';
@@ -114,7 +114,7 @@ export default function SceneViewer() {
             }
         };
 
-        const getOnWindowClick = (birdFlog: birdController)=>{
+        const getOnWindowClick = (birdFlog: BirdController)=>{
             return (windows: THREE.Object3D[]) => {
                 const center = calcCenterOfGeometries(windows);
                 birdFlog?.switchToGoal(center);
@@ -127,7 +127,7 @@ export default function SceneViewer() {
                 await initScene(scenario);
                 await loadContent(scenario);
                 const birdFlog = await loadBirds(scenario);
-                if(containerRef.current) bindMouseMovementToRaycaster(camera, scene, containerRef.current, birdFlog instanceof birdController ? getOnWindowClick(birdFlog) : () => {});
+                if(containerRef.current) bindMouseMovementToRaycaster(camera, scene, containerRef.current, birdFlog instanceof BirdController ? getOnWindowClick(birdFlog) : () => {});
                 return birdFlog; 
             }
             catch(error){

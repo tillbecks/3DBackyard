@@ -17,25 +17,25 @@ export abstract class Trajectory{
 
 export class FollowCircle extends Trajectory{
     center: THREE.Vector3;
-    x_length: number;
-    z_length: number;
+    xLength: number;
+    zLength: number;
     step: number;
-    step_length: number;
+    stepLength: number;
 
-    constructor(center: THREE.Vector3, x_length: number, z_length: number, velocity: number){
+    constructor(center: THREE.Vector3, xLength: number, zLength: number, velocity: number){
         super();
         this.center = center;
-        this.x_length = x_length;
-        this.z_length = z_length;
+        this.xLength = xLength;
+        this.zLength = zLength;
         this.step = 0;
-        this.step_length = ramanujan (x_length, z_length) / velocity;
+        this.stepLength = ramanujan (xLength, zLength) / velocity;
     }
 
     getNextPosition(){
-        const angle = 2 * Math.PI * this.step / this.step_length;
-        const x = this.center.x + this.x_length * Math.cos(angle);
-        const z = this.center.z + this.z_length * Math.sin(angle);
-        this.step = (this.step + 1) % this.step_length;
+        const angle = 2 * Math.PI * this.step / this.stepLength;
+        const x = this.center.x + this.xLength * Math.cos(angle);
+        const z = this.center.z + this.zLength * Math.sin(angle);
+        this.step = (this.step + 1) % this.stepLength;
         return new THREE.Vector3(x, this.center.y, z);
     }
 }
@@ -47,13 +47,13 @@ export class MoveToTarget extends Trajectory{
     quadrant: string;
     x: number;
     z: number;
-    length_x: number;
-    length_z: number;
+    xLength: number;
+    zLength: number;
 
     steps: number;
-    step_width: number;
-    current_step: number;
-    next_state: string;
+    stepWidth: number;
+    currentStep: number;
+    nextState: string;
 
 
     constructor(target: THREE.Vector3, position: THREE.Vector3, velocity: number, quadrant: string){ //quadrant = 'q1', 'q2', 'q3', 'q4'
@@ -64,21 +64,21 @@ export class MoveToTarget extends Trajectory{
         this.quadrant = quadrant;
 
         this.steps = 0;
-        this.step_width = 0;
-        this.current_step = 0;
+        this.stepWidth = 0;
+        this.currentStep = 0;
 
         //Will be overrwritten by init call
         this.x = 0;
         this.z = 0;
-        this.length_x = 0;
-        this.length_z = 0;
-        this.next_state = BC.QUADRANTS.Q1;
+        this.xLength = 0;
+        this.zLength = 0;
+        this.nextState = BC.QUADRANTS.Q1;
 
         this.init();
     }
 
     nextQuadrant(){
-        this.quadrant = this.next_state;
+        this.quadrant = this.nextState;
 
         this.position.z = this.z;
         this.position.x = this.x;
@@ -86,93 +86,93 @@ export class MoveToTarget extends Trajectory{
 
     init(){
         if(this.quadrant == BC.QUADRANTS.Q1){
-            const target_point_x = this.target.x - this.position.x > 0 ? this.target.x + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA: this.position.x + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
-            const target_point_z = this.target.z - this.position.z > 0 ? this.position.z - BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA : this.target.z - BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
-            const first_target_point = new THREE.Vector3(target_point_x, this.target.y, target_point_z);
-            const x_distance = Math.abs(first_target_point.x - this.position.x);
-            const z_distance = Math.abs(first_target_point.z - this.position.z);
-            const length = ramanujan(x_distance, z_distance)/4;
+            const targetPointX = this.target.x - this.position.x > 0 ? this.target.x + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA: this.position.x + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
+            const targetPointZ = this.target.z - this.position.z > 0 ? this.position.z - BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA : this.target.z - BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
+            const firstTargetPoint = new THREE.Vector3(targetPointX, this.target.y, targetPointZ);
+            const xDistance = Math.abs(firstTargetPoint.x - this.position.x);
+            const zDistance = Math.abs(firstTargetPoint.z - this.position.z);
+            const length = ramanujan(xDistance, zDistance)/4;
             this.steps = length/this.velocity;
-            this.step_width = (Math.PI/2) / this.steps;
-            this.current_step = 0;
-            this.length_x = x_distance;
-            this.length_z = z_distance;
-            this.next_state = BC.QUADRANTS.Q2;
+            this.stepWidth = (Math.PI/2) / this.steps;
+            this.currentStep = 0;
+            this.xLength = xDistance;
+            this.zLength = zDistance;
+            this.nextState = BC.QUADRANTS.Q2;
         }
         else if(this.quadrant == BC.QUADRANTS.Q2){
-            const target_point_x = this.target.x >= this.position.x ? (this.target.x + 2 * BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA) : this.position.x + 2 * BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
-            const target_point_z = this.position.z > this.target.z ? (this.position.z + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA) : (this.target.z + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA);
-            const first_target_point = new THREE.Vector3(target_point_x, this.target.y, target_point_z);
-            const x_distance = Math.abs(first_target_point.x - this.position.x);
-            const z_distance = Math.abs(first_target_point.z - this.position.z);
-            const length = ramanujan(x_distance, z_distance)/4;
+            const targetPointX = this.target.x >= this.position.x ? (this.target.x + 2 * BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA) : this.position.x + 2 * BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA;
+            const targetPointZ = this.position.z > this.target.z ? (this.position.z + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA) : (this.target.z + BC.SMOOTH_DISTANCE_POINT * BC.SMOOTH_DISTANCE_EXTRA);
+            const firstTargetPoint = new THREE.Vector3(targetPointX, this.target.y, targetPointZ);
+            const xDistance = Math.abs(firstTargetPoint.x - this.position.x);
+            const zDistance = Math.abs(firstTargetPoint.z - this.position.z);
+            const length = ramanujan(xDistance, zDistance)/4;
             this.steps = length/this.velocity;
-            this.step_width = (Math.PI/2) / this.steps;
-            this.current_step = 0;
-            this.length_x = x_distance;
-            this.length_z = z_distance;
-            this.next_state = BC.QUADRANTS.Q3;
+            this.stepWidth = (Math.PI/2) / this.steps;
+            this.currentStep = 0;
+            this.xLength = xDistance;
+            this.zLength = zDistance;
+            this.nextState = BC.QUADRANTS.Q3;
         }    
         else if(this.quadrant == BC.QUADRANTS.Q3){
             //Zwei Fälle. 1. Über dem Punkt + SMOOTH dann kann er Punkt direkt treffen, ansonsten startet er weiter in q4 und macht die Kurve so klein wie möglich
-            const target_point_x = this.position.x >= this.target.x + 2 * BC.SMOOTH_DISTANCE_POINT ? (this.target.x + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA) : this.position.x - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA; //VIelleicht hier noch SmoothDistance bisschen runter
-            const target_point_z = this.position.z >= this.target.z + BC.SMOOTH_DISTANCE_POINT ? this.position.z + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA : this.target.z + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
-            const first_target_point = new THREE.Vector3(target_point_x, this.target.y, target_point_z);
-            const x_distance = Math.abs(first_target_point.x - this.position.x);
-            const z_distance = Math.abs(first_target_point.z - this.position.z);
-            const length = ramanujan(x_distance, z_distance)/4;
+            const targetPointX = this.position.x >= this.target.x + 2 * BC.SMOOTH_DISTANCE_POINT ? (this.target.x + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA) : this.position.x - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA; //VIelleicht hier noch SmoothDistance bisschen runter
+            const targetPointZ = this.position.z >= this.target.z + BC.SMOOTH_DISTANCE_POINT ? this.position.z + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA : this.target.z + BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
+            const firstTargetPoint = new THREE.Vector3(targetPointX, this.target.y, targetPointZ);
+            const xDistance = Math.abs(firstTargetPoint.x - this.position.x);
+            const zDistance = Math.abs(firstTargetPoint.z - this.position.z);
+            const length = ramanujan(xDistance, zDistance)/4;
             this.steps = length/this.velocity;
-            this.step_width = (Math.PI/2) / this.steps;
-            this.current_step = 0;
-            this.length_x = x_distance;
-            this.length_z = z_distance;
-            this.next_state = BC.QUADRANTS.Q4;
+            this.stepWidth = (Math.PI/2) / this.steps;
+            this.currentStep = 0;
+            this.xLength = xDistance;
+            this.zLength = zDistance;
+            this.nextState = BC.QUADRANTS.Q4;
         }
         else if(this.quadrant == BC.QUADRANTS.Q4){
-            const target_point_x = this.position.x - BC.SMOOTH_DISTANCE_POINT >= this.target.x ? this.target.x : this.position.x - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
-            const target_point_z = this.position.z - BC.SMOOTH_DISTANCE_POINT >= this.target.z ? this.target.z : this.position.z - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
-            const first_target_point = new THREE.Vector3(target_point_x, this.target.y, target_point_z);
-            const x_distance = Math.abs(first_target_point.x - this.position.x);
-            const z_distance = Math.abs(first_target_point.z - this.position.z);
-            const length = ramanujan(x_distance, z_distance)/4;
+            const targetPointX = this.position.x - BC.SMOOTH_DISTANCE_POINT >= this.target.x ? this.target.x : this.position.x - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
+            const targetPointZ = this.position.z - BC.SMOOTH_DISTANCE_POINT >= this.target.z ? this.target.z : this.position.z - BC.SMOOTH_DISTANCE_POINT* BC.SMOOTH_DISTANCE_EXTRA;
+            const firstTargetPoint = new THREE.Vector3(targetPointX, this.target.y, targetPointZ);
+            const xDistance = Math.abs(firstTargetPoint.x - this.position.x);
+            const zDistance = Math.abs(firstTargetPoint.z - this.position.z);
+            const length = ramanujan(xDistance, zDistance)/4;
             this.steps = length/this.velocity;
-            this.step_width = (Math.PI/2) / this.steps;
-            this.current_step = 0;
-            this.length_x = x_distance;
-            this.length_z = z_distance;
-            this.next_state = this.position.z - BC.SMOOTH_DISTANCE_POINT >= this.target.z && this.position.x - BC.SMOOTH_DISTANCE_POINT >= this.target.x ? BC.QUADRANTS.END : BC.QUADRANTS.Q1;
+            this.stepWidth = (Math.PI/2) / this.steps;
+            this.currentStep = 0;
+            this.xLength = xDistance;
+            this.zLength = zDistance;
+            this.nextState = this.position.z - BC.SMOOTH_DISTANCE_POINT >= this.target.z && this.position.x - BC.SMOOTH_DISTANCE_POINT >= this.target.x ? BC.QUADRANTS.END : BC.QUADRANTS.Q1;
         }
         else if(this.quadrant == BC.QUADRANTS.END){
             this.steps = 1;
-            this.current_step = 0;
+            this.currentStep = 0;
         }
     }
 
     getNextPosition(){
         let x=this.x,z=this.z;
-        if(this.current_step >= this.steps){
+        if(this.currentStep >= this.steps){
             this.nextQuadrant();
             this.init();        
         }
         if(this.quadrant == 'q1'){
-            x = this.position.x - Math.cos(this.current_step * this.step_width) * this.length_x + this.length_x;
-            z = this.position.z - Math.sin(this.current_step * this.step_width) * this.length_z;
-            this.current_step ++;
+            x = this.position.x - Math.cos(this.currentStep * this.stepWidth) * this.xLength + this.xLength;
+            z = this.position.z - Math.sin(this.currentStep * this.stepWidth) * this.zLength;
+            this.currentStep ++;
         }
         else if(this.quadrant == 'q2'){
-            x = this.position.x + Math.sin(this.current_step * this.step_width) * this.length_x;
-            z = this.position.z - Math.cos(this.current_step * this.step_width) * this.length_z + this.length_z;
-            this.current_step ++;
+            x = this.position.x + Math.sin(this.currentStep * this.stepWidth) * this.xLength;
+            z = this.position.z - Math.cos(this.currentStep * this.stepWidth) * this.zLength + this.zLength;
+            this.currentStep ++;
         }
         else if(this.quadrant == 'q3'){
-            x = this.position.x + Math.cos(this.current_step * this.step_width) * this.length_x - this.length_x;
-            z = this.position.z + Math.sin(this.current_step * this.step_width) * this.length_z ;
-            this.current_step ++;
+            x = this.position.x + Math.cos(this.currentStep * this.stepWidth) * this.xLength - this.xLength;
+            z = this.position.z + Math.sin(this.currentStep * this.stepWidth) * this.zLength ;
+            this.currentStep ++;
         }
         else if(this.quadrant == 'q4'){
-            x = this.position.x - Math.sin(this.current_step * this.step_width) * this.length_x;
-            z = this.position.z + Math.cos(this.current_step * this.step_width) * this.length_z - this.length_z;
-            this.current_step ++;
+            x = this.position.x - Math.sin(this.currentStep * this.stepWidth) * this.xLength;
+            z = this.position.z + Math.cos(this.currentStep * this.stepWidth) * this.zLength - this.zLength;
+            this.currentStep ++;
         }   
         else if(this.quadrant == 'end'){
             return true;
@@ -193,17 +193,17 @@ export class LoopingGoal extends Trajectory{
     z: number;
     y: number;
     length: number;
-    y_difference: number
+    yDifference: number
 
     step: number;
-    goal_steps: number;
-    step_width: number;
-    looping_step: string;
+    goalSteps: number;
+    stepWidth: number;
+    loopingStep: string;
     lookup: number[];
 
     radius: number;
     overshot: number;
-    loop_type: string;
+    loopType: string;
     
 
     constructor(target: THREE.Vector3, position: THREE.Vector3, velocity: number){
@@ -216,47 +216,47 @@ export class LoopingGoal extends Trajectory{
 
         this.length = Math.PI * BC.LOOPING_SIZE*2;
 
-        this.y_difference = position.y - target.y;
-        this.loop_type = this.y_difference > 0 ? BC.LOOPING_TYPES.UNDERSHOT : this.y_difference == 0 ? BC.LOOPING_TYPES.INLINE : BC.LOOPING_TYPES.OVERSHOT;
+        this.yDifference = position.y - target.y;
+        this.loopType = this.yDifference > 0 ? BC.LOOPING_TYPES.UNDERSHOT : this.yDifference == 0 ? BC.LOOPING_TYPES.INLINE : BC.LOOPING_TYPES.OVERSHOT;
         this.radius = BC.LOOPING_SIZE;
         this.overshot = BC.LOOPING_OVERSHOT;
         this.step = 0;
-        this.goal_steps = 0;
-        this.step_width = 0;
-        this.looping_step = 'init';
+        this.goalSteps = 0;
+        this.stepWidth = 0;
+        this.loopingStep = 'init';
 
         this.lookup = [];
     }
 
     getNextPosition(){
-        if (this.step >= this.goal_steps){
+        if (this.step >= this.goalSteps){
             this.stepNext();
         }
-        if(this.looping_step == "q1"){
-            const z_multi = this.radius/2 + (this.loop_type == 'overshot' ? Math.abs(this.y_difference)/2 : 0);
+        if(this.loopingStep == "q1"){
+            const zMulti = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2;
-            this.y = this.position.y - Math.cos(this.lookup[this.step]) * z_multi + z_multi;
+            this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti + zMulti;
         }
-        else if(this.looping_step == "q2"){
-            const z_multi = this.radius/2 + (this.loop_type == 'overshot' ? Math.abs(this.y_difference)/2 : 0);
+        else if(this.loopingStep == "q2"){
+            const zMulti = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2 + this.radius/2;
-            this.y = this.position.y - Math.cos(this.lookup[this.step]) * z_multi ;
+            this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti ;
         }    
-        else if(this.looping_step == "q3"){
-            const z_multi = this.radius/2 + (this.loop_type == 'undershot' ? Math.abs(this.y_difference)/2 : 0);
+        else if(this.loopingStep == "q3"){
+            const zMulti = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2;
-            this.y = this.position.y - Math.cos(this.lookup[this.step]) * z_multi - z_multi;
+            this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti - zMulti;
         }
-        else if(this.looping_step == "q4"){
-            const z_multi = this.radius/2 + (this.loop_type == 'undershot' ? Math.abs(this.y_difference)/2 : 0);
+        else if(this.loopingStep == "q4"){
+            const zMulti = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2 - this.radius/2;
-            this.y = this.position.y - Math.cos(this.lookup[this.step]) * z_multi;
+            this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti;
         }
-        else if(this.looping_step == "line"){
+        else if(this.loopingStep == "line"){
             this.z = this.position.z - this.lookup[this.step];
             this.y = this.position.y;
         }
-        else if(this.looping_step == "end"){
+        else if(this.loopingStep == "end"){
             return true;
         }
 
@@ -265,70 +265,70 @@ export class LoopingGoal extends Trajectory{
     }
 
     stepNext(){
-        this.looping_step = this.looping_step == "init" ? "q1" :
-        this.looping_step == "q1" ? "q2" :
-        this.looping_step == "q2" ? "q3" :
-        this.looping_step == "q3" ? "q4" :
-        this.looping_step == "q4" ? "line" : "end";
+        this.loopingStep = this.loopingStep == "init" ? "q1" :
+        this.loopingStep == "q1" ? "q2" :
+        this.loopingStep == "q2" ? "q3" :
+        this.loopingStep == "q3" ? "q4" :
+        this.loopingStep == "q4" ? "line" : "end";
 
         this.position.z = this.z;
         this.position.y = this.y;
         
-        if(this.looping_step == "q1" || this.looping_step == "q2"){
-            const b = this.radius/2 + (this.loop_type == 'overshot' ? Math.abs(this.y_difference)/2 : 0);
-            const start_angle = this.looping_step == "q2" ? Math.PI/2 : 0;
-            this.lookup = create_elipse_step_lookup(this.radius/2, b, Math.PI/2, this.velocity, start_angle);
+        if(this.loopingStep == "q1" || this.loopingStep == "q2"){
+            const b = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
+            const startAngle = this.loopingStep == "q2" ? Math.PI/2 : 0;
+            this.lookup = createElipseStepLookup(this.radius/2, b, Math.PI/2, this.velocity, startAngle);
         }
-        else if(this.looping_step == "q3" || this.looping_step == "q4"){
-            const b = this.radius/2 + (this.loop_type == 'undershot' ? Math.abs(this.y_difference)/2: 0);
-            const start_angle = this.looping_step == "q4" ? 3 * Math.PI/2 : Math.PI;
-            this.lookup = create_elipse_step_lookup(this.radius/2, b, Math.PI/2, this.velocity, start_angle);
+        else if(this.loopingStep == "q3" || this.loopingStep == "q4"){
+            const b = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2: 0);
+            const startAngle = this.loopingStep == "q4" ? 3 * Math.PI/2 : Math.PI;
+            this.lookup = createElipseStepLookup(this.radius/2, b, Math.PI/2, this.velocity, startAngle);
         }
-        else if(this.looping_step == "line"){
+        else if(this.loopingStep == "line"){
             const length = this.z - this.target.z + this.overshot;
-            this.lookup = create_line_lookup(length, this.velocity);
+            this.lookup = createLineLookup(length, this.velocity);
         }
         
         //this.goal_steps = length/this.velocity;
-        this.goal_steps = this.lookup.length;
+        this.goalSteps = this.lookup.length;
         //this.step_width = (Math.PI/2) / this.goal_steps;
-        this.step_width = this.velocity / this.radius;
+        this.stepWidth = this.velocity / this.radius;
         this.step = 0;
     }
 }
 
-function create_line_lookup(length: number, velocity: number){
+function createLineLookup(length: number, velocity: number){
     const steps = Math.floor(Math.abs(length) / velocity);   
     const array = Array(steps).fill(0).map((_, i) => i * velocity); 
     return array;
 }
 
-function create_elipse_step_lookup(a: number, b: number, max_angle: number, velocity: number, start_angle: number = 0){
+function createElipseStepLookup(a: number, b: number, maxAngle: number, velocity: number, startAngle: number = 0){
     const lookup = [];
     
-    const smallest_angle = 0.005*Math.PI; 
+    const smallestAngle = 0.005*Math.PI; 
     let traveled = 0;
-    let angled = start_angle;
-    let z_bf = a * Math.sin(angled);
-    let y_bf = b * Math.cos(angled);
+    let angled = startAngle;
+    let zBf = a * Math.sin(angled);
+    let yBf = b * Math.cos(angled);
 
-    while(angled <= start_angle + max_angle){
-        angled += smallest_angle;
+    while(angled <= startAngle + maxAngle){
+        angled += smallestAngle;
         const z = a * Math.sin(angled);
         const y = b * Math.cos(angled);
 
-        const dz_dt = z_bf - z;
-        const dy_dt = y_bf - y;
+        const dzDt = zBf - z;
+        const dyDt = yBf - y;
          
-        const dist = Math.sqrt(dy_dt*dy_dt + dz_dt*dz_dt);
+        const dist = Math.sqrt(dyDt*dyDt + dzDt*dzDt);
         traveled += dist;
 
         if(traveled >= velocity){
             lookup.push(angled);
             traveled -= velocity;
         }
-        y_bf = y;
-        z_bf = z;
+        yBf = y;
+        zBf = z;
     }
 
     return lookup;

@@ -1,14 +1,14 @@
 import { birdGenerator} from './bird';
-import bird from './bird';
+import Bird from './bird';
 import * as BC from '../config/birdConfig';
 import * as THREE from 'three';
 import { Trajectory, FollowCircle, MoveToTarget, LoopingGoal } from './birdTrajectory';
 
-export class birdController{
+export class BirdController{
     mode: string;
     goal: THREE.Vector3;
     position: THREE.Vector3;
-    birds: bird[]
+    birds: Bird[]
 
     circle: Trajectory;
 
@@ -19,8 +19,8 @@ export class birdController{
 
         this.birds = [];
         for (let i=0; i<BC.BIRD_COUNT; i++){
-            const new_bird = birdGenerator(model);
-            this.birds.push(new_bird);
+            const newBird = birdGenerator(model);
+            this.birds.push(newBird);
         }
         this.circle = new FollowCircle(BC.SURROUNDING_CENTER, BC.SURROUNDING_RADIUS_WIDTH*0.9, BC.SURROUNDING_RADIUS_DEPTH*0.7, BC.MAX_SPEED * 0.95);
     }
@@ -29,11 +29,11 @@ export class birdController{
         const nextCirclePosition = this.circle.getNextPosition();
         if (this.mode == BC.FLIGHT_MODES.FLIGHT_TO_GOAL && nextCirclePosition==true){
             this.mode = BC.FLIGHT_MODES.LOOP;
-            BC.set_turn_factor(0);
-            BC.set_bias_factor(0.005);
-            BC.set_avoid_factor(0.001);
-            BC.set_centering_factor(0.002);
-            BC.set_matching_factor(0.0001);
+            BC.setTurnFactor(0);
+            BC.setBiasFactor(0.005);
+            BC.setAvoidFactor(0.001);
+            BC.setCenteringFactor(0.002);
+            BC.setMatchingFactor(0.0001);
             this.circle = new LoopingGoal(this.goal, this.position, BC.MAX_SPEED * 0.9);
             //console.log("Starting Looping");
             return;
@@ -59,15 +59,15 @@ export class birdController{
         console.log("Flight to Goal initialized: " + target.x + ", " + target.y + ", " + target.z);
 
 
-        BC.set_bias_factor(0.0025);
+        BC.setBiasFactor(0.0025);
 
         //addTrailPoint(target, this.scene, 0x0000ff, 2);
 
-        const next_position_circle = this.circle.getNextPosition();
-        if(next_position_circle!=true){
+        const nextPositionCircle = this.circle.getNextPosition();
+        if(nextPositionCircle!=true){
             let quadrant; //Gibt nicht an in welchem quadranten man sich aktuell befindet sondern als nächstes quasi
-            if(next_position_circle.x >= this.position.x){
-                if(next_position_circle.z >= this.position.z){ //bedeutet, oben rechts, also q2 also q3 als nächstes
+            if(nextPositionCircle.x >= this.position.x){
+                if(nextPositionCircle.z >= this.position.z){ //bedeutet, oben rechts, also q2 also q3 als nächstes
                     quadrant = 'q3';
                 }
                 else{
@@ -75,7 +75,7 @@ export class birdController{
                 }
             }
             else{
-                if(next_position_circle.z >= this.position.z){
+                if(nextPositionCircle.z >= this.position.z){
                     quadrant = 'q4';
                 }
                 else{
@@ -92,19 +92,19 @@ export class birdController{
 
 let counter = 0;
 
-function addTrailPoint(position: THREE.Vector3, scene: THREE.Scene, color=0xff0000, size=1, counter_active=false) {
-    if(counter_active) counter++;
+function addTrailPoint(position: THREE.Vector3, scene: THREE.Scene, color=0xff0000, size=1, counterActive=false) {
+    if(counterActive) counter++;
   const trailMaterial = new THREE.MeshBasicMaterial({ color: color });
   const trailGeometry = new THREE.SphereGeometry(size, 8, 8);
 
-  if (counter_active && counter%4 !== 0) return; // Nur jeden 10. Punkt hinzufügen
+  if (counterActive && counter%4 !== 0) return; // Nur jeden 10. Punkt hinzufügen
   const point = new THREE.Mesh(trailGeometry, trailMaterial);
   point.position.copy(position);
   scene.add(point);
 }
 
-export function birdFlogGenerator(model: THREE.Group | THREE.Object3D): birdController{
-    return new birdController(model);
+export function birdFlogGenerator(model: THREE.Group | THREE.Object3D): BirdController{
+    return new BirdController(model);
 }
 
 ////x rechts-links, z vorne-hinten, y oben-unten
