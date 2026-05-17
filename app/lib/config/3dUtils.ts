@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ADDITION, Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg';
+import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
 
 export function createAxisHelper(mesh: THREE.Mesh | THREE.Group, length: number = 2): THREE.AxesHelper {
     const axisHelper = new THREE.AxesHelper(length);
@@ -43,45 +44,49 @@ export function calcCenterOfGeometries(object: THREE.Object3D | THREE.Object3D[]
     return center;
 }
 
-export function calcUVS(geometry: THREE.BufferGeometry){
-    geometry.computeBoundingBox();
-    geometry.computeVertexNormals();
-    
-    const bbox = geometry.boundingBox;
-    if (bbox) {
-        const uvAttribute = new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 2), 2);
-        const positions = geometry.attributes.position;
-        const normals = geometry.attributes.normal;
+export function calcUVS(geometry: THREE.BufferGeometry | THREE.Group){
+    (geometry instanceof THREE.Group ? geometry : new THREE.Group().add(new THREE.Mesh(geometry))).traverse((child) => {
+        if(child instanceof THREE.Mesh && child.geometry?.attributes?.position){
+            child.geometry.computeBoundingBox();
+            child.geometry.computeVertexNormals();
         
-        for (let i = 0; i < positions.count; i++) {
-            const x = positions.getX(i);
-            const y = positions.getY(i);
-            const z = positions.getZ(i);
-            
-            let u: number, v: number;
-            
-            if (normals) {
-                const nx = Math.abs(normals.getX(i));
-                const ny = Math.abs(normals.getY(i));
-                const nz = Math.abs(normals.getZ(i));
+            const bbox = child.geometry.boundingBox;
+            if (bbox) {
+                const uvAttribute = new THREE.BufferAttribute(new Float32Array(child.geometry.attributes.position.count * 2), 2);
+                const positions = child.geometry.attributes.position;
+                const normals = child.geometry.attributes.normal;
                 
-                // Reine Welt-/Lokalkoordinaten ohne Division = Kein Verzerren
-                if (nx >= ny && nx >= nz) {
-                    u = z; v = y; // Seitenwände
-                } else if (nz >= nx && nz >= ny) {
-                    u = x; v = y; // Vorder-/Rückseite
-                } else {
-                    u = x; v = z; // Decke/Boden
+                for (let i = 0; i < positions.count; i++) {
+                    const x = positions.getX(i);
+                    const y = positions.getY(i);
+                    const z = positions.getZ(i);
+                    
+                    let u: number, v: number;
+                    
+                    if (normals) {
+                        const nx = Math.abs(normals.getX(i));
+                        const ny = Math.abs(normals.getY(i));
+                        const nz = Math.abs(normals.getZ(i));
+                        
+                        // Reine Welt-/Lokalkoordinaten ohne Division = Kein Verzerren
+                        if (nx >= ny && nx >= nz) {
+                            u = z; v = y; // Seitenwände
+                        } else if (nz >= nx && nz >= ny) {
+                            u = x; v = y; // Vorder-/Rückseite
+                        } else {
+                            u = x; v = z; // Decke/Boden
+                        }
+                    } else {
+                        u = x; v = y;
+                    }
+                    
+                    uvAttribute.setXY(i, u, v);
                 }
-            } else {
-                u = x; v = y;
+                
+                child.geometry.setAttribute('uv', uvAttribute);
             }
-            
-            uvAttribute.setXY(i, u, v);
         }
-        
-        geometry.setAttribute('uv', uvAttribute);
-    }
+    });
 }
 
 export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group, subtractGeometry: THREE.Mesh | THREE.Group): Brush {
@@ -114,4 +119,45 @@ export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group,
             throw new Error("No valid geometry found for subtraction.");
         }
     }
+}
+
+
+
+export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array): THREE.BufferGeometry {
+    const positionAttribute = geometry.attributes.position;
+    const vertex = new THREE.Vector3();
+    for (let i = 0; i < positionAttribute.count; i++) {
+        vertex.fromBufferAttribute(positionAttribute, i);
+        const heightValue = heightMap[i];
+        vertex.z += heightValue;
+        positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    }
+    geometry.computeVertexNormals();
+    return geometry;
+}
+
+export function createRandomHeightMap(minHeight: number, maxHeight: number, width: number, depth: number): Float32Array {
+    const heightMap = new Float32Array(width * depth);
+    const noise = new SimplexNoise({random: () => Math.random()});
+    const steps = [{scaleX: 2, scaleZ: 2, weight: 0.25}, {scaleX: 20, scaleZ: 20, weight: 0.5}, {scaleX: 100, scaleZ: 100, weight: 1}];
+    for(const s of steps){
+        for (let z = 0; z < depth; z++) {
+            for (let x = 0; x < width; x++) {
+                const noiseValue = noise.noise(x / s.scaleX, z / s.scaleZ) * s.weight; // Adjust the scale as needed
+                heightMap[z * width + x] += ((noiseValue + 1) / 2) * (maxHeight - minHeight) + minHeight; // Normalize to [minHeight, maxHeight]
+            }
+        }
+    }
+    return heightMap;
+}
+
+export function createSinusHeightMap(amplitude: number, Xfrequency: number, Zfrequency: number, width: number, depth: number): Float32Array {
+    const heightMap = new Float32Array(width * depth);
+    for (let z = 0; z < depth; z++) {
+        for (let x = 0; x < width; x++) {
+            const heightValue = Math.sin(x * Xfrequency) * Math.cos(z * Zfrequency) * amplitude;
+            heightMap[z * width + x] = heightValue;
+        }
+     }
+     return heightMap;
 }

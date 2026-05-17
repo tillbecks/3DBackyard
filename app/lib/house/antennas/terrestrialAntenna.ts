@@ -3,16 +3,17 @@ import * as HC from '../../config/houseConfig';
 import * as UTILS from '../../config/utils';
 import * as TDUTILS from '../../config/3dUtils';
 import { reflector } from 'three/tsl';
+import { RoofDecorations } from '../roofDecorations';
 
 class TerrestrialAntenna{
     height: number;
     direction: number;
-    radius: number;
+    diameter: number;
 
-    constructor(height: number, direction: number, radius: number = 0.5){
+    constructor(height: number, direction: number, diameter: number = 1){
+        this.diameter = diameter;
         this.height = height;
         this.direction = direction;
-        this.radius = radius;
     }
 
     get3DObject(): THREE.Group{
@@ -90,7 +91,7 @@ class TVAntenna extends TerrestrialAntenna{
     hasReflector: boolean;
 
     constructor(direction: number, length: number, elementDist: number, elementLength: number, hasReflector: boolean = false){
-        super(HC.TVANTENNA_HEIGHT, direction, hasReflector ? length: length/2);
+        super(HC.TVANTENNA_HEIGHT, direction, hasReflector ? length * 2: length);
         this.length = length;
         this.elementDist = elementDist;
         this.elementLength = elementLength;
@@ -249,13 +250,12 @@ function tvAntennaWithReflectorGenerator(){
     return antenna;
 }
 
-class AntennaPole {
+class AntennaPole extends RoofDecorations{
     antennas: TerrestrialAntenna[];
-    radius: number;
 
     constructor(antennas: TerrestrialAntenna[]){
+        super(antennas.reduce((max, ant) => Math.max(max, ant.diameter), 0));
         this.antennas = antennas;
-        this.radius = antennas.reduce((max, ant) => Math.max(max, ant.radius), 0);
     }
 
     get3DObject(){

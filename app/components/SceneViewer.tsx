@@ -19,7 +19,7 @@ export default function SceneViewer() {
     //const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
     useEffect(() => {
-        const scenario = scenarios.backyard; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
+        const scenario = scenarios.showcase; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
         const animations: ((...args: undefined[]) => void)[] = [];
 
         if (!containerRef.current) return;

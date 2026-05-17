@@ -60,3 +60,36 @@ export function getRoofMaterials(): Record<string, TYPES.MaterialMix> {
 const LAWN_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.GRASS_COLOR_FRESH, roughness: 1, side: THREE.DoubleSide});
 
 export const LAWN_MIX_MATERIAL = {standardMaterial: LAWN_MATERIAL, shaderMaterial: GRASS_SHADER.getShaderMaterialConfig(COLORS.GRASS_COLOR_FRESH)};
+
+const FLAT_METAL_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.METAL_MATERIAL_COLOR, roughness: 0.5, metalness: 0.8, side: THREE.DoubleSide});
+const SHINY_METAL_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.METAL_MATERIAL_COLOR, roughness: 0.2, metalness: 0.9, side: THREE.DoubleSide});
+
+const SMALL_CHIMNEY_BRICK_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_RED, roughness: 0.9, side: THREE.DoubleSide});
+
+const CHIMNEY_ROOF_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.ROOF_TILE_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+
+const BETON_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.BETON_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+
+export function getChimneyMaterials(): Record<string, TYPES.MaterialMix> {
+    return {
+        brickChimney : {standardMaterial: SMALL_CHIMNEY_BRICK_MATERIAL, shaderMaterial: null},
+        metalChimneyFlat : {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null},
+        metalChimneyShiny : {standardMaterial: SHINY_METAL_MATERIAL, shaderMaterial: null},
+    }
+}
+
+export function getChimneyRoofMaterial(): Record<string, TYPES.MaterialMix> {
+    return {
+      greyMaterial: { standardMaterial: CHIMNEY_ROOF_MATERIAL, shaderMaterial: null},
+      shinyMaterial: { standardMaterial: SHINY_METAL_MATERIAL, shaderMaterial: null},
+      flatMetal: { standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null},
+    }
+}
+
+export function getBetonMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: BETON_MATERIAL, shaderMaterial: null};
+}
+
+export function getFlatMetalMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null};
+}

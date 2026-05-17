@@ -63,7 +63,7 @@ class SatelliteBowlReceiver extends RoofDecorations{
         allGroup.position.z += bowlPoleConfig.radius;
 
         allGroup.rotation.y = HC.SATELLITE_RECEIVER_Y_DIRECTION;
-
+        //allGroup.add(TDUTILS.createAxisHelper(allGroup, 0.5));
         return allGroup;
     }
 }

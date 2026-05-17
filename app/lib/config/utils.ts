@@ -29,8 +29,8 @@ export function randomBoolean(chance: number=0.5): boolean {
 }
 
 export function randomPointOnPlane(width: number, depth: number): { x: number; z: number } {
-    const x = randomInRangeFloat(-width / 2, width / 2);
-    const z = randomInRangeFloat(-depth / 2, depth / 2);
+    const x = width == 0 ? 0 : randomInRangeFloat(0, width);
+    const z = depth == 0 ? 0 : randomInRangeFloat(0, depth);
     return {x: x, z: z};
 }
 

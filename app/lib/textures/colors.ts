@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mx_bilerp_0 } from 'three/src/nodes/materialx/lib/mx_noise.js';
 
 export const PANE_COLOR = 0xffffff;
 export const PANE_HIGHLIGHT_COLOR = 0xffff99;
@@ -22,3 +23,7 @@ export function hexNumberToVec3(hex: number): THREE.Vector3 {
 }   
 
 export const GRASS_COLOR_FRESH = 0x043605; //"#043605"
+
+export const METAL_MATERIAL_COLOR = 0x999999; //"#999999"
+
+export const BETON_COLOR = 0x797878; //"#797878"

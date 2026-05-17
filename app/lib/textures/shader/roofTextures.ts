@@ -162,15 +162,15 @@ export const norfolkTileShader: TYPE.FragmentShaderType = {functions: `
 
         float sinV = sinCust(onTileX * 2.0 * PI, PI * 0.5, 1.0, tileHeight - secureOnPart);
         float tileYID = floor((roofUv.y - sinV) / tileHeight);
-        float onTileY = roofUv.y - tileYID * tileHeight;
+        float onTileY = (roofUv.y - tileYID * tileHeight) / tileHeight;
         float tileSINID = onTileY < secureOnPart ? sinV :onTileY < sinV ? tileYID : tileYID + 1.0; 
-        float onTileYSin = onTileY - sinV;
+        float onTileYSin =(roofUv.y - tileYID * tileHeight - sinV) / tileHeight;
 
         float variance = randCust(vec2(tileXID, tileYID));
 
         vec3 finalColor = colorVariancer(tileColor, variance, 0.2);
         
-        float localY = onTileYSin;
+        float localY = 1.0 - onTileYSin;
 
         // Bestimme die Pixelbreite im UV-Raum (wie viel UV deckt ein Bildschirm-Pixel ab)
         // fwidth berechnet die Änderung zum Nachbarpixel auf dem Bildschirm
@@ -185,9 +185,9 @@ export const norfolkTileShader: TYPE.FragmentShaderType = {functions: `
 
         // Weicher Verlauf anstelle von harten Sprüngen
         // Nutzt edgeSoftness, damit die Kante in der Entfernung nicht flackert
-        float bottomShadow = smoothstep(0.0, shadowWidth, localY);
-        float upperFade = smoothstep(shadowWidth + edgeSoftness, shadowWidth, localY);
-        float shadowIntensity = mix(upperFade, bottomShadow, step(localY, shadowWidth));
+        float topShadow = 1.0 - smoothstep(0.0, shadowWidth, localY);
+        float upperFade = 1.0 - smoothstep(0.0, shadowWidth + edgeSoftness, localY);
+        float shadowIntensity = mix(upperFade, topShadow, step(localY, shadowWidth));
 
         // Abdunklungs-Faktor definieren (0.4 = maximale Abdunklung um 60%)
         // shadowIntensity steuert den Verlauf sanft aus

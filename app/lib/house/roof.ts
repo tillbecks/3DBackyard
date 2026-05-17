@@ -1,18 +1,15 @@
 import * as THREE from 'three';
-import { MAX_ROOF_HEIGHT, MAX_ROOF_OVERHANG, MIN_ROOF_HEIGHT, MIN_ROOF_OVERHANG, ROOF_WALL_THICKNESS , ROOF_OVERHANG_SIDES, ANTENNA_PROBABILITY, SATELLITE_RECEIVER_PROBABILITY, MAX_SATELLITE_RECEIVERS, ANTENNA_ROOF_POSITION_FROM_TOP} from '../config/houseConfig';
-import { adjustColor, randomInRangeInt, angleToRad, randomBoolean, randomPointOnPlane, collision, randomFromObject } from '../config/utils';
-/*import { brickFragmentShader } from '../../procedural_textures/brick_texture';
-import { vertexShader } from '../../procedural_textures/general_texture';
-import { roofTileShader } from '../../procedural_textures/roof_texture';*/
+import * as HC from '../config/houseConfig';
+import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '../config/utils';
 import { roofGutterGenerator } from './roofGutter';
 import { terrestrialAntennaGenerator } from './antennas/terrestrialAntenna';
-import * as TDUTILS from '../config/3dUtils';
 import { antennaGenerator } from './antennas/satelliteAntenna';
 import { HouseElement } from './houseElement';
-import { positionRoofDecorations, randomRoofDecorationPosition, RoofDecorations, testDot } from './roofDecorations';
+import { RoofDecorations, roofDecorationsPlacer } from './roofDecorations';
 import * as TYPES from '../../types/typeIndex';
 import { calcUVS } from '../config/3dUtils';
 import { getRoofMaterials } from '../textures/materials';
+import { chimneyGenerator } from './chimneys/topChimneys';
 
 
 
@@ -33,7 +30,7 @@ class Roof extends HouseElement{
         //const roofAngle = Math.asin(this.roofHeight/roofPitchLength);
         const roofAngle: number = angleToRad(90)-Math.atan(this.roofHeight/(houseDepth/2));
 
-        const pitchFrontHeight: number = roofPitchLength + ROOF_WALL_THICKNESS + this.overhang;
+        const pitchFrontHeight: number = roofPitchLength + HC.ROOF_WALL_THICKNESS + this.overhang;
         const roofHouseMaterial = houseMaterial.standardMaterial;
         roofHouseMaterial.side = THREE.DoubleSide;
         const roofGroup: THREE.Group = new THREE.Group();
@@ -78,36 +75,36 @@ class Roof extends HouseElement{
         calcUVS(roofSideB.geometry);
         roofGroup.add(roofSideB);
 
-        const roofWidth: number = houseWidth + (leftHouse+rightHouse)*ROOF_OVERHANG_SIDES;
+        const roofWidth: number = houseWidth + (leftHouse+rightHouse)*HC.ROOF_OVERHANG_SIDES;
 
         const moveYFront: number = (pitchFrontHeight / 2) - this.overhang;
-        const roofPitchFront: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, ROOF_WALL_THICKNESS);
+        const roofPitchFront: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, HC.ROOF_WALL_THICKNESS);
         const roofPitchFrontMesh: THREE.Mesh = new THREE.Mesh(roofPitchFront, roofMaterial);
         roofPitchFrontMesh.castShadow = true;
         roofPitchFrontMesh.receiveShadow = true; 
         roofPitchFrontMesh.userData.shader = roofMaterialMix.shaderMaterial;
         if(leftHouse + rightHouse == 1){
-            roofPitchFrontMesh.translateX((rightHouse - leftHouse)*(ROOF_OVERHANG_SIDES/2));
+            roofPitchFrontMesh.translateX((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
         }
         roofPitchFrontMesh.translateZ(houseDepth/2);
         roofPitchFrontMesh.rotateX(-roofAngle);
         roofPitchFrontMesh.translateY(moveYFront);
-        roofPitchFrontMesh.translateZ(ROOF_WALL_THICKNESS/2);
+        roofPitchFrontMesh.translateZ(HC.ROOF_WALL_THICKNESS/2);
 
         const pitchBackHeight: number = roofPitchLength + this.overhang;
         const moveYBack: number = (pitchBackHeight / 2) - this.overhang;
-        const roofPitchBack: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, ROOF_WALL_THICKNESS);
+        const roofPitchBack: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, HC.ROOF_WALL_THICKNESS);
         const roofPitchBackMesh: THREE.Mesh = new THREE.Mesh(roofPitchBack, roofMaterial);
         roofPitchBackMesh.castShadow = true;
         roofPitchBackMesh.receiveShadow = true;
         roofPitchBackMesh.userData.shader = roofMaterialMix.shaderMaterial;
         if(leftHouse + rightHouse == 1){
-            roofPitchBackMesh.translateX((rightHouse - leftHouse)*(ROOF_OVERHANG_SIDES/2));
+            roofPitchBackMesh.translateX((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
         }
         roofPitchBackMesh.translateZ(-houseDepth/2);
         roofPitchBackMesh.rotateX(roofAngle);
         roofPitchBackMesh.translateY(moveYBack);
-        roofPitchBackMesh.translateZ(-ROOF_WALL_THICKNESS/2);
+        roofPitchBackMesh.translateZ(-HC.ROOF_WALL_THICKNESS/2);
 
         calcUVS(roofPitchFrontMesh.geometry);
         calcUVS(roofPitchBackMesh.geometry);
@@ -119,38 +116,37 @@ class Roof extends HouseElement{
         roofGutter.translateZ(houseDepth/2);
         roofGutter.rotateY(-roofAngle);
         roofGutter.translateX(this.overhang);
-        roofGutter.translateZ(ROOF_WALL_THICKNESS);
+        roofGutter.translateZ(HC.ROOF_WALL_THICKNESS);
         roofGutter.rotateY(roofAngle);
         roofGutter.translateZ(1);
         if(leftHouse + rightHouse == 1){
-            roofGutter.translateY((rightHouse - leftHouse)*(ROOF_OVERHANG_SIDES/2));
+            roofGutter.translateY((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
         }
         roofGroup.add(roofGutter);
 
-        if(randomBoolean(ANTENNA_PROBABILITY)){
-            const antenna = terrestrialAntennaGenerator();
-            const antennaObject = antenna.get3DObject();
-            antennaObject.position.y += this.roofHeight;
+        const decorationsPlacer = new roofDecorationsPlacer(roofWidth, houseDepth, Math.PI/2-roofAngle);
 
-            const maxAntennaOffset = roofWidth - antenna.radius * 2;
-            const antennaOffset = maxAntennaOffset / 2 - randomInRangeInt(0, maxAntennaOffset);
-            antennaObject.position.x = antennaOffset;
-            roofGroup.add(antennaObject);
+        if(randomBoolean(HC.ANTENNA_PROBABILITY)){
+            const antenna = terrestrialAntennaGenerator();
+            decorationsPlacer.addRoofDecorationPosition(antenna, HC.ANTENNA_MIN_X, HC.ANTENNA_MAX_X, HC.ANTENNA_MIN_Z, HC.ANTENNA_MAX_Z);
         }
 
         let roofDecoration: RoofDecorations[] = [];
 
-        if(randomBoolean(SATELLITE_RECEIVER_PROBABILITY)){
-            const amnt = randomInRangeInt(1, MAX_SATELLITE_RECEIVERS);
+        if(randomBoolean(HC.SATELLITE_RECEIVER_PROBABILITY)){
+            const amnt = randomInRangeInt(1, HC.MAX_SATELLITE_RECEIVERS);
 
-            for(let i = 0; i < amnt; i++){
+            for(let i = 0; i < 2; i++){
                 const bowl = antennaGenerator();
                 //houseDepth/4 makes the antennas only spawn on the upper half of the front roof pitch
-                roofDecoration = randomRoofDecorationPosition(roofWidth, houseDepth/2 * ANTENNA_ROOF_POSITION_FROM_TOP, angleToRad(90) - roofAngle, roofDecoration, bowl);
+                decorationsPlacer.addRoofDecorationPosition(bowl, HC.SATELLITE_RECEIVER_MIN_X, HC.SATELLITE_RECEIVER_MAX_X, HC.SATELLITE_RECEIVER_MIN_Z, HC.SATELLITE_RECEIVER_MAX_Z);
             }
         }
 
-        const roofDecorationsGroup = positionRoofDecorations(roofDecoration, new THREE.Vector3(0, this.roofHeight + ROOF_WALL_THICKNESS, 0));
+        const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterial);
+        decorationsPlacer.addRoofDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
+
+        const roofDecorationsGroup = decorationsPlacer.positionRoofDecorations(new THREE.Vector3(0, this.roofHeight, 0));
         
         roofGroup.add(roofDecorationsGroup);
         return roofGroup;
@@ -158,8 +154,8 @@ class Roof extends HouseElement{
 }
 
 export function roofGenerator(houseDepth: number, houseWidth: number, houseMaterial: TYPES.MaterialMix, leftHouse: number, rightHouse: number, houseHeight: number): THREE.Group {
-    const roofHeight: number =  randomInRangeInt(MIN_ROOF_HEIGHT, MAX_ROOF_HEIGHT);
-    const roofOverhang: number = randomInRangeInt(MIN_ROOF_OVERHANG, MAX_ROOF_OVERHANG);
+    const roofHeight: number =  randomInRangeInt(HC.MIN_ROOF_HEIGHT, HC.MAX_ROOF_HEIGHT);
+    const roofOverhang: number = randomInRangeInt(HC.MIN_ROOF_OVERHANG, HC.MAX_ROOF_OVERHANG);
     //const roofColor: string =  adjustColor("#8e8e8e", 20);
 
     const roof = new Roof(roofHeight, roofOverhang);

@@ -19,42 +19,71 @@ export abstract class RoofDecorations extends HouseElement{
         this.y = 0;
     }
 
-    calculateYPosition(roofPitchAreaDepth: number, roofAngle: number){
+    calculateYPosition(roofDepth: number, roofAngle: number){
         const roofSlope = Math.tan(roofAngle);
-        //this.y = - roofSlope * (roofPitchAreaDepth / 2 - this.z);
-        this.y = - roofSlope * this.z;
+        const maxYSub = - roofSlope * roofDepth / 2;
+        this.y = maxYSub * Math.abs(this.z) / (roofDepth/2);
+        console.log("z is " + this.z + " and y is " + this.y);
     }
 }
 
-export function randomRoofDecorationPosition(roofPitchAreaWidth: number, roofPitchAreaDepth: number, roofAngle: number, existingDecorations: RoofDecorations[], newDecoration: RoofDecorations): RoofDecorations[] {
-    let positionValid = false;
+export class roofDecorationsPlacer{
+    areaWidth: number;
+    areaDepth: number;
+    roofAngle: number;
+    decorations: {deco: RoofDecorations, freeDiameter: number}[];
 
-    while(!positionValid){
-        const tempPos = UTILS.randomPointOnPlane(roofPitchAreaWidth-newDecoration.diameter*2, roofPitchAreaDepth-newDecoration.diameter*2);
-        newDecoration.x = tempPos.x;
-        newDecoration.z = tempPos.z + roofPitchAreaDepth / 2;
-        newDecoration.calculateYPosition(roofPitchAreaDepth, roofAngle);
-        positionValid = true;
-        for(const existing of existingDecorations){
-            positionValid = !UTILS.collision({x: newDecoration.x, z: newDecoration.z}, newDecoration.diameter/2, {x: existing.x, z: existing.z}, existing.diameter/2, EXTRA_DIST_ROOF_ELEMENTS);
-            if(!positionValid) break;
+    constructor(areaWidth: number, areaDepth: number, roofAngle: number){
+        this.areaWidth = areaWidth;
+        this.areaDepth = areaDepth;
+        this.roofAngle = roofAngle;
+        this.decorations = [];
+    }
+
+    //allowedMin/MaxX/Z in percentage of the area
+    //The extraDistance describes the area around the object that should be free
+    //
+    addRoofDecorationPosition(newDecoration: RoofDecorations, allowedMinX: number, allowedMaxX: number, allowedMinZ: number, allowedMaxZ: number, extraDiameter: number = EXTRA_DIST_ROOF_ELEMENTS): void {
+        let positionValid = false;
+
+        const baseWidth = (allowedMaxX - allowedMinX) * this.areaWidth; 
+        const baseDepth = (allowedMaxZ - allowedMinZ) * this.areaDepth;
+        const ignoreDiameterX = baseWidth < newDecoration.diameter;
+        const ignoreDiameterZ = baseDepth < newDecoration.diameter;
+        const effectiveAreaWidth = ignoreDiameterX ? baseWidth : baseWidth - newDecoration.diameter;
+        const effectiveAreaDepth = ignoreDiameterZ ? baseDepth : baseDepth - newDecoration.diameter;
+
+        console.log("Adding new roof decoration with diameter")
+
+        while(!positionValid){
+            //If the allowed area is smaller than the decoration, we ignore the diameter of the decoration
+            const tempPos = UTILS.randomPointOnPlane(effectiveAreaWidth, effectiveAreaDepth);
+            newDecoration.x = -this.areaWidth / 2 +allowedMinX * this.areaWidth + tempPos.x + (ignoreDiameterX ? 0 : newDecoration.diameter / 2);
+            newDecoration.z = -this.areaDepth / 2 + allowedMinZ * this.areaDepth + tempPos.z + (ignoreDiameterZ ? 0 : newDecoration.diameter / 2);
+            //newDecoration.calculateYPosition(this.areaDepth, this.roofAngle);
+            //positionValid = true;
+            positionValid = true;
+            for(const existing of this.decorations){
+                positionValid = !UTILS.collision({x: newDecoration.x, z: newDecoration.z}, newDecoration.diameter/2 + extraDiameter/2, {x: existing.deco.x, z: existing.deco.z}, existing.freeDiameter/2, 0);
+                if(!positionValid) break;
+            }
         }
+        newDecoration.calculateYPosition(this.areaDepth, this.roofAngle);
+        this.decorations.push({deco: newDecoration, freeDiameter: extraDiameter + newDecoration.diameter});   
     }
-    existingDecorations.push(newDecoration);
-    return existingDecorations;
-}
 
-export function positionRoofDecorations(decorations: RoofDecorations[], offset: THREE.Vector3): THREE.Group{
-    const group = new THREE.Group();
-    for(const d of decorations){
-        const obj = d.get3DObject();
-        obj.position.x += d.x;
-        obj.position.y += d.y;
-        obj.position.z += d.z;
-        group.add(obj);
+    positionRoofDecorations(offset: THREE.Vector3): THREE.Group{
+        const group = new THREE.Group();
+        for(const d of this.decorations){
+            const obj = d.deco.get3DObject();
+            obj.position.x = d.deco.x;
+            obj.position.y = d.deco.y;
+            obj.position.z = d.deco.z;
+            group.add(obj);
+        }
+        group.position.add(offset);
+        return group;
     }
-    group.position.add(offset);
-    return group;
 }
 
 export class testDot extends RoofDecorations{

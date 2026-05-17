@@ -84,11 +84,12 @@ export const BALCONY_RAILING_TYPES = {
 export const METAL_COLOR_HEX: string = "#7a7a7a";
 
 // Antenna
-export const SATELLITE_RECEIVER_BOWL_DIAMETER_MAX: number = 8;
+export const SATELLITE_RECEIVER_BOWL_DIAMETER_MAX: number = 12;
 export const SATELLITE_RECEIVER_BOWL_DIAMETER_MIN: number = 5;
-export const SATELLITE_RECEIVER_BOWL_HEIGHT_MAX: number = 4;
-export const SATELLITE_RECEIVER_BOWL_HEIGHT_MIN: number = 2;
+export const SATELLITE_RECEIVER_BOWL_HEIGHT_MAX: number = 7;
+export const SATELLITE_RECEIVER_BOWL_HEIGHT_MIN: number = 6;
 export const SATELLITE_RECEIVER_POLE_RADIUS: number = 0.2;
+export const SATELLITE_RECEIVER_POLE_RANDOM_EXTRA_HEIGHT: number = 6;
 export const SATELLITE_RECEIVER_Y_DIRECTION: number = Math.PI * 2.75;
 
 export const AMFMANTENNA_TYPES = {
@@ -158,13 +159,75 @@ export const ANTENNA_POLE_RANDOM_EXTRA_HEIGHT: number = 20;
 
 export const ANTENNA_PROBABILITY: number = 0.8;
 
+export const ANTENNA_MIN_X: number = 0.0;
+export const ANTENNA_MAX_X: number = 1.0;
+export const ANTENNA_MIN_Z: number = 0.5;
+export const ANTENNA_MAX_Z: number = 0.5;
+
 export const MAX_SATELLITE_RECEIVERS: number = 3;
 export const SATELLITE_RECEIVER_PROBABILITY: number = 0.5;
 
+export const SATELLITE_RECEIVER_MIN_X: number = 0.0;
+export const SATELLITE_RECEIVER_MAX_X: number = 1.0;
+export const SATELLITE_RECEIVER_MIN_Z: number = 0.55;
+export const SATELLITE_RECEIVER_MAX_Z: number = 0.75;
+
 export const EXTRA_DIST_ROOF_ELEMENTS: number = 2;
-export const ANTENNA_ROOF_POSITION_FROM_TOP: number = 0.5;
 
 export const LAWN_FIELDS_PER_SIZE: number = 0.5;
 
 export const WALL_THICKNESS: number = 2;
 export const FLOOR_THICKNESS: number = 2;
+
+export const CHIMNEY_WIDTH_MAX: number = 10;
+export const CHIMNEY_WIDTH_MIN: number = 5;
+export const CHIMNEY_DEPTH_MAX: number = 10;
+export const CHIMNEY_DEPTH_MIN: number = 5;
+export const CHIMNEY_HEIGHT_MAX: number = 20;
+export const CHIMNEY_HEIGHT_MIN: number = 10;
+export const CHIMNEY_POSITION_FROM_TOP: number = 0.25;
+
+export const CHIMNEY_MIN_X = 0.0;
+export const CHIMNEY_MAX_X = 1.0;
+export const CHIMNEY_MIN_Z = 0.35;
+export const CHIMNEY_MAX_Z = 0.75;
+
+export const CHIMNEY_TOP_CHIMNEYS_MIN: number = 1;
+export const CHIMNEY_TOP_CHIMNEYS_MAX: number = 4;
+export const CHIMNEY_TOP_CHIMNEYS_HEIGHT_MIN: number = 4;
+export const CHIMNEY_TOP_CHIMNEYS_HEIGHT_MAX: number = 7;
+export const CHIMNEY_TOP_CHIMNEYS_TYPES = {
+    EQUAL_HEIGHT: "equal",
+    DIFFERING_HEIGHT: "random"
+}
+
+export const CHIMNEY_ROOF_TYPES = {
+    FLAT : "flat",
+    WAVY : "wavy"
+}
+
+export const CHIMNEY_ROOF_SIN_FREQUENCY: number = 100;
+export const CHIMNEY_ROOF_SIN_AMPLITUDE: number = 0.2;
+export const CHIMNEY_ROOF_SEGMENTS_PER_UNIT: number = 10;
+
+export const CHIMNEY_TOP_CHIMNEYS_SIZE_PERC_MIN: number = 0.8;
+export const CHIMNEY_TOP_CHIMNEYS_SIZE_PERC_MAX: number = 1.0;
+
+export const CHIMNEY_TOP_ROD_RADIUS: number = 0.1;
+export const CHIMNEY_TOP_ROD_MIN_HEIGHT: number = 2;
+export const CHIMNEY_TOP_ROD_MAX_HEIGHT: number = 5;
+export const CHIMNEY_TOP_ROD_BASE_PERCENTAGE: number = 0.9;
+export const CHIMNEY_TOP_ROOF_OVERHANG: number = 0.5;
+
+export const CHIMNEY_ON_TOP_BUILD_HEIGHT_MIN: number = 2;
+export const CHIMNEY_ON_TOP_BUILD_HEIGHT_MAX: number = 3;
+export const CHIMNEY_ON_TOP_TAPER_PERCENTAGE_MIN: number = 0.0;
+export const CHIMNEY_ON_TOP_TAPER_PERCENTAGE_MAX: number = 0.3;
+export const CHIMNEY_ON_TOP_BASE_PERCENTAGE_MIN: number = 0.6; 
+export const CHIMNEY_ON_TOP_BASE_PERCENTAGE_MAX: number = 0.8;
+
+export const CHIMNEY_DECORATIONS = {
+    TOP_CHIMNEYS: "top_chimneys",
+    CHIMNEY_ON_TOP_BUILD: "chimney_on_top_build",
+    ROOF : "roof"
+}
