@@ -123,14 +123,21 @@ export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group,
 
 
 
-export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array): THREE.BufferGeometry {
+export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array, mapWidth: number, mapDepth: number): THREE.BufferGeometry {
     const positionAttribute = geometry.attributes.position;
     const vertex = new THREE.Vector3();
-    for (let i = 0; i < positionAttribute.count; i++) {
-        vertex.fromBufferAttribute(positionAttribute, i);
-        const heightValue = heightMap[i];
-        vertex.z += heightValue;
-        positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    
+    let vertexIndex = 0;
+    for (let z = 0; z < mapDepth; z++) {
+        for (let x = 0; x < mapWidth; x++) {
+            if (vertexIndex >= positionAttribute.count) break;
+            
+            vertex.fromBufferAttribute(positionAttribute, vertexIndex);
+            const heightValue = heightMap[Math.floor(z * mapWidth + x)];
+            vertex.z += heightValue;
+            positionAttribute.setXYZ(vertexIndex, vertex.x, vertex.y, vertex.z);
+            vertexIndex++;
+        }
     }
     geometry.computeVertexNormals();
     return geometry;
@@ -138,13 +145,14 @@ export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Fl
 
 export function createRandomHeightMap(minHeight: number, maxHeight: number, width: number, depth: number): Float32Array {
     const heightMap = new Float32Array(width * depth);
-    const noise = new SimplexNoise({random: () => Math.random()});
-    const steps = [{scaleX: 2, scaleZ: 2, weight: 0.25}, {scaleX: 20, scaleZ: 20, weight: 0.5}, {scaleX: 100, scaleZ: 100, weight: 1}];
+    //const noise = new SimplexNoise({random: () => Math.random()});
+    const steps = [{scale: 100, weight: 1.0, noise: new SimplexNoise({random:  Math.random})}, {scale: 30, weight: 0.3, noise: new SimplexNoise({random:  Math.random})}, {scale: 1, weight: 0.05, noise: new SimplexNoise({random: Math.random})}];
+    
     for(const s of steps){
         for (let z = 0; z < depth; z++) {
             for (let x = 0; x < width; x++) {
-                const noiseValue = noise.noise(x / s.scaleX, z / s.scaleZ) * s.weight; // Adjust the scale as needed
-                heightMap[z * width + x] += ((noiseValue + 1) / 2) * (maxHeight - minHeight) + minHeight; // Normalize to [minHeight, maxHeight]
+                const noiseValue = s.noise.noise((x) / s.scale, (z) / s.scale);
+                heightMap[Math.floor(z * width + x)] += ((noiseValue + 1) / 2) * (maxHeight - minHeight) * s.weight;
             }
         }
     }

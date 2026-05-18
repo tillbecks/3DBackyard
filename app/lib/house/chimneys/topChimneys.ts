@@ -202,7 +202,7 @@ class chimneyRoof{
         let roofGeometry: THREE.PlaneGeometry | THREE.BufferGeometry = new THREE.PlaneGeometry(width, depth, widthSegments, depthSegments);
         if(this.roofType == HC.CHIMNEY_ROOF_TYPES.WAVY){
             const roofPlane = roofGeometry as THREE.PlaneGeometry;
-            roofGeometry = mapHeightMapToPlane(roofPlane, createSinusHeightMap(HC.CHIMNEY_ROOF_SIN_AMPLITUDE, HC.CHIMNEY_ROOF_SIN_FREQUENCY, 0, widthSegments + 1, depthSegments + 1));
+            roofGeometry = mapHeightMapToPlane(roofPlane, createSinusHeightMap(HC.CHIMNEY_ROOF_SIN_AMPLITUDE, HC.CHIMNEY_ROOF_SIN_FREQUENCY, 0, widthSegments + 1, depthSegments + 1), widthSegments + 1, depthSegments + 1);
         }
 
         roofGeometry.rotateX(-Math.PI / 2);

@@ -19,8 +19,10 @@ export default function SceneViewer() {
     //const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
     useEffect(() => {
-        const scenario = scenarios.showcase; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
-        const animations: ((...args: undefined[]) => void)[] = [];
+        const scenario = scenarios.backyard; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
+        const animations: ((deltaSeconds: number) => void)[] = [];
+        const timer = new THREE.Timer();
+        timer.connect(document);
 
         if (!containerRef.current) return;
 
@@ -105,7 +107,7 @@ export default function SceneViewer() {
                     for(const bird of birdFlog.birds){
                         scene.add(bird.birdGeometry);
                     }
-                animations.push(() => birdFlog.update());
+                animations.push((deltaSeconds) => birdFlog.update(deltaSeconds));
                 return birdFlog;
                 }
             } catch (error) {
@@ -156,13 +158,15 @@ export default function SceneViewer() {
         };
 
         // Animation Loop
-        const animate = () => {
+        const animate = (timestamp: number) => {
             try {
                 requestAnimationFrame(animate);
                 if(!loaded) return;
+                timer.update(timestamp);
+                const deltaSeconds = timer.getDelta();
+                animations.forEach((f) => f(deltaSeconds));
                 controls.update();
                 renderer.render(scene, camera);
-                animations.forEach((f: (...args: undefined[]) => void) => f());
             } catch (error) {
                 console.error('Render error:', error);
                 return;
@@ -170,7 +174,8 @@ export default function SceneViewer() {
         };
 
         loadScenario(scenario);
-        animate();
+        timer.getDelta();
+        requestAnimationFrame(animate);
 
         // Window Resize Handler
         const handleResize = () => {

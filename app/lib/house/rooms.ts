@@ -78,7 +78,7 @@ export class Rooms{
             }        
         }    
 
-        const generalYTranslation =  - this.storyHeight/2 - HC.FLOOR_THICKNESS + this.storyCount * this.storyHeight/2;
+        const generalYTranslation =  - this.storyHeight/2 + this.storyCount * this.storyHeight/2 - this.storyHeight * HC.BALCONY_DOOR_START_BOTTOM;
         for(let i = 0; i < this.storyCount; i++){
             const story: THREE.Group = new THREE.Group();
             for(const child of storyRooms.children){

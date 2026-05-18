@@ -143,8 +143,10 @@ class Roof extends HouseElement{
             }
         }
 
-        const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterial);
-        decorationsPlacer.addRoofDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
+        if(randomBoolean(HC.CHIMNEY_PROBABILITY)){
+            const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterial);
+            decorationsPlacer.addRoofDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
+        }
 
         const roofDecorationsGroup = decorationsPlacer.positionRoofDecorations(new THREE.Vector3(0, this.roofHeight, 0));
         

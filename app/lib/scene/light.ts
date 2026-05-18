@@ -13,10 +13,10 @@ export function initSunlight(){
     sunLight.shadow.camera.right  =  400;
     sunLight.shadow.camera.top    =  250;
     sunLight.shadow.camera.bottom = -250;
-    sunLight.shadow.mapSize.width  = 4096;
-    sunLight.shadow.mapSize.height = 4096;
-    sunLight.shadow.bias = -0.0005;
-    sunLight.shadow.normalBias = 0.1;
+    sunLight.shadow.mapSize.width  = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.bias = -0.001;
+    sunLight.shadow.normalBias = 0.2;
     
     sunLight.shadow.camera.near = 1;
     sunLight.shadow.camera.far  = 500;

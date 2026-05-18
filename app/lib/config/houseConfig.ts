@@ -231,3 +231,5 @@ export const CHIMNEY_DECORATIONS = {
     CHIMNEY_ON_TOP_BUILD: "chimney_on_top_build",
     ROOF : "roof"
 }
+
+export const CHIMNEY_PROBABILITY: number = 0.8;

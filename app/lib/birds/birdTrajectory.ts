@@ -20,7 +20,7 @@ export class FollowCircle extends Trajectory{
     xLength: number;
     zLength: number;
     step: number;
-    stepLength: number;
+    lookUp: number[];
 
     constructor(center: THREE.Vector3, xLength: number, zLength: number, velocity: number){
         super();
@@ -28,14 +28,14 @@ export class FollowCircle extends Trajectory{
         this.xLength = xLength;
         this.zLength = zLength;
         this.step = 0;
-        this.stepLength = ramanujan (xLength, zLength) / velocity;
+        this.lookUp = createElipseStepLookup(zLength, xLength, 2 * Math.PI, velocity, 0.0);
     }
 
     getNextPosition(){
-        const angle = 2 * Math.PI * this.step / this.stepLength;
+        const angle = this.lookUp[this.step % this.lookUp.length];
         const x = this.center.x + this.xLength * Math.cos(angle);
         const z = this.center.z + this.zLength * Math.sin(angle);
-        this.step = (this.step + 1) % this.stepLength;
+        this.step = (this.step + 1) % this.lookUp.length;
         return new THREE.Vector3(x, this.center.y, z);
     }
 }

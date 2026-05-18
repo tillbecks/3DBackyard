@@ -14,10 +14,12 @@ export class Lawn {
     }
 
     get3DObject(): THREE.Mesh {
-        const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(this.width, this.depth, LAWN_FIELDS_PER_SIZE * this.width, LAWN_FIELDS_PER_SIZE * this.depth);
+        const widthSegments = LAWN_FIELDS_PER_SIZE * this.width;
+        const depthSegments = LAWN_FIELDS_PER_SIZE * this.depth;
+        const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(this.width, this.depth, widthSegments, depthSegments);
         //geometry = this.addHeightVariation(geometry);
 
-        const BufferGeometry = mapHeightMapToPlane(geometry, createRandomHeightMap(0, 2, this.width * LAWN_FIELDS_PER_SIZE + 1, this.depth * LAWN_FIELDS_PER_SIZE + 1));
+        const BufferGeometry = mapHeightMapToPlane(geometry, createRandomHeightMap(0, 4, widthSegments + 1, depthSegments + 1), widthSegments + 1, depthSegments + 1);
         geometry.dispose();
         const materialMix = LAWN_MIX_MATERIAL;
         const lawnMesh = new THREE.Mesh(BufferGeometry, materialMix.standardMaterial);

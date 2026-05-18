@@ -27,3 +27,7 @@ export const GRASS_COLOR_FRESH = 0x043605; //"#043605"
 export const METAL_MATERIAL_COLOR = 0x999999; //"#999999"
 
 export const BETON_COLOR = 0x797878; //"#797878"
+
+export const TREE_BARK_COLOR = 0x5a3e1b; //"#5a3e1b"
+
+export const TREE_LEAF_COLOR = 0x228B22; //"#228B22"

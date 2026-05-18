@@ -3,6 +3,7 @@ import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
+import { generateLSystemTree } from '@/app/lib/trees/lsystems';
 import * as THREE from 'three';
 
 export async function GET(request: NextRequest) {
@@ -15,7 +16,10 @@ export async function GET(request: NextRequest) {
             object = generateShowcaseContent();
         }else if(scenario == scenarios.birdShowcase){
             object = generateBirdShowcaseContent();
-        }else {
+        }else if(scenario == scenarios.tree){
+            object = generateLSystemTree();
+        }
+        else {
             object = generateHousesWithLawn();
         }
 

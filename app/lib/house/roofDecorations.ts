@@ -23,7 +23,6 @@ export abstract class RoofDecorations extends HouseElement{
         const roofSlope = Math.tan(roofAngle);
         const maxYSub = - roofSlope * roofDepth / 2;
         this.y = maxYSub * Math.abs(this.z) / (roofDepth/2);
-        console.log("z is " + this.z + " and y is " + this.y);
     }
 }
 
@@ -52,8 +51,6 @@ export class roofDecorationsPlacer{
         const ignoreDiameterZ = baseDepth < newDecoration.diameter;
         const effectiveAreaWidth = ignoreDiameterX ? baseWidth : baseWidth - newDecoration.diameter;
         const effectiveAreaDepth = ignoreDiameterZ ? baseDepth : baseDepth - newDecoration.diameter;
-
-        console.log("Adding new roof decoration with diameter")
 
         while(!positionValid){
             //If the allowed area is smaller than the decoration, we ignore the diameter of the decoration

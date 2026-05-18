@@ -15,18 +15,16 @@ class HouseBody{
     storyCount: number;
     storyHeight: number;
     houseWidth: number;
-    color: string;
     leftSize: number;
     rightSize: number;
 
-    constructor(id: number, storyCount: number, storyHeight: number, houseWidth: number, color: string, leftSize: number, rightSize: number){
+    constructor(id: number, storyCount: number, storyHeight: number, houseWidth: number, leftSize: number, rightSize: number){
         this.houseGroup = new THREE.Group();
 
         this.id = id;
         this.storyCount = storyCount;
         this.storyHeight = storyHeight;
         this.houseWidth = houseWidth;
-        this.color = color;
         this.leftSize = leftSize;
         this.rightSize = rightSize;
         this.childId = 0;
@@ -39,7 +37,6 @@ class HouseBody{
     get3DContent(): THREE.Group {
         const houseHeight: number = this.storyCount * this.storyHeight;
         const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.houseWidth, houseHeight, HOUSE_DEPTH);
-        //const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: this.color});
         const mixedMaterial = randomFromObject(getHouseMaterials());
 
         const material = mixedMaterial.standardMaterial;
@@ -102,17 +99,17 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         const houseHeight = storyCnt != null && storyHeight != null ? storyCnt * storyHeight : 0;
         const leftHouse = lastStoryCnt == null || lastStoryHeight == null ? 1 : lastStoryCnt * lastStoryHeight < houseHeight ? 1 : 0;
         const rightHouse = nextStoryCnt == null || nextStoryHeight == null ? 1 : nextStoryCnt * nextStoryHeight < houseHeight ? 1 : 0;
-        const houseColor = adjustColor("#a52a2a", 10)
-        const house = new HouseBody(i,  storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, houseColor, leftHouse, rightHouse);
+        const house = new HouseBody(i,  storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse);
         const houseMesh = house.get3DContent();
         houseMesh.position.set(housesWidth-Math.floor(houseWidth/2), Math.floor(houseHeight/2), 0);
-        //houseMesh.translateX(housesWidth-Math.floor(houseWidth/2));
-        //house.translate(housesWidth-Math.floor(houseWidth/2), Math.floor(houseHeight/2), 0);
-        //houseMesh.translateY(Math.floor(houseHeight/2));
         houseGroup.add(houseMesh);
     }
 
-    houseGroup.position.set(centerPoint[0]-Math.floor(housesWidth/2), centerPoint[1], centerPoint[2]);
+    for(const child of houseGroup.children){
+        if(child instanceof THREE.Group){
+            child.position.x -= housesWidth/2;
+        }
+    }
     return houseGroup;
 };
 

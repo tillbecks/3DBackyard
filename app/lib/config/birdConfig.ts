@@ -1,26 +1,28 @@
 import * as THREE from 'three';
 
-export const SURROUNDING_CENTER = new THREE.Vector3(0, 80, 100);
-export const SURROUNDING_RADIUS_DEPTH = 30;
-export const SURROUNDING_RADIUS_WIDTH = 80;
+export const SURROUNDING_CENTER = new THREE.Vector3(0, 100, 200);
+export const SURROUNDING_RADIUS_DEPTH = 50;
+export const SURROUNDING_RADIUS_WIDTH = 100;
 export const SURROUNDING_RADIUS_HEIGHT = 50;
 export const BIRD_COUNT = 7;
+const BIRD_MOVES_PER_SECOND = 45;
+export const BIRD_MOVES_PER_MINUTE = BIRD_MOVES_PER_SECOND * 60;
 
 export let avoidFactor = 0.1;
 export let matchingFactor = 0.08;
 export let centeringFactor = 0.001;
 export let turnFactor = 0.3;
-export let biasFactor = 0.0005;
+export let biasFactor = 0.002;
 
-export const MAX_SPEED = 1.1;
-export const MIN_SPEED = 0.5;
+export const MAX_SPEED = 2.0;
+export const MIN_SPEED = 0.8;
 
 export const PROTECTED_RANGE = 10;
 export const VISUAL_RANGE = 20;
 
-export const INIT_SPEED_MIN = 0.5;
-export const INIT_SPEED_MAX = 0.75;
-export const INIT_CENTER_DISTANCE = 40; //Should be smaller than surrounding_radius
+export const INIT_SPEED_MIN = 1.0;
+export const INIT_SPEED_MAX = 1.3;
+export const INIT_CENTER_DISTANCE = 20; //Should be smaller than surrounding_radius
 
 export const BIRD_LENGTH = 3;
 export const BIRD_WIDTH = 2;
