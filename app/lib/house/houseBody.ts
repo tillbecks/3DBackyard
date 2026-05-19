@@ -6,6 +6,8 @@ import { windowGenerator } from "./windows";
 import { getHouseMaterials } from "../textures/materials";
 import { calcUVS, subtractGeometry } from "../config/3dUtils";
 import {Rooms} from "./rooms";
+import * as TYPES from "../../types/typeIndex";
+import { translateLightConfigs, translateXLightConfigs } from "./lights";
 
 
 class HouseBody{
@@ -34,7 +36,7 @@ class HouseBody{
         return `${this.id}_${this.childId++}`;
     }
 
-    get3DContent(): THREE.Group {
+    get3DContent(): TYPES.ObjectLightReturn {
         const houseHeight: number = this.storyCount * this.storyHeight;
         const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.houseWidth, houseHeight, HOUSE_DEPTH);
         const mixedMaterial = randomFromObject(getHouseMaterials());
@@ -72,13 +74,14 @@ class HouseBody{
         this.houseGroup.add(windowsBalconies["windows"]["windowPanes"]);
         this.houseGroup.add(windowsBalconies["windows"]["stairWindowPanes"]);
 
-        return this.houseGroup;
+        return {object: this.houseGroup, lights: lights};
     } 
 };
 
 //x rechts-links, z vorne-hinten, y oben-unten
-export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): THREE.Group {
+export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): TYPES.ObjectLightReturn {
     const houseGroup = new THREE.Group();
+    const lights = [];
     let housesWidth: number = 0;
 
     //const most_left_x_coordinate = centerPoint[0] - Math.floor(houseCnt / 2 * HOUSE_WIDTH);
@@ -102,9 +105,14 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         const leftHouse = lastStoryCnt == null || lastStoryHeight == null ? 1 : lastStoryCnt * lastStoryHeight < houseHeight ? 1 : 0;
         const rightHouse = nextStoryCnt == null || nextStoryHeight == null ? 1 : nextStoryCnt * nextStoryHeight < houseHeight ? 1 : 0;
         const house = new HouseBody(i,  storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse);
-        const houseMesh = house.get3DContent();
-        houseMesh.position.set(housesWidth-Math.floor(houseWidth/2), Math.floor(houseHeight/2), 0);
+        const objectLight = house.get3DContent();
+        const houseMesh = objectLight.object;
+        const positionY = Math.floor(houseHeight/2);
+        const positionX = housesWidth - Math.floor(houseWidth/2);
+        translateLightConfigs(objectLight.lights, new THREE.Vector3(positionX, positionY, 0));
+        houseMesh.position.set(positionX, positionY, 0);
         houseGroup.add(houseMesh);
+        lights.push(...objectLight.lights);
     }
 
     for(const child of houseGroup.children){
@@ -112,9 +120,6 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
             child.position.x -= housesWidth/2;
         }
     }
-    return houseGroup;
+    translateXLightConfigs(lights, -housesWidth/2);
+    return {object: houseGroup, lights: lights};
 };
-
-export function houseDrawer(group: THREE.Group, scene: THREE.Scene){
-    scene.add(group);
-}

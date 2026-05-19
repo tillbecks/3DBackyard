@@ -17,9 +17,9 @@ export interface WallPositions{
 export type SubtractGeometry = THREE.BoxGeometry[][];
 
 export interface WindowReturn{
-    "windowHoles": THREE.Group, 
+    "windowHoles": THREE.Mesh, 
     "windowPanes":  THREE.Group, 
-    "stairWindowHoles": THREE.Group, 
+    "stairWindowHoles": THREE.Mesh | null, 
     "stairWindowPanes": THREE.Group, 
     "balconyPosition": number, 
     "windowPositions": WindowPositions,
@@ -37,10 +37,26 @@ export interface LightConfig{
     position: THREE.Vector3;
     initTurnedOn: boolean;
     timer: number;
-    translate: (position: THREE.Vector3) => void;
 }
 
 export interface ObjectLightReturn{
     object: THREE.Group;
     lights: LightConfig[];
+}
+
+export interface APIObjectLightReturn{
+    object: string;
+    lights: LightConfig[];
+}
+
+export interface LightObject{
+    light: THREE.SpotLight;
+    turnedOn: boolean;
+    timer: number;
+}
+
+export interface LightTimer{
+    light: LightObject;
+    timeElapsed: number;
+    lightIndex: number;
 }

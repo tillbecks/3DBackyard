@@ -105,6 +105,7 @@ export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let lastHoveredId: string | null = null;
+    let hasClicked = false; // Flag: kann nur einmal geklickt werden
     const openFunctions = bindWindowsToOpen(scene, onClick, tweenGroup);
     const highlightFunctions = bindWindowsToMaterialChange(scene);
 
@@ -142,7 +143,9 @@ export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.
     }
 
     const fClick = (id: string | null) => {
+        if(hasClicked) return; // Keine weiteren Clicks erlaubt
         if(id && openFunctions[id]){
+            hasClicked = true; // Nach erstem Click blockieren
             openFunctions[id]();
         }
     }
@@ -152,7 +155,8 @@ export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.
     });
 
     const fMove = (id: string | null) => {
-        if (id && lastHoveredId !== id) {
+
+        if (id && lastHoveredId !== id && !hasClicked) {
             if (highlightFunctions[id]){
                 highlightFunctions[id](PANE_HIGHLIGHT_MATERIAL);
             }

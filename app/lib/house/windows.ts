@@ -1,7 +1,7 @@
 import * as HC from '../config/houseConfig';
 import { randomInRangeInt, randomFromObject, randomBoolean } from "../config/utils";
 import * as THREE from "three";
-import {Brush, Evaluator, ADDITION } from 'three-bvh-csg';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { balconyGenerator } from "./balcony";
 import { PANE_MATERIAL } from '../textures/materials';
 import * as TYPES from '../../types/typeIndex';
@@ -25,8 +25,10 @@ class Windows{
         const windowPositionsX = [];
         const windowPositionsRightX = [];
         let stairPositionX = 0;
-        const windowHoleGeometries: THREE.Group = new THREE.Group();
-        const stairWindowHoles: THREE.Group = new THREE.Group();
+        //const windowHolesMesh: THREE.Group = new THREE.Group();
+        const windowHoles = [];
+        //const stairWindowHolesGeometries: THREE.Group = new THREE.Group();
+        const stairWindowHoles = [];
         const windowPaneGeometries: THREE.Group = new THREE.Group();
         const stairWindowPaneGeometries: THREE.Group = new THREE.Group();
         const halfHouseHeight: number = storyHeight * storyCnt / 2;
@@ -40,7 +42,6 @@ class Windows{
         const leftRightMoreWindows = randomInRangeInt(0,2);
 
         for(let story=0; story<storyCnt; ++story){
-            const windowHoleStoryGroup: THREE.Group = new THREE.Group();
             const windowPaneStoryGeometries: THREE.Group = new THREE.Group();
             if (this.windowBreakingScheme == HC.WINDOW_SPACING_SCHEME.EQUALLY_SPACED){
                 //let distBetween = houseWidth/(this.windowCntPerStory+1);
@@ -52,7 +53,7 @@ class Windows{
                 for(let window=0; window<this.windowCntPerStory; ++window){
                     let translateY: number;
                     const translateX: number = -houseWidth/2 + startDistance + window * addOn;
-                    windowPositionsX.push(translateX);
+                    if(story == 0) windowPositionsX.push(translateX);
                     let windowHeight: number;
                     let isBalcony = false;
                     if(this.hasBalcony && window == this.balconyWindow){
@@ -71,7 +72,8 @@ class Windows{
                     const windowGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.windowWidth, windowHeight, HC.WALL_THICKNESS + 2);
                     windowGeometry.translate(translateX, translateY, houseDepth/2);
                     //windowPaneGeometry.translate(translateX, translateY, houseDepth/2 - 1);
-                    windowHoleStoryGroup.add(new THREE.Mesh(windowGeometry));
+                    //windowHoleStoryGroup.add(new THREE.Mesh(windowGeometry));
+                    windowHoles.push(windowGeometry);
                     //windowPaneStoryGeometries.push(new THREE.Mesh(windowPaneGeometry, windowMaterial));
                     const windowFrame = new WindowFrame(this.windowWidth, windowHeight, !isBalcony && windowsSplitVertical, !isBalcony && windowsSplitHorizontal);
                     const frame3D = windowFrame.get3DObject(getID);
@@ -111,7 +113,7 @@ class Windows{
                 for(let windowL=0; windowL < windowCntLeft; ++windowL){
                     let translateY: number;
                     const translateX: number = (-houseWidth/2) + distLeftStart + topOnLeft * windowL;
-                    windowPositionsX.push(translateX);
+                    if(story == 0) windowPositionsX.push(translateX);
                     let windowHeight: number;
                     let isBalcony = false;
                     if(this.hasBalcony && windowL == this.balconyWindow){
@@ -129,7 +131,8 @@ class Windows{
                     }
                     const windowGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.windowWidth, windowHeight, HC.WALL_THICKNESS);
                     windowGeometry.translate(translateX, translateY, houseDepth/2 - HC.WALL_THICKNESS / 2);
-                    windowHoleStoryGroup.add(new THREE.Mesh(windowGeometry));
+                    //windowHoleStoryGroup.add(new THREE.Mesh(windowGeometry));
+                    windowHoles.push(windowGeometry);
                     const windowFrame = new WindowFrame(this.windowWidth, windowHeight, !isBalcony && windowsSplitVertical, !isBalcony && windowsSplitHorizontal);
                     const frame3D = windowFrame.get3DObject(getID);
                     frame3D.position.set(translateX, translateY, houseDepth/2 - 1);
@@ -139,7 +142,7 @@ class Windows{
                     let translateY: number;
                     let windowHeight: number;
                     const translateX: number = (houseWidth * HC.WINDOW_BREAK_SCHEME_DIST_PERCENTAGE)/2 + distRightStart + topOnRight * windowR;
-                    windowPositionsRightX.push(translateX);
+                    if(story == 0)  windowPositionsRightX.push(translateX);
                     let isBalcony = false;
                     if(this.hasBalcony && (windowR + windowCntLeft) == this.balconyWindow){
                         windowHeight = HC.BALCONY_DOOR_HEIGHT_PERCENTAGE * storyHeight;
@@ -156,7 +159,7 @@ class Windows{
                     }
                     const windowGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.windowWidth, windowHeight, HC.WALL_THICKNESS);
                     windowGeometry.translate(translateX, translateY,  houseDepth/2 - HC.WALL_THICKNESS / 2);
-                    windowHoleStoryGroup.add(new THREE.Mesh(windowGeometry));
+                    windowHoles.push(windowGeometry);
                     const windowFrame = new WindowFrame(this.windowWidth, windowHeight, !isBalcony && windowsSplitVertical, !isBalcony && windowsSplitHorizontal);
                     const frame3D = windowFrame.get3DObject(getID);
                     frame3D.position.set(translateX, translateY, houseDepth/2 - 1);
@@ -170,7 +173,8 @@ class Windows{
                     stairWindowGeometry.translate(xPosition, yPosition, houseDepth/2 - HC.WALL_THICKNESS / 2);
                     const stairWindowPaneGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.windowWidth, storyHeight * HC.WINDOW_HEIGHT_PERCENTAGE, 1);
                     stairWindowPaneGeometry.translate(xPosition, yPosition, houseDepth/2 - 1);
-                    stairWindowHoles.add(new THREE.Mesh(stairWindowGeometry));
+                    //stairWindowHolesGeometries.add(new THREE.Mesh(stairWindowGeometry));
+                    stairWindowHoles.push(stairWindowGeometry);
                     const windowFrame = new WindowFrame(this.windowWidth, storyHeight * HC.WINDOW_HEIGHT_PERCENTAGE);
                     const frame3D = windowFrame.get3DObject(getID);
                     frame3D.position.set(xPosition, yPosition, houseDepth/2 - 1);
@@ -178,12 +182,20 @@ class Windows{
                 }
 
             }
-            windowHoleGeometries.add(windowHoleStoryGroup);
-            windowPaneGeometries.add(windowPaneStoryGeometries);
+            //windowHoleGeometries.add(windowHoleStoryGroup);
+           windowPaneGeometries.add(windowPaneStoryGeometries);
+        }
+
+        const windowHolesGeometrie = BufferGeometryUtils.mergeGeometries(windowHoles);
+        const windowHolesMesh = new THREE.Mesh(windowHolesGeometrie);
+        let stairWindowHolesMesh = null;
+        if(stairWindowHoles.length > 0){
+            const stairWindowHolesGeometrie = BufferGeometryUtils.mergeGeometries(stairWindowHoles);
+            stairWindowHolesMesh = new THREE.Mesh(stairWindowHolesGeometrie);
         }
 
         const windowPositions = {type: this.windowBreakingScheme, windowsX: windowPositionsX, windowsRightX: windowPositionsRightX, windowWidth: this.windowWidth, stairX: stairPositionX};
-        return {"windowHoles": windowHoleGeometries, "windowPanes": windowPaneGeometries, "stairWindowHoles": stairWindowHoles, "stairWindowPanes": stairWindowPaneGeometries, "balconyPosition": balconyPositionX, "windowPositions": windowPositions, "balconySpace": balconySpace};
+        return {"windowHoles": windowHolesMesh, "windowPanes": windowPaneGeometries, "stairWindowHoles": stairWindowHolesMesh, "stairWindowPanes": stairWindowPaneGeometries, "balconyPosition": balconyPositionX, "windowPositions": windowPositions, "balconySpace": balconySpace};
     }
 
 }

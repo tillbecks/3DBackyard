@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { terrestrialAntennaGenerator } from '../house/antennas/terrestrialAntenna';
 import { houseGroupGenerator } from '../house/houseBody';
 import { createCameraConfig } from '../config/importExportUtils';
-import * as TDUTILS from '../config/3dUtils';
 import BirdModel from '../birds/birdModel';
 
 export function generateShowcaseContent(){
@@ -13,7 +11,7 @@ export function generateShowcaseContent(){
     returnGroup.add(antenna);*/
 
     const house = createHouse();
-    returnGroup.add(house);
+    returnGroup.add(house.object);
 
     return returnGroup;
 }

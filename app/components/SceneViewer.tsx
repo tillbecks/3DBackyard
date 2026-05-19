@@ -3,15 +3,17 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { glbToObject } from '@/app/lib/config/importExportUtils';
+import { glbToObject, objectFromGLBBase64, objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import { initRenderer, initCamera, initSky } from '@/app/lib/scene/scene';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { initSunlight, initAmbientLight } from '../lib/scene/light';
 import { birdFlogGenerator, BirdController } from '../lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '../lib/config/windowUtils';
-import { calcCenterOfGeometries } from '../lib/config/3dUtils';
+import { calcCenterOfGeometries, calcNormalizedDirectionVector } from '../lib/config/3dUtils';
 import { loadShader } from '../lib/textures/shader/shaderConfig';
-import {Tween, Group} from '@tweenjs/tween.js';
+import {Group} from '@tweenjs/tween.js';
+import * as TYPES from '../types/typeIndex';
+import LightController from '../lib/scene/lightController';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,9 @@ export default function SceneViewer() {
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
+        let isFollowingBird = false; // Flag für Follow-Modus
+        const smoothLookAtTarget = new THREE.Vector3(); // Gepufferter Punkt zum Schauen
+
         scene.add(initSky());
         scene.add(initSunlight());
         scene.add(initAmbientLight());
@@ -72,11 +77,11 @@ export default function SceneViewer() {
         const loadContent = async (scenario: string) => {
             try {
                 const contentResponse = await fetch(`/api/scene-objects?scenario=${scenario}`);
-                if (!contentResponse.ok) {
+                if (!contentResponse.ok ) {
                     throw new Error(`HTTP error! status: ${contentResponse.status}`);
                 }
-                const glb = await contentResponse.arrayBuffer();
-                const loadedScene = await glbToObject(glb);
+                const content = await contentResponse.json();
+                const loadedScene = await objectFromGLBBase64(content.object);
                 loadedScene.traverse((child) => {
                     if (child instanceof THREE.Mesh) {
                         child.castShadow = true;
@@ -118,10 +123,35 @@ export default function SceneViewer() {
             }
         };
 
+        const cameraFollowObject = (camera: THREE.Camera, object: THREE.Object3D, delta: number) => {
+            // Berechne Blickrichtung des Vogels (wo schaut der Vogel hin)
+            const birdForward = new THREE.Vector3(0, 0, 1).applyQuaternion(object.quaternion).normalize();
+            
+            // Offset ist immer HINTER dem Vogel, relativ zu seiner Blickrichtung
+            const offset = birdForward.multiplyScalar(5);
+            const targetPosition = new THREE.Vector3().copy(object.position).add(offset);
+            
+            const posLerpFactor = 1 - Math.exp(-3 * delta); 
+            const lookLerpFactor = 1 - Math.exp(-4 * delta); 
+
+            smoothLookAtTarget.lerp(targetPosition, lookLerpFactor);
+            const targetQuat = new THREE.Quaternion();
+            targetQuat.copy(camera.quaternion);
+            
+            camera.lookAt(smoothLookAtTarget);
+            camera.quaternion.slerp(targetQuat, lookLerpFactor );
+            camera.position.lerp(object.position, posLerpFactor);
+        }
+
         const getOnWindowClick = (birdFlog: BirdController)=>{
             return (windows: THREE.Object3D[]) => {
                 const center = calcCenterOfGeometries(windows);
-                birdFlog?.switchToGoal(center);
+                if(birdFlog){
+                    birdFlog?.switchToGoal(center);
+                    isFollowingBird = true;
+                    controls.enabled = false; // OrbitControls deaktivieren
+                    animations.push((deltaSeconds) => cameraFollowObject(camera, birdFlog.birds[0].birdGeometry, deltaSeconds));
+                }
             }
         };
 
@@ -166,8 +196,9 @@ export default function SceneViewer() {
                 if(!loaded) return;
                 timer.update(timestamp);
                 const deltaSeconds = timer.getDelta();
+                if(!isFollowingBird) controls.update(); // OrbitControls nur wenn nicht Following timer.getDelta();
                 animations.forEach((f) => f(deltaSeconds));
-                controls.update();
+                //controls.update();
                 tweenGroup.update();
                 renderer.render(scene, camera);
             } catch (error) {

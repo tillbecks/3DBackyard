@@ -40,7 +40,7 @@ export async function objectToGLBBase64(object: THREE.Object3D | THREE.Group): P
     return Buffer.from(glb).toString('base64');
 }
 
-export async function objectFromGLBBase64(base64: string): Promise<THREE.Object3D | THREE.Group> {
+export async function objectFromGLBBase64(base64: string): Promise<THREE.Object3D> {
     const binaryString = atob(base64);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {

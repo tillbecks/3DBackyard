@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
-import { objectToGLB } from '@/app/lib/config/importExportUtils';
+import { objectFromGLBBase64, objectToGLB, objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
 import { generateLSystemTree } from '@/app/lib/trees/lsystems';
+import * as TYPES from '@/app/types/typeIndex';
 import * as THREE from 'three';
 
 export async function GET(request: NextRequest) {
     try {        
         // Scene mit Häusern, Lichtern etc. erstellen
         const scenario = request.nextUrl.searchParams.get('scenario');
-        let object: THREE.Group | null = null;
+        let object: THREE.Group  | null = null;
+        let lights: TYPES.LightConfig[]= [];
 
         if(scenario == scenarios.showcase){
             object = generateShowcaseContent();
@@ -20,19 +22,18 @@ export async function GET(request: NextRequest) {
             object = generateLSystemTree();
         }
         else {
-            object = generateHousesWithLawn();
+            const objectLight = generateHousesWithLawn();
+            object = objectLight.object;
+            lights = objectLight.lights;
         }
 
-        const glbBuffer = await objectToGLB(object);
+        const glbBufferString = await objectToGLBBase64(object);
+        const sendJson = {
+            object: glbBufferString,
+            lights: lights
+        }
         
-        return new NextResponse(glbBuffer, {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/octet-stream',
-                'Content-Disposition': 'attachment; filename="houses.glb"',
-            },
-        });
-
+        return NextResponse.json(sendJson);
     } catch (error) {
         console.error('Scene generation error:', error);
         return NextResponse.json(

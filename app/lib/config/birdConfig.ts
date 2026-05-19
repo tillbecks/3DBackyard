@@ -29,7 +29,7 @@ export const BIRD_WIDTH = 2;
 export const BIRD_HEIGHT = 1;
 
 export const LOOPING_SIZE = 40;
-export const LOOPING_OVERSHOT = 40;
+export const LOOPING_OVERSHOT = 60;
 export const LOOPING_MIN_WALL_DISTANCE = 100;
 export const DISTANCE_CENTER_BEFORE_LOOP = 40;
 

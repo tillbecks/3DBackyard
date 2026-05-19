@@ -17,6 +17,12 @@ export function markerRing(radius: number = 0.5, color: number = 0xff0000): THRE
     return ring;
 }
 
+export function markerSphere(radius: number = 0.5, color: number = 0xff0000): THREE.Mesh {
+    const geometry = new THREE.SphereGeometry(radius, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    return new THREE.Mesh(geometry, material);
+}
+
 export function calcCenterOfGeometries(object: THREE.Object3D | THREE.Object3D[]): THREE.Vector3 {
     const center = new THREE.Vector3();
     let count = 0;
@@ -89,19 +95,21 @@ export function calcUVS(geometry: THREE.BufferGeometry | THREE.Group){
     });
 }
 
-export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group, subtractGeometry: THREE.Mesh | THREE.Group): Brush {
+export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group, subtractGeometry: THREE.Mesh | THREE.Group | null): Brush {
     const evaluator = new Evaluator();
     evaluator.attributes = ['position', 'normal'];
     
     let subtractionBrush: Brush | null = null;
     let subtractFromBrush: Brush | null = null;
 
-    subtractGeometry.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.geometry) {
-            const childBrush = new Brush(child.geometry);
-            subtractionBrush = subtractionBrush ? evaluator.evaluate(subtractionBrush, childBrush, ADDITION) : childBrush;
-        }
-    });
+    if (subtractGeometry) {
+        subtractGeometry.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.geometry) {
+                const childBrush = new Brush(child.geometry);
+                subtractionBrush = subtractionBrush ? evaluator.evaluate(subtractionBrush, childBrush, ADDITION) : childBrush;
+            }
+        });
+    }
 
     subtractFromGeometry.traverse((child) => {
         if (child instanceof THREE.Mesh && child.geometry) {
@@ -168,4 +176,14 @@ export function createSinusHeightMap(amplitude: number, Xfrequency: number, Zfre
         }
      }
      return heightMap;
+}
+
+export function rotateVectorAroundAxisPosition(vector: THREE.Vector3, axis: THREE.Vector3, angle: number, axisPosition: THREE.Vector3): THREE.Vector3 {
+    const normalizedAxis = axis.clone().normalize();
+    const q = new THREE.Quaternion().setFromAxisAngle(normalizedAxis, angle);
+    return vector.clone().sub(axisPosition).applyQuaternion(q).add(axisPosition);
+}
+
+export function calcNormalizedDirectionVector(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3 {
+    return to.clone().sub(from).normalize();
 }

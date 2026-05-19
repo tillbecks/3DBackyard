@@ -8,6 +8,7 @@ import { step } from 'three/tsl';
 export class BirdController{
     mode: string;
     goal: THREE.Vector3;
+    lastPosition: THREE.Vector3;
     position: THREE.Vector3;
     birds: Bird[]
 
@@ -18,6 +19,7 @@ export class BirdController{
         this.mode = BC.FLIGHT_MODES.CIRCLE;
         this.goal = new THREE.Vector3(0, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
+        this.lastPosition = new THREE.Vector3(0, 0, 0);
         this.movementAccumulator = 0;
 
         this.birds = [];
@@ -51,6 +53,7 @@ export class BirdController{
             else if (nextCirclePosition==true){
                 return;
             }
+            this.lastPosition.copy(this.position);
             this.position = nextCirclePosition;
             positionUpdated = true;
         }

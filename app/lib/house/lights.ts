@@ -14,11 +14,8 @@ export function generateLightConfig(roomPosition: THREE.Vector3, roomSize: THREE
             color: randomBoolean(HC.LIGHT_UNUSUAL_COLOR_PROBABILITY) ? unusualColorGenerator() : randomFromArray(LIGHT_COLORS_COMMON),
             intensity: randomInRangeFloat(HC.LIGHT_INTENSITY_MIN, HC.LIGHT_INTENSITY_MAX),
             position: randomRoomPosition(roomSize).add(roomPosition),
-            initTurnedOn: randomBoolean(),
-            timer: 0,
-            translate: function(position: THREE.Vector3) {
-                this.position.add(position);
-            }
+            initTurnedOn: randomBoolean(HC.LIGHT_TURNED_ON_PROBABILITY),
+            timer: 0
         });
     }
     return lights;
@@ -33,13 +30,26 @@ export function generateStairLightConfig(roomPosition: THREE.Vector3, roomSize: 
             intensity: HC.STAIR_LIGHT_INTENSITY,
             position: new THREE.Vector3(roomPosition.x + roomSize.x / 3, roomPosition.y - roomSize.y / 2 + (i * floorHeight) + floorHeight / 2, roomPosition.z),
             initTurnedOn: false,
-            timer: randomInRangeInt(HC.STAIR_LIGHT_TIMER_MIN, HC.STAIR_LIGHT_TIMER_MAX),
-            translate: function(position: THREE.Vector3) {
-                this.position.add(position);
-            }
+            timer: randomInRangeInt(HC.STAIR_LIGHT_TIMER_MIN, HC.STAIR_LIGHT_TIMER_MAX)
         })
     }
     return stairLights;
+}
+
+export function translateLightConfigs(lights: LightConfig[] | LightConfig, translation: THREE.Vector3) {
+    (Array.isArray(lights) ? lights : [lights]).forEach(light => light.position.add(translation));
+}
+
+export function translateXLightConfigs(lights: LightConfig[] | LightConfig, xTranslation: number) {
+    (Array.isArray(lights) ? lights : [lights]).forEach(light => light.position.x += xTranslation);
+}
+
+export function translateYLightConfigs(lights: LightConfig[] | LightConfig, yTranslation: number) {
+    (Array.isArray(lights) ? lights : [lights]).forEach(light => light.position.y += yTranslation);
+}
+
+export function translateZLightConfigs(lights: LightConfig[] | LightConfig, zTranslation: number) {
+    (Array.isArray(lights) ? lights : [lights]).forEach(light => light.position.z += zTranslation);
 }
 
 function unusualColorGenerator(): number {

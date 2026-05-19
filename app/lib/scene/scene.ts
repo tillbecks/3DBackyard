@@ -104,7 +104,7 @@ function initContent(scene: BaseScene): Content{
     /*const bird_flog = birdFlogGenerator(scene.scene);
     initBirdGui(scene.gui, bird_flog);*/
     
-    scene.add(houseGroup);
+    //scene.add(houseGroup);
     //bird_flog.bird_flog.forEach(bird => scene.add(bird.bird_mesh));
 
     return{
@@ -163,22 +163,3 @@ export function initSky(): Sky{
 
     return sky;
 }
-
-
-//Button on press sets bird goal made with threejs GUI
-/*function initGUI(): GUI{
-    const gui = new GUI();
-    return gui;
-}*/
-
-/*function initBirdGui(gui: GUI, bird_flog){
-    const birdFolder = gui.addFolder('Bird Control');
-    const birdParams = {
-        setBirdGoal: function() {
-            const bird_goal = new THREE.Vector3(-70, 70, -40);
-            bird_flog.switchToGoal(bird_goal);
-        }
-    };
-    birdFolder.add(birdParams, 'setBirdGoal').name('Set Bird Goal');
-    birdFolder.open();
-}*/
