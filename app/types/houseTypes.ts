@@ -30,3 +30,17 @@ export interface WindowBalconiesReturn{
     "windows": WindowReturn, 
     "balconies"?: THREE.Group
 }
+
+export interface LightConfig{
+    color: number;
+    intensity: number;
+    position: THREE.Vector3;
+    initTurnedOn: boolean;
+    timer: number;
+    translate: (position: THREE.Vector3) => void;
+}
+
+export interface ObjectLightReturn{
+    object: THREE.Group;
+    lights: LightConfig[];
+}

@@ -31,3 +31,5 @@ export const BETON_COLOR = 0x797878; //"#797878"
 export const TREE_BARK_COLOR = 0x5a3e1b; //"#5a3e1b"
 
 export const TREE_LEAF_COLOR = 0x228B22; //"#228B22"
+
+export const LIGHT_COLORS_COMMON = [0xffffff, 0xffee88, 0xffdd55, 0xffffaa]; //[ "#ffffff", "#fff3ae", "#fada59", "#ffffaa"]

@@ -27,12 +27,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## ToDos
 
 ### Planned
-- [ ] Smooth Window Opening
+- [X] Smooth Window Opening
 - [ ] Camera Follows Birds on Window-Click
 - [ ] Trees
   - [X] L-Systems
   - [ ] Different Variations
-  - [ ] Add to scene
+  - [ ] Add to Scene
 - [ ] Balcony Positioning
 - [ ] Walls in Garden?
 - [ ] Environment Map?
@@ -40,5 +40,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] In-Door Lighting
 - [ ] Day-Night Cycle
 - [ ] Linkage to Website
-- [ ] Infos for visitors
+- [ ] Infos for Visitors
 - [ ] Fix Spike Line Lawn

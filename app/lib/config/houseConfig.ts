@@ -51,6 +51,8 @@ console.assert(
     "The accumulated width of all windows if the maximum amount of windows per story would be created exceeds the minimum Story width."
 );
 
+export const WINDOW_OPENING_TIME: number = 2000;
+
 export const FASSADE_MATERIALS = {
     BRICKS: "brick" as const,
     PLASTER: "plaster" as const
@@ -233,3 +235,22 @@ export const CHIMNEY_DECORATIONS = {
 }
 
 export const CHIMNEY_PROBABILITY: number = 0.8;
+
+export const LIGHT_TYPES = {
+    ROOM: "room",
+    STAIR: "stair"
+}
+
+
+export const STAIR_LIGHT_TIMER_MIN: number = 40;
+export const STAIR_LIGHT_TIMER_MAX: number = 80;
+export const STAIR_LIGHT_INTENSITY: number = 0.5;
+export const LIGHT_INTENSITY_MIN: number = 0.5;
+export const LIGHT_INTENSITY_MAX: number = 1.5;
+export const LIGHT_UNUSUAL_COLOR_PROBABILITY: number = 0.02;
+export const LIGHT_DISTANCE_TO_WALL: number = 1;
+
+export const LIGHTS_PER_CUBIC_UNIT_MIN: number = 0.02;
+export const LIGHTS_PER_CUBIC_UNIT_MAX: number = 0.05;
+
+export const LIGHTS_PER_ROOM_MIN: number = 1;

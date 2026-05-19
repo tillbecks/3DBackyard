@@ -1,24 +1,39 @@
 import * as THREE from "three";
-import { SINGLE_WINDOW_ID, DOUBLE_WINDOW_LEFT_ID, DOUBLE_WINDOW_RIGHT_ID, WINDOW_PANE_ID } from "./houseConfig";
+import { SINGLE_WINDOW_ID, DOUBLE_WINDOW_LEFT_ID, DOUBLE_WINDOW_RIGHT_ID, WINDOW_PANE_ID, WINDOW_OPENING_TIME } from "./houseConfig";
 import { PANE_MATERIAL , PANE_HIGHLIGHT_MATERIAL } from "../textures/materials";
+import * as TWEEN from '@tweenjs/tween.js';
 
+function rotateOverTime(object: THREE.Object3D, targetRotation: number, duration: number, onComplete?: () => void): TWEEN.Tween {
+    const proxy = { rotation: 0, lastRotation: 0 };
+    
+    const tween = new TWEEN.Tween(proxy)
+        .to({ rotation: targetRotation }, duration)
+        .easing(TWEEN.Easing.Elastic.Out)
+        .onUpdate(() => {object.rotateY(proxy.rotation - proxy.lastRotation); proxy.lastRotation = proxy.rotation;})
+        .onComplete(onComplete)
+        .start();
 
-export function openWindow(window: THREE.Object3D, openAngle: number): void {
-    window.rotateY(openAngle);
+    return tween;
 }
 
-export function openDoubleWindow(leftWindow: THREE.Object3D, rightWindow: THREE.Object3D, openAngle: number): void {
-    leftWindow.rotateY(-openAngle);
-    rightWindow.rotateY(openAngle);
+export function openWindow(window: THREE.Object3D, openAngle: number): TWEEN.Tween {
+    return rotateOverTime(window, openAngle, WINDOW_OPENING_TIME);
 }
 
-export function closeWindow(window: THREE.Object3D, openAngle: number): void {
-    window.rotateY(-openAngle);
+export function openDoubleWindow(leftWindow: THREE.Object3D, rightWindow: THREE.Object3D, openAngle: number): TWEEN.Tween[] {
+    const leftTween = rotateOverTime(leftWindow, -openAngle, WINDOW_OPENING_TIME);
+    const rightTween = rotateOverTime(rightWindow, openAngle, WINDOW_OPENING_TIME);
+    return [leftTween, rightTween];
 }
 
-export function closeDoubleWindow(leftWindow: THREE.Object3D, rightWindow: THREE.Object3D, openAngle: number): void {
-    leftWindow.rotateY(openAngle);
-    rightWindow.rotateY(-openAngle);
+export function closeWindow(window: THREE.Object3D, openAngle: number): TWEEN.Tween {
+    return rotateOverTime(window, -openAngle, WINDOW_OPENING_TIME);
+}
+
+export function closeDoubleWindow(leftWindow: THREE.Object3D, rightWindow: THREE.Object3D, openAngle: number): TWEEN.Tween[] {
+    const leftTween = rotateOverTime(leftWindow, openAngle, WINDOW_OPENING_TIME);
+    const rightTween = rotateOverTime(rightWindow, -openAngle, WINDOW_OPENING_TIME);
+    return [leftTween, rightTween];
 }
 
 function bindWindowsToFunction<T = void>(house: THREE.Object3D, fSingle: (window: THREE.Object3D, args?: T) => void, fDouble: (leftWindow: THREE.Object3D, rightWindow: THREE.Object3D, args?: T) => void) {
@@ -42,17 +57,18 @@ function bindWindowsToFunction<T = void>(house: THREE.Object3D, fSingle: (window
     return functions;
 }
 
-export function bindWindowsToOpen(house: THREE.Object3D, onClick: (windows: THREE.Object3D[]) => void): Record <string, () => void> {
+export function bindWindowsToOpen(house: THREE.Object3D, onClick: (windows: THREE.Object3D[]) => void, tweenGroup: TWEEN.Group): Record <string, () => void> {
     const openSingle = (window?: THREE.Object3D) => {
         if (window) {
             onClick([window]);
-            openWindow(window, Math.PI / 2);
+            tweenGroup.add(openWindow(window, Math.PI / 2));
         }
     };
     const openDouble = (leftWindow?: THREE.Object3D, rightWindow?: THREE.Object3D) => {
         if (leftWindow && rightWindow) {
             onClick([leftWindow, rightWindow]);
-            openDoubleWindow(leftWindow, rightWindow, Math.PI / 2);
+            const tweens = openDoubleWindow(leftWindow, rightWindow, Math.PI / 2);
+            tweens.forEach(tween => tweenGroup.add(tween));
         }
     };
 
@@ -85,11 +101,11 @@ export function bindWindowsToMaterialChange(house: THREE.Object3D): Record <stri
 }
 
 
-export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.Scene, container: HTMLElement, onClick: (window: THREE.Object3D[]) => void): void {
+export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.Scene, container: HTMLElement, onClick: (window: THREE.Object3D[]) => void, tweenGroup: TWEEN.Group): void {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let lastHoveredId: string | null = null;
-    const openFunctions = bindWindowsToOpen(scene, onClick);
+    const openFunctions = bindWindowsToOpen(scene, onClick, tweenGroup);
     const highlightFunctions = bindWindowsToMaterialChange(scene);
 
     function functionOnWindowID(event: MouseEvent, f: (id: string | null) => void){

@@ -54,7 +54,9 @@ class HouseBody{
         houseWithoutWindows = subtractGeometry(houseWithoutWindows, windowsBalconies["windows"]["stairWindowHoles"]);
 
         const rooms = new Rooms(this.storyCount, this.storyHeight, this.houseWidth, HOUSE_DEPTH, windowsBalconies["windows"]["windowPositions"]);
-        houseWithoutWindows = subtractGeometry(houseWithoutWindows, rooms.get3DObject());
+        const roomsObject = rooms.get3DObject();
+        houseWithoutWindows = subtractGeometry(houseWithoutWindows, roomsObject.object);
+        const lights = roomsObject.lights;
 
         // Generate UVs nach der CSG-Operation
         calcUVS(houseWithoutWindows.geometry);

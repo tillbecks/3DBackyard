@@ -11,6 +11,7 @@ import { birdFlogGenerator, BirdController } from '../lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '../lib/config/windowUtils';
 import { calcCenterOfGeometries } from '../lib/config/3dUtils';
 import { loadShader } from '../lib/textures/shader/shaderConfig';
+import {Tween, Group} from '@tweenjs/tween.js';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -19,6 +20,7 @@ export default function SceneViewer() {
     //const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
     useEffect(() => {
+        const tweenGroup = new Group();
         const scenario = scenarios.backyard; // Hier kannst du das Szenario wechseln, z.B. scenarios.backyard
         const animations: ((deltaSeconds: number) => void)[] = [];
         const timer = new THREE.Timer();
@@ -129,7 +131,7 @@ export default function SceneViewer() {
                 await initScene(scenario);
                 await loadContent(scenario);
                 const birdFlog = await loadBirds(scenario);
-                if(containerRef.current) bindMouseMovementToRaycaster(camera, scene, containerRef.current, birdFlog instanceof BirdController ? getOnWindowClick(birdFlog) : () => {});
+                if(containerRef.current) bindMouseMovementToRaycaster(camera, scene, containerRef.current, birdFlog instanceof BirdController ? getOnWindowClick(birdFlog) : () => {}, tweenGroup);
                 return birdFlog; 
             }
             catch(error){
@@ -166,6 +168,7 @@ export default function SceneViewer() {
                 const deltaSeconds = timer.getDelta();
                 animations.forEach((f) => f(deltaSeconds));
                 controls.update();
+                tweenGroup.update();
                 renderer.render(scene, camera);
             } catch (error) {
                 console.error('Render error:', error);
