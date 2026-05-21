@@ -32,9 +32,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] Trees
   - [X] L-Systems
   - [ ] Different Variations
-  - [ ] Add to Scene
+  - [X] Add to Scene
 - [ ] Balcony Positioning
 - [ ] Walls in Garden?
+- [ ] Check if ServerConnection Error is bug
+- [ ] Fix Bird Position with scene shift
 
 -
 - [ ] Environment Map?
@@ -46,5 +48,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ### Done
 
 - [X] Smooth Window Opening
-- [X] Day-Night Cycle 
+- [X] Day-Night Cycle3 
 - [X] Fix Spike Line Lawn

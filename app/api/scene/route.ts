@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         // Scene mit Häusern, Lichtern etc. erstellen
         const scenario = request.nextUrl.searchParams.get('scenario');
 
-        const cameraConfig = scenario == scenarios.showcase ? createShowcaseCameraConfig() : scenario == scenarios.birdShowcase ? createBirdShowcaseCameraConfig() : createHouseCameraConfig();
+        const cameraConfig = scenario == scenarios.showcase.sub ? createShowcaseCameraConfig() : scenario == scenarios.birdShowcase.sub ? createBirdShowcaseCameraConfig() : createHouseCameraConfig();
 
         const returnSceneConfig: sceneConfig = {
             cameraConfig: cameraConfig

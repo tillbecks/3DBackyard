@@ -44,6 +44,12 @@ export interface ObjectLightReturn{
     lights: LightConfig[];
 }
 
+export interface HouseReturn{
+    object: THREE.Group;
+    lights: LightConfig[];
+    housesWidths: number[];
+}
+
 export interface APIObjectLightReturn{
     object: string;
     lights: LightConfig[];

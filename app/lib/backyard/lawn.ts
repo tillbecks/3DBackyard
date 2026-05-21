@@ -14,8 +14,8 @@ export class Lawn {
     }
 
     get3DObject(): THREE.Mesh {
-        const widthSegments = LAWN_FIELDS_PER_SIZE * this.width;
-        const depthSegments = LAWN_FIELDS_PER_SIZE * this.depth;
+        const widthSegments = Math.round(LAWN_FIELDS_PER_SIZE * this.width);
+        const depthSegments = Math.round(LAWN_FIELDS_PER_SIZE * this.depth);
         const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(this.width, this.depth, widthSegments, depthSegments);
         //geometry = this.addHeightVariation(geometry);
 

@@ -80,9 +80,10 @@ class HouseBody{
 };
 
 //x rechts-links, z vorne-hinten, y oben-unten
-export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): TYPES.ObjectLightReturn {
+export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): TYPES.HouseReturn {
     const houseGroup = new THREE.Group();
     const lights = [];
+    const housesWidths: number[] = [];
     let housesWidth: number = 0;
 
     //const most_left_x_coordinate = centerPoint[0] - Math.floor(houseCnt / 2 * HOUSE_WIDTH);
@@ -102,6 +103,7 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         nextStoryHeight = i == houseCnt - 1 ? null : randomInRangeIntDividableTwo(MIN_STORY_HEIGHT, MAX_STORY_HEIGHT);
         const houseWidth = randomInRangeIntDividableTwo(MIN_HOUSE_WIDTH, MAX_HOUSE_WIDTH);
         housesWidth += houseWidth;
+        housesWidths.push(houseWidth);
         const houseHeight = storyCnt != null && storyHeight != null ? storyCnt * storyHeight : 0;
         const leftHouse = lastStoryCnt == null || lastStoryHeight == null ? 1 : lastStoryCnt * lastStoryHeight < houseHeight ? 1 : 0;
         const rightHouse = nextStoryCnt == null || nextStoryHeight == null ? 1 : nextStoryCnt * nextStoryHeight < houseHeight ? 1 : 0;
@@ -122,5 +124,5 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         }
     }
     translateXLightConfigs(lights, -housesWidth/2);
-    return {object: houseGroup, lights: lights};
+    return {object: houseGroup, lights: lights, housesWidths: housesWidths};
 };

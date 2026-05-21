@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const SURROUNDING_CENTER = new THREE.Vector3(0, 100, 200);
+export const SURROUNDING_CENTER = new THREE.Vector3(0, 100, 0);
 export const SURROUNDING_RADIUS_DEPTH = 50;
 export const SURROUNDING_RADIUS_WIDTH = 100;
 export const SURROUNDING_RADIUS_HEIGHT = 50;

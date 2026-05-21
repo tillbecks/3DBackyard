@@ -1,41 +1,11 @@
 // + (yaw left), - (yaw right), > (pitch up), < (pitch down), & (roll left), ^ (roll right)
 import * as TYPES from '../../types/typeIndex';
 import * as THREE from 'three';
+import * as TCONFIG from '../config/treeConfig';
 import { randomFromArray, randomInRangeFloat } from '../config/utils';
 import { degToRad } from 'three/src/math/MathUtils.js';
 import { getTreeBarkMaterial, getTreeLeafMaterial } from '../textures/materials';
-
-const LSystem: TYPES.LSystemType = {
-    axiom: "F",
-    rules: {
-        "F": ["SAB", "FAB"],
-        "A": ["[+F]", "[-F]", "[>F]", "[<F]", ""],
-        "B": ["[&F]", "[^F]"],
-        "S": ["S"],
-        "L": ["L"],
-    }
-};
-
-const LSystemGeometryConfig: TYPES.LSystemConfig = {
-    pitchAngle: 25,
-    pitchAngleVariance: 5,
-    rollAngle: 15,
-    rollAngleVariance: 5,
-    initialLength: 80,
-    lengthFactor: 0.90,
-    initialThickness: 10,
-    thicknessFactor: 0.8,
-    iterations: 15,
-}
-
-const LeafConfig = {
-    widthMin : 0.8,
-    widthMax : 1.2,
-    depthMin : 0.8,
-    depthMax : 1.2,
-    heightMin : 0.4,
-    heightMax : 1.2,
-}
+import { Decoration } from '../config/decorations';
 
 function evolveLSystem(system: TYPES.LSystemType, iterations: number): string{
     let currentString = system.axiom;
@@ -150,9 +120,9 @@ function recursiveStringTo3DOperation(string: string, config: TYPES.LSystemConfi
 }
 
 function generateLeaf(scale: number): THREE.Mesh{
-    const width = randomInRangeFloat(LeafConfig.widthMin, LeafConfig.widthMax) * scale;
-    const height = randomInRangeFloat(LeafConfig.heightMin, LeafConfig.heightMax) * scale;
-    const depth = randomInRangeFloat(LeafConfig.depthMin, LeafConfig.depthMax) * scale;
+    const width = randomInRangeFloat(TCONFIG.LeafConfig.widthMin, TCONFIG.LeafConfig.widthMax) * scale;
+    const height = randomInRangeFloat(TCONFIG.LeafConfig.heightMin, TCONFIG.LeafConfig.heightMax) * scale;
+    const depth = randomInRangeFloat(TCONFIG.LeafConfig.depthMin, TCONFIG.LeafConfig.depthMax) * scale;
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     geometry.scale(width, height, depth);
     const material = getTreeLeafMaterial();
@@ -162,9 +132,28 @@ function generateLeaf(scale: number): THREE.Mesh{
     return mesh;
 }
 
-export function generateLSystemTree(): THREE.Group{
-    const evolvedString = addLeavesToTerminals(evolveLSystem(LSystem, LSystemGeometryConfig.iterations));
+export function generateLSystemTree(LSystem: TYPES.LSystemType, LSystemConfig: TYPES.LSystemConfig): THREE.Group{
+    const evolvedString = addLeavesToTerminals(evolveLSystem(LSystem, LSystemConfig.iterations));
     const material = getTreeBarkMaterial();
-    const returnObj = recursiveStringTo3DOperation(evolvedString, LSystemGeometryConfig, material);
+    const returnObj = recursiveStringTo3DOperation(evolvedString, LSystemConfig, material);
     return returnObj.group;
+}
+
+export function generateStdLSystemTree(): THREE.Group{
+    return generateLSystemTree(TCONFIG.LSystem, TCONFIG.LSystemGeometryConfig);
+}
+
+export class Tree extends Decoration{
+    LSystemConfig: TYPES.LSystemConfig;
+    LSystem: TYPES.LSystemType;
+
+    constructor(LSystem: TYPES.LSystemType, LSystemConfig: TYPES.LSystemConfig){
+        super(LSystemConfig.initialThickness);
+        this.LSystemConfig = LSystemConfig;
+        this.LSystem = LSystem;
+    }
+
+    get3DObject(){
+        return generateLSystemTree(this.LSystem, this.LSystemConfig);
+    }
 }

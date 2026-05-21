@@ -4,7 +4,7 @@ import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '.
 import { roofGutterGenerator } from './roofGutter';
 import { terrestrialAntennaGenerator } from './antennas/terrestrialAntenna';
 import { antennaGenerator } from './antennas/satelliteAntenna';
-import { HouseElement } from './houseElement';
+import { SceneElement } from './houseElement';
 import { RoofDecorations, roofDecorationsPlacer } from './roofDecorations';
 import * as TYPES from '../../types/typeIndex';
 import { calcUVS } from '../config/3dUtils';
@@ -13,7 +13,7 @@ import { chimneyGenerator } from './chimneys/topChimneys';
 
 
 
-class Roof extends HouseElement{
+class Roof extends SceneElement{
     roofHeight: number;
     overhang: number;
 
@@ -128,7 +128,7 @@ class Roof extends HouseElement{
 
         if(randomBoolean(HC.ANTENNA_PROBABILITY)){
             const antenna = terrestrialAntennaGenerator();
-            decorationsPlacer.addRoofDecorationPosition(antenna, HC.ANTENNA_MIN_X, HC.ANTENNA_MAX_X, HC.ANTENNA_MIN_Z, HC.ANTENNA_MAX_Z);
+            decorationsPlacer.addDecorationPosition(antenna, HC.ANTENNA_MIN_X, HC.ANTENNA_MAX_X, HC.ANTENNA_MIN_Z, HC.ANTENNA_MAX_Z);
         }
 
         let roofDecoration: RoofDecorations[] = [];
@@ -139,16 +139,16 @@ class Roof extends HouseElement{
             for(let i = 0; i < 2; i++){
                 const bowl = antennaGenerator();
                 //houseDepth/4 makes the antennas only spawn on the upper half of the front roof pitch
-                decorationsPlacer.addRoofDecorationPosition(bowl, HC.SATELLITE_RECEIVER_MIN_X, HC.SATELLITE_RECEIVER_MAX_X, HC.SATELLITE_RECEIVER_MIN_Z, HC.SATELLITE_RECEIVER_MAX_Z);
+                decorationsPlacer.addDecorationPosition(bowl, HC.SATELLITE_RECEIVER_MIN_X, HC.SATELLITE_RECEIVER_MAX_X, HC.SATELLITE_RECEIVER_MIN_Z, HC.SATELLITE_RECEIVER_MAX_Z);
             }
         }
 
         if(randomBoolean(HC.CHIMNEY_PROBABILITY)){
             const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterial);
-            decorationsPlacer.addRoofDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
+            decorationsPlacer.addDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
         }
 
-        const roofDecorationsGroup = decorationsPlacer.positionRoofDecorations(new THREE.Vector3(0, this.roofHeight, 0));
+        const roofDecorationsGroup = decorationsPlacer.positionDecorations(new THREE.Vector3(0, this.roofHeight, 0));
         
         roofGroup.add(roofDecorationsGroup);
         return roofGroup;

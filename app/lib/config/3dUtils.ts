@@ -132,8 +132,7 @@ export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group,
 
 
 export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array, width: number, depth: number): THREE.BufferGeometry {
-    width = Math.round(width);
-    depth = Math.round(depth);  
+
     const positionAttribute = geometry.attributes.position;
     const vertex = new THREE.Vector3();
     
@@ -154,11 +153,8 @@ export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Fl
 }
 
 export function createRandomHeightMap(minHeight: number, maxHeight: number, width: number, depth: number): Float32Array {
-    width = Math.round(width);
-    depth = Math.round(depth);
 
     const heightMap = new Float32Array(width * depth);
-    //const noise = new SimplexNoise({random: () => Math.random()});
     const steps = [{scale: 100, weight: 1.0, noise: new SimplexNoise({random:  Math.random})}, {scale: 30, weight: 0.3, noise: new SimplexNoise({random:  Math.random})}, {scale: 1, weight: 0.05, noise: new SimplexNoise({random: Math.random})}];
     
     for(const s of steps){

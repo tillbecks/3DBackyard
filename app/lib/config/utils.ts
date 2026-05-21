@@ -1,3 +1,5 @@
+import { SceneElement } from "../house/houseElement";
+
 export function randomInRangeInt(min: number, max: number): number {
     const dif = max - min + 1;
     return Math.floor(Math.random()*dif) + min;
@@ -79,4 +81,93 @@ export function collision(pos1: { x: number; z: number }, radius1: number, pos2:
 export function simplexNoise(x: number, y: number): number {
     // Placeholder for simplex noise function, you can replace this with an actual implementation
     return Math.random() * 2 - 1; // Returns a value between -1 and 1
+}
+
+export function spiralIterate<T>(
+    array: T[][],
+    callback: (arr: T[][], i: number, j: number) => void
+): void {
+    const rows = array.length;
+    const cols = array[0].length;
+    
+    let top = 0, bottom = rows - 1;
+    let left = 0, right = cols - 1;
+    
+    while(top <= bottom && left <= right) {
+        // Top row (left to right)
+        for(let j = left; j <= right; j++) {
+            callback(array, top, j);
+        }
+        top++;
+        
+        // Right column (top to bottom)
+        for(let i = top; i <= bottom; i++) {
+            callback(array, i, right);
+        }
+        right--;
+        
+        // Bottom row (right to left)
+        if(top <= bottom) {
+            for(let j = right; j >= left; j--) {
+                callback(array, bottom, j);
+            }
+            bottom--;
+        }
+        
+        // Left column (bottom to top)
+        if(left <= right) {
+            for(let i = bottom; i >= top; i--) {
+                callback(array, i, left);
+            }
+            left++;
+        }
+    }
+}
+
+export function fromEdgesInward<T>(
+    array: T[][],
+    callback: (arr: T[][], i: number, j: number) => void
+): void {
+    const rows = array.length;
+    const cols = array[0].length;
+    
+    let top = 0, bottom = rows - 1;
+    let left = 0, right = cols - 1;
+    
+    while(top <= bottom && left <= right) {
+        const midCol = Math.floor((left + right) / 2);
+        const midRow = Math.floor((top + bottom) / 2);
+        
+        // Top row (von Mitte nach außen)
+        for(let offset = 0; offset <= Math.ceil((right - left) / 2); offset++) {
+            if(midCol - offset >= left) callback(array, top, midCol - offset);
+            if(midCol + offset <= right && offset !== 0) callback(array, top, midCol + offset);
+        }
+        top++;
+        
+        // Right column (von Mitte nach außen)
+        for(let offset = 0; offset <= Math.ceil((bottom - top) / 2); offset++) {
+            if(midRow + offset <= bottom) callback(array, midRow + offset, right);
+            if(midRow - offset >= top && offset !== 0) callback(array, midRow - offset, right);
+        }
+        right--;
+        
+        // Bottom row (von Mitte nach außen)
+        if(top <= bottom) {
+            for(let offset = 0; offset <= Math.ceil((right - left + 1) / 2); offset++) {
+                if(midCol + offset <= right) callback(array, bottom, midCol + offset);
+                if(midCol - offset >= left && offset !== 0) callback(array, bottom, midCol - offset);
+            }
+            bottom--;
+        }
+        
+        // Left column (von Mitte nach außen)
+        if(left <= right) {
+            for(let offset = 0; offset <= Math.ceil((bottom - top + 1) / 2); offset++) {
+                if(midRow - offset >= top) callback(array, midRow - offset, left);
+                if(midRow + offset <= bottom && offset !== 0) callback(array, midRow + offset, left);
+            }
+            left++;
+        }
+    }
 }
