@@ -35,8 +35,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - [ ] Add to Scene
 - [ ] Balcony Positioning
 - [ ] Walls in Garden?
-- [ ] Day-Night Cycle
-- [ ] Fix Spike Line Lawn
 
 -
 - [ ] Environment Map?
@@ -48,3 +46,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ### Done
 
 - [X] Smooth Window Opening
+- [X] Day-Night Cycle 
+- [X] Fix Spike Line Lawn

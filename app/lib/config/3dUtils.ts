@@ -131,17 +131,19 @@ export function subtractGeometry(subtractFromGeometry: THREE.Mesh | THREE.Group,
 
 
 
-export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array, mapWidth: number, mapDepth: number): THREE.BufferGeometry {
+export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Float32Array, width: number, depth: number): THREE.BufferGeometry {
+    width = Math.round(width);
+    depth = Math.round(depth);  
     const positionAttribute = geometry.attributes.position;
     const vertex = new THREE.Vector3();
     
     let vertexIndex = 0;
-    for (let z = 0; z < mapDepth; z++) {
-        for (let x = 0; x < mapWidth; x++) {
+    for (let z = 0; z < depth; z++) {
+        for (let x = 0; x < width; x++) {
             if (vertexIndex >= positionAttribute.count) break;
             
             vertex.fromBufferAttribute(positionAttribute, vertexIndex);
-            const heightValue = heightMap[Math.floor(z * mapWidth + x)];
+            const heightValue = heightMap[z * width + x];
             vertex.z += heightValue;
             positionAttribute.setXYZ(vertexIndex, vertex.x, vertex.y, vertex.z);
             vertexIndex++;
@@ -152,6 +154,9 @@ export function mapHeightMapToPlane(geometry: THREE.PlaneGeometry, heightMap: Fl
 }
 
 export function createRandomHeightMap(minHeight: number, maxHeight: number, width: number, depth: number): Float32Array {
+    width = Math.round(width);
+    depth = Math.round(depth);
+
     const heightMap = new Float32Array(width * depth);
     //const noise = new SimplexNoise({random: () => Math.random()});
     const steps = [{scale: 100, weight: 1.0, noise: new SimplexNoise({random:  Math.random})}, {scale: 30, weight: 0.3, noise: new SimplexNoise({random:  Math.random})}, {scale: 1, weight: 0.05, noise: new SimplexNoise({random: Math.random})}];
@@ -160,7 +165,7 @@ export function createRandomHeightMap(minHeight: number, maxHeight: number, widt
         for (let z = 0; z < depth; z++) {
             for (let x = 0; x < width; x++) {
                 const noiseValue = s.noise.noise((x) / s.scale, (z) / s.scale);
-                heightMap[Math.floor(z * width + x)] += ((noiseValue + 1) / 2) * (maxHeight - minHeight) * s.weight;
+                heightMap[z * width + x] += ((noiseValue + 1) / 2) * (maxHeight - minHeight) * s.weight;
             }
         }
     }
@@ -168,6 +173,9 @@ export function createRandomHeightMap(minHeight: number, maxHeight: number, widt
 }
 
 export function createSinusHeightMap(amplitude: number, Xfrequency: number, Zfrequency: number, width: number, depth: number): Float32Array {
+    width = Math.round(width);
+    depth = Math.round(depth);
+
     const heightMap = new Float32Array(width * depth);
     for (let z = 0; z < depth; z++) {
         for (let x = 0; x < width; x++) {
