@@ -8,11 +8,11 @@ export default class Bird{
     position: THREE.Vector3;
     velocity: THREE.Vector3;
     birdGeometry: THREE.Group | THREE.Mesh | THREE.Object3D;
-    //birdModel: BirdModel;
     lastVelocity: THREE.Vector3;
     leftWing: THREE.Mesh|null;
     rightWing: THREE.Mesh|null;
     flapPosition: number;
+    animationCounter: number;
 
     constructor(position: THREE.Vector3, velocity: THREE.Vector3, model: THREE.Group | THREE.Object3D){
 
@@ -23,7 +23,7 @@ export default class Bird{
         this.flapPosition = 0;
         this.leftWing = null;
         this.rightWing = null;
-
+        this.animationCounter = 0;
         this.birdGeometry = model.clone();
         try{
             this.birdGeometry.traverse((child) => {
@@ -46,10 +46,12 @@ export default class Bird{
     }
 
     animation(){
+        this.animationCounter++;
         if(this.velocity.length() < this.lastVelocity.length()){
             this.glide();
         }
-        else{
+        else if(this.animationCounter >= bc.ANIMATIONS_FOR_FLAP){
+            this.animationCounter -= bc.ANIMATIONS_FOR_FLAP;
             this.flap();
         }
         this.birdGeometry.position.copy(this.position);
@@ -76,8 +78,8 @@ export default class Bird{
     flap(){
         if(this.leftWing && this.rightWing){
             this.flapPosition = (this.flapPosition + 1) % FLAP_POSITIONS.length;
-            this.leftWing.rotation.z = -angleToRad(FLAP_POSITIONS[this.flapPosition]);
-            this.rightWing.rotation.z = angleToRad(FLAP_POSITIONS[this.flapPosition]);
+            this.leftWing.rotation.z = angleToRad(FLAP_POSITIONS[this.flapPosition]);
+            this.rightWing.rotation.z = -angleToRad(FLAP_POSITIONS[this.flapPosition]);
         }else{
             //console.log("No wings found for flapping animation.");
             //console.log(this.leftWing, this.rightWing);

@@ -3,7 +3,6 @@ import Bird from './bird';
 import * as BC from '../config/birdConfig';
 import * as THREE from 'three';
 import { Trajectory, FollowCircle, MoveToTarget, LoopingGoal } from './birdTrajectory';
-import { step } from 'three/tsl';
 
 export class BirdController{
     mode: string;
@@ -11,7 +10,6 @@ export class BirdController{
     lastPosition: THREE.Vector3;
     position: THREE.Vector3;
     birds: Bird[]
-
     circle: Trajectory;
     movementAccumulator: number;
 

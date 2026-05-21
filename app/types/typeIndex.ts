@@ -1,3 +1,5 @@
 export * from './materialTypes';
 export * from './houseTypes';
 export * from './treeTypes';
+export * from './sceneTypes';
+export * from './routeTypes';

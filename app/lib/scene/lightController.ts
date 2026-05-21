@@ -4,7 +4,6 @@ import * as TYPES from "@/app/types/typeIndex";
 import * as THREE from "three";
 import * as LC from "../config/lightConfig";
 import { randomBoolean, randomInRangeInt } from "../config/utils";
-import { markerSphere } from "../config/3dUtils";
 
 export default class LightController {
     private lightObjects: TYPES.LightObject[] = [];

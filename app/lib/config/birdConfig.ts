@@ -63,7 +63,8 @@ export function setAvoidFactor(x: number) {avoidFactor = x};
 export function setCenteringFactor(x: number) {centeringFactor = x};
 export function setMatchingFactor(x: number) {matchingFactor = x};
 
-export const FLAP_POSITIONS = [0, 20, 40, 20, 0, -20];
+export const ANIMATIONS_FOR_FLAP = 1;
+export const FLAP_POSITIONS = [0, 25, 45, 25, 0, -25, -45, -25];
 
 export const LEAN_ANGLE_FACTOR = 30 ;
 

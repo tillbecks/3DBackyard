@@ -187,3 +187,23 @@ export function rotateVectorAroundAxisPosition(vector: THREE.Vector3, axis: THRE
 export function calcNormalizedDirectionVector(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3 {
     return to.clone().sub(from).normalize();
 }
+
+export function cameraFollowObject(camera: THREE.Camera, object: THREE.Object3D, delta: number, lookAtTargetBuffer: THREE.Vector3) {
+    // Berechne Blickrichtung des Vogels (wo schaut der Vogel hin)
+    const birdForward = new THREE.Vector3(0, 0, 1).applyQuaternion(object.quaternion).normalize();
+    
+    // Offset ist immer HINTER dem Vogel, relativ zu seiner Blickrichtung
+    const offset = birdForward.multiplyScalar(5);
+    const targetPosition = new THREE.Vector3().copy(object.position).add(offset);
+    
+    const posLerpFactor = 1 - Math.exp(-3 * delta); 
+    const lookLerpFactor = 1 - Math.exp(-4 * delta); 
+
+    lookAtTargetBuffer.lerp(targetPosition, lookLerpFactor);
+    const targetQuat = new THREE.Quaternion();
+    targetQuat.copy(camera.quaternion);
+    
+    camera.lookAt(lookAtTargetBuffer);
+    camera.quaternion.slerp(targetQuat, lookLerpFactor );
+    camera.position.lerp(object.position, posLerpFactor);
+}

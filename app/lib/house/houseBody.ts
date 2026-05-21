@@ -12,6 +12,7 @@ import { translateLightConfigs, translateXLightConfigs } from "./lights";
 
 class HouseBody{
     houseGroup: THREE.Group;
+    static globalId: number = 0;
     id: number;
     childId: number;
     storyCount: number;
@@ -20,10 +21,10 @@ class HouseBody{
     leftSize: number;
     rightSize: number;
 
-    constructor(id: number, storyCount: number, storyHeight: number, houseWidth: number, leftSize: number, rightSize: number){
+    constructor(storyCount: number, storyHeight: number, houseWidth: number, leftSize: number, rightSize: number){
         this.houseGroup = new THREE.Group();
 
-        this.id = id;
+        this.id = HouseBody.globalId++;
         this.storyCount = storyCount;
         this.storyHeight = storyHeight;
         this.houseWidth = houseWidth;
@@ -104,7 +105,7 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         const houseHeight = storyCnt != null && storyHeight != null ? storyCnt * storyHeight : 0;
         const leftHouse = lastStoryCnt == null || lastStoryHeight == null ? 1 : lastStoryCnt * lastStoryHeight < houseHeight ? 1 : 0;
         const rightHouse = nextStoryCnt == null || nextStoryHeight == null ? 1 : nextStoryCnt * nextStoryHeight < houseHeight ? 1 : 0;
-        const house = new HouseBody(i,  storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse);
+        const house = new HouseBody( storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse);
         const objectLight = house.get3DContent();
         const houseMesh = objectLight.object;
         const positionY = Math.floor(houseHeight/2);

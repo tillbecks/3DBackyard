@@ -9,7 +9,7 @@ export const WINDOW_FRAME_COLOR = 0xffffff;
 export const BRICK_COLOR_RED = 0x7e3729; //"#7e3729"
 export const BRICK_COLOR_SANDSTONE = 0xb6a37b; //"#b6a37b"
 
-export const HOUSE_PLASTER_COLOR = [0xd9d9d9, 0xca7514, 0xdfa917]; //["#d9d9d9", "#ca7514", "#dfa917"]
+export const HOUSE_PLASTER_COLOR = [0xd9d9d9, 0xca7514, 0xdfa917]; //["#d9d9d9", "#ccac88", "#e2d09f"]
 
 export const ROOF_TILE_COLOR = 0x4d4d4d; //"#4d4d4d"
 export const ROOF_FLAT_TILE_COLOR = 0x814034; //"#814034"
