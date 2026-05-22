@@ -1,15 +1,19 @@
+'use client';
+
 import * as THREE from 'three';
-import * as TYPES from '../../types/typeIndex';
-import { initCamera, initController, initRenderer } from './scene';
 import { OrbitControls } from 'three-stdlib';
-import { initLightSky } from './light';
-import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
-import { loadShader } from '../textures/shader/shaderConfig';
-import { glbToObject, objectFromGLBBase64 } from '../config/importExportUtils';
-import { birdFlogGenerator, BirdController } from '../birds/birdController';
-import { bindMouseMovementToRaycaster } from '../config/windowUtils';
-import { calcCenterOfGeometries, cameraFollowObject } from '../config/3dUtils';
 import { Group } from '@tweenjs/tween.js';
+
+import { initCamera, initController, initRenderer } from './scene';
+import { initLightSky } from './light';
+
+import * as TYPES from '@/app/types/typeIndex';
+import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
+import { loadShader } from '@/app/lib/textures/shader/shaderConfig';
+import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
+import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
+import { bindMouseMovementToRaycaster } from '@/app/lib/config/windowUtils';
+import { calcCenterOfGeometries, cameraFollowObject } from '@/app/lib/config/3dUtils';
 
 export class SceneController{
     containerRef: React.RefObject<HTMLDivElement>;
@@ -130,7 +134,7 @@ export class SceneController{
                 for(const bird of birdFlog.birds){
                     this.scene.add(bird.birdGeometry);
                 }
-            this.animations.push((deltaSeconds) => birdFlog.update(deltaSeconds));
+            this.animations.push((deltaSeconds) => {birdFlog.update(deltaSeconds);});
             return birdFlog;
         } catch (error) {
             console.error('Error loading birds:', error);
@@ -156,10 +160,14 @@ export class SceneController{
         return (windows: THREE.Object3D[]) => {
             const center = calcCenterOfGeometries(windows);
             if(this.birdController){
-                this.birdController!.switchToGoal(center);
                 this.controls.enabled = false;
                 this.states.lookAtTargetBuffer = new THREE.Vector3();
-                this.animations.push((deltaSeconds) => cameraFollowObject(this.camera, this.birdController!.birds[0].birdGeometry, deltaSeconds, this.states.lookAtTargetBuffer as THREE.Vector3));
+                const followFunction = (deltaSeconds: number) => cameraFollowObject(this.camera, this.birdController!.birds[0].birdGeometry, deltaSeconds, this.states.lookAtTargetBuffer as THREE.Vector3);
+                this.animations.push(followFunction);
+                const functionIndex = this.animations.length - 1;
+
+                this.birdController!.switchToTarget(center, 
+                    () => {this.animations.splice(functionIndex, 1);});
             }
         }
     };

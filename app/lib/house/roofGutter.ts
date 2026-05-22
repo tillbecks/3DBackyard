@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '../config/houseConfig';
-import { randomFromObject } from '../config/utils';
+
+import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '@/app/lib/config/houseConfig';
+import { randomFromObject } from '@/app/lib/config/utils';
 
 
 const GUTTER_POS: { LEFT: string; RIGHT: string } = {

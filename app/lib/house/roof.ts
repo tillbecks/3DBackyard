@@ -1,15 +1,17 @@
 import * as THREE from 'three';
-import * as HC from '../config/houseConfig';
-import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '../config/utils';
+
 import { roofGutterGenerator } from './roofGutter';
 import { terrestrialAntennaGenerator } from './antennas/terrestrialAntenna';
 import { antennaGenerator } from './antennas/satelliteAntenna';
 import { SceneElement } from './houseElement';
 import { RoofDecorations, roofDecorationsPlacer } from './roofDecorations';
-import * as TYPES from '../../types/typeIndex';
-import { calcUVS } from '../config/3dUtils';
-import { getRoofMaterials } from '../textures/materials';
 import { chimneyGenerator } from './chimneys/topChimneys';
+
+import * as HC from '@/app/lib/config/houseConfig';
+import * as TYPES from '@/app/types/typeIndex';
+import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '@/app/lib/config/utils';
+import { calcUVS } from '@/app/lib/config/3dUtils';
+import { getRoofMaterials } from '@/app/lib/textures/materials';
 
 
 

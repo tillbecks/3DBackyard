@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { mx_bilerp_0 } from 'three/src/nodes/materialx/lib/mx_noise.js';
 
 export const PANE_COLOR = 0xffffff;
 export const PANE_HIGHLIGHT_COLOR = 0xffff99;

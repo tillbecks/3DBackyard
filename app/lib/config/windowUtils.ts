@@ -1,7 +1,9 @@
 import * as THREE from "three";
-import { SINGLE_WINDOW_ID, DOUBLE_WINDOW_LEFT_ID, DOUBLE_WINDOW_RIGHT_ID, WINDOW_PANE_ID, WINDOW_OPENING_TIME } from "./houseConfig";
-import { PANE_MATERIAL , PANE_HIGHLIGHT_MATERIAL } from "../textures/materials";
 import * as TWEEN from '@tweenjs/tween.js';
+
+import { SINGLE_WINDOW_ID, DOUBLE_WINDOW_LEFT_ID, DOUBLE_WINDOW_RIGHT_ID, WINDOW_PANE_ID, WINDOW_OPENING_TIME } from "./houseConfig";
+
+import { PANE_MATERIAL , PANE_HIGHLIGHT_MATERIAL } from "@/app/lib/textures/materials";
 
 function rotateOverTime(object: THREE.Object3D, targetRotation: number, duration: number, onComplete?: () => void): TWEEN.Tween {
     const proxy = { rotation: 0, lastRotation: 0 };

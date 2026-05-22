@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import * as TDUTILS from '../config/3dUtils';
-import { ID_LEFT_WING, ID_RIGHT_WING } from '../config/birdConfig';
+
+import { ID_LEFT_WING, ID_RIGHT_WING } from '@/app/lib/config/birdConfig';
 
 
 export default class BirdModel {

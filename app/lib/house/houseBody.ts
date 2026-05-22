@@ -1,13 +1,15 @@
-import { MAX_STORY_COUNT, MIN_STORY_COUNT, MAX_STORY_HEIGHT, MIN_STORY_HEIGHT, MAX_HOUSE_WIDTH, MIN_HOUSE_WIDTH, HOUSE_DEPTH } from "../config/houseConfig";
 import * as THREE from 'three';
-import { randomInRangeInt, randomInRangeIntDividableTwo, adjustColor, randomFromObject } from "../config/utils";
+
 import { roofGenerator } from "./roof";
 import { windowGenerator } from "./windows";
-import { getHouseMaterials } from "../textures/materials";
-import { calcUVS, subtractGeometry } from "../config/3dUtils";
 import {Rooms} from "./rooms";
-import * as TYPES from "../../types/typeIndex";
 import { translateLightConfigs, translateXLightConfigs } from "./lights";
+
+import { MAX_STORY_COUNT, MIN_STORY_COUNT, MAX_STORY_HEIGHT, MIN_STORY_HEIGHT, MAX_HOUSE_WIDTH, MIN_HOUSE_WIDTH, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
+import { randomInRangeInt, randomInRangeIntDividableTwo, randomFromObject } from "@/app/lib/config/utils";
+import { getHouseMaterials } from "@/app/lib/textures/materials";
+import { calcUVS, subtractGeometry } from "@/app/lib/config/3dUtils";
+import * as TYPES from "@/app/types/typeIndex";
 
 
 class HouseBody{

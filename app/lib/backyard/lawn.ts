@@ -1,8 +1,8 @@
-import { add, max } from "three/tsl";
-import { LAWN_MIX_MATERIAL } from "../textures/materials";
 import * as THREE from 'three';
-import { LAWN_FIELDS_PER_SIZE, HOUSE_DEPTH } from "../config/houseConfig";
-import { createRandomHeightMap, mapHeightMapToPlane } from "../config/3dUtils";
+
+import { LAWN_MIX_MATERIAL } from "@/app/lib/textures/materials";
+import { LAWN_FIELDS_PER_SIZE, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
+import { createRandomHeightMap, mapHeightMapToPlane } from "@/app/lib/config/3dUtils";
 
 export class Lawn {
     width: number;

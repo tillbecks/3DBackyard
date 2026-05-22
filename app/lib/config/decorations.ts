@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import * as UTILS from '../config/utils';
-import { SceneElement } from '../house/houseElement';
+
+import * as UTILS from '@/app/lib/config/utils';
+import { SceneElement } from '@/app/lib/house/houseElement';
 
 
 export abstract class Decoration extends SceneElement{

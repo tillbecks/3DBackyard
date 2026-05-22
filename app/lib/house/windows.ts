@@ -1,10 +1,12 @@
-import * as HC from '../config/houseConfig';
-import { randomInRangeInt, randomFromObject, randomBoolean } from "../config/utils";
 import * as THREE from "three";
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+
 import { balconyGenerator } from "./balcony";
-import { PANE_MATERIAL } from '../textures/materials';
-import * as TYPES from '../../types/typeIndex';
+
+import * as HC from '@/app/lib/config/houseConfig';
+import * as TYPES from '@/app/types/typeIndex';
+import { randomInRangeInt, randomFromObject, randomBoolean } from "@/app/lib/config/utils";
+import { PANE_MATERIAL } from '@/app/lib/textures/materials';
 
 class Windows{
     windowCntPerStory: number;

@@ -1,4 +1,5 @@
-import * as TYPE from "../../../types/typeIndex";
+import * as TYPE from "@/app/types/typeIndex";
+
 import {generalFunctions} from "./shaderUtils";
 
 export const roofTileShader: TYPE.FragmentShaderType = {functions: `

@@ -1,9 +1,11 @@
-import * as TYPES from '../../types/typeIndex';
-import * as HC from '../config/houseConfig';
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
-import { randomInRangeInt } from '../config/utils';
+
 import { generateLightConfig, generateStairLightConfig } from './lights';
+
+import * as TYPES from '@/app/types/typeIndex';
+import * as HC from '@/app/lib/config/houseConfig';
+import { randomInRangeInt } from '@/app/lib/config/utils';
 
 export class Rooms{
     storyCount: number;

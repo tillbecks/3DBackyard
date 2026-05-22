@@ -1,11 +1,12 @@
-import {RoofDecorations} from '../roofDecorations';
 import * as THREE from 'three';
-import * as TYPES from '../../../types/typeIndex';
-import * as HC from '../../config/houseConfig';
-import { randomInRangeInt, randomInRangeFloat, randomFromObject } from '../../config/utils';
-import { calcUVS } from '../../config/3dUtils';
-import { createSinusHeightMap, mapHeightMapToPlane } from '../../config/3dUtils';
-import { getBetonMaterial, getChimneyMaterials, getChimneyRoofMaterial, getFlatMetalMaterial } from '../../textures/materials';
+
+import * as TYPES from '@/app/types/typeIndex';
+import * as HC from '@/app/lib/config/houseConfig';
+
+import { randomInRangeInt, randomInRangeFloat, randomFromObject } from '@/app/lib/config/utils';
+import { createSinusHeightMap, mapHeightMapToPlane, calcUVS  } from '@/app/lib/config/3dUtils';
+import { getBetonMaterial, getChimneyMaterials, getChimneyRoofMaterial, getFlatMetalMaterial } from '@/app/lib/textures/materials';
+import {RoofDecorations} from '@/app/lib/house/roofDecorations';
 
 class TopChimney extends RoofDecorations{
     width: number;

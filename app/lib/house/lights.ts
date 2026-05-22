@@ -1,8 +1,10 @@
-import { LIGHT_COLORS_COMMON } from "../textures/colors";
 import * as THREE from 'three';
-import { LightConfig } from "../../types/houseTypes";
-import * as HC from "../config/houseConfig";
-import { randomBoolean, randomFromArray, randomInRangeFloat, randomInRangeInt } from "../config/utils";
+
+import * as HC from "@/app/lib/config/houseConfig";
+
+import { LIGHT_COLORS_COMMON } from "@/app/lib/textures/colors";
+import { LightConfig } from "@/app/types/houseTypes";
+import { randomBoolean, randomFromArray, randomInRangeFloat, randomInRangeInt } from "@/app/lib/config/utils";
 
 export function generateLightConfig(roomPosition: THREE.Vector3, roomSize: THREE.Vector3): LightConfig[] {
     const cubicUnits = roomSize.x * roomSize.y * roomSize.z;

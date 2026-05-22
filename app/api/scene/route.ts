@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { createHouseCameraConfig } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import {createShowcaseCameraConfig, createBirdShowcaseCameraConfig} from '@/app/lib/showcase/showcase';

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
-import { objectFromGLBBase64, objectToGLB, objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
+import { objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
 import { generateStdLSystemTree } from '@/app/lib/backyard/lsystems';
 import * as TYPES from '@/app/types/typeIndex';
+
 import * as THREE from 'three';
 
 export async function GET(request: NextRequest) {

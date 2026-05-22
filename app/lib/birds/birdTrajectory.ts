@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import * as BC from '../config/birdConfig';
+
+import * as BC from '@/app/lib/config/birdConfig';
 
 function ramanujan(a: number, b: number): number{
     if (a < b){
@@ -154,27 +155,27 @@ export class MoveToTarget extends Trajectory{
             this.nextQuadrant();
             this.init();        
         }
-        if(this.quadrant == 'q1'){
+        if(this.quadrant == BC.QUADRANTS.Q1){
             x = this.position.x - Math.cos(this.currentStep * this.stepWidth) * this.xLength + this.xLength;
             z = this.position.z - Math.sin(this.currentStep * this.stepWidth) * this.zLength;
             this.currentStep ++;
         }
-        else if(this.quadrant == 'q2'){
+        else if(this.quadrant == BC.QUADRANTS.Q2){
             x = this.position.x + Math.sin(this.currentStep * this.stepWidth) * this.xLength;
             z = this.position.z - Math.cos(this.currentStep * this.stepWidth) * this.zLength + this.zLength;
             this.currentStep ++;
         }
-        else if(this.quadrant == 'q3'){
+        else if(this.quadrant == BC.QUADRANTS.Q3){
             x = this.position.x + Math.cos(this.currentStep * this.stepWidth) * this.xLength - this.xLength;
             z = this.position.z + Math.sin(this.currentStep * this.stepWidth) * this.zLength ;
             this.currentStep ++;
         }
-        else if(this.quadrant == 'q4'){
+        else if(this.quadrant == BC.QUADRANTS.Q4){
             x = this.position.x - Math.sin(this.currentStep * this.stepWidth) * this.xLength;
             z = this.position.z + Math.cos(this.currentStep * this.stepWidth) * this.zLength - this.zLength;
             this.currentStep ++;
         }   
-        else if(this.quadrant == 'end'){
+        else if(this.quadrant == BC.QUADRANTS.END){
             return true;
         }
         this.x = x;
@@ -232,31 +233,31 @@ export class LoopingGoal extends Trajectory{
         if (this.step >= this.goalSteps){
             this.stepNext();
         }
-        if(this.loopingStep == "q1"){
-            const zMulti = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
+        if(this.loopingStep == BC.LOOPING_STEPS.Q1){
+            const zMulti = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.OVERSHOT ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2;
             this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti + zMulti;
         }
-        else if(this.loopingStep == "q2"){
-            const zMulti = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
+        else if(this.loopingStep == BC.LOOPING_STEPS.Q2){
+            const zMulti = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.OVERSHOT ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2 + this.radius/2;
             this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti ;
         }    
-        else if(this.loopingStep == "q3"){
-            const zMulti = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2 : 0);
+        else if(this.loopingStep == BC.LOOPING_STEPS.Q3){
+            const zMulti = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.UNDERSHOT ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2;
             this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti - zMulti;
         }
-        else if(this.loopingStep == "q4"){
-            const zMulti = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2 : 0);
+        else if(this.loopingStep == BC.LOOPING_STEPS.Q4){
+            const zMulti = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.UNDERSHOT ? Math.abs(this.yDifference)/2 : 0);
             this.z = this.position.z - Math.sin(this.lookup[this.step]) * this.radius/2 - this.radius/2;
             this.y = this.position.y - Math.cos(this.lookup[this.step]) * zMulti;
         }
-        else if(this.loopingStep == "line"){
+        else if(this.loopingStep == BC.LOOPING_STEPS.LINE){
             this.z = this.position.z - this.lookup[this.step];
             this.y = this.position.y;
         }
-        else if(this.loopingStep == "end"){
+        else if(this.loopingStep == BC.LOOPING_STEPS.END){
             return true;
         }
 
@@ -265,26 +266,26 @@ export class LoopingGoal extends Trajectory{
     }
 
     stepNext(){
-        this.loopingStep = this.loopingStep == "init" ? "q1" :
-        this.loopingStep == "q1" ? "q2" :
-        this.loopingStep == "q2" ? "q3" :
-        this.loopingStep == "q3" ? "q4" :
-        this.loopingStep == "q4" ? "line" : "end";
+        this.loopingStep = this.loopingStep == BC.LOOPING_STEPS.INIT ? BC.LOOPING_STEPS.Q1 :
+        this.loopingStep == BC.LOOPING_STEPS.Q1 ? BC.LOOPING_STEPS.Q2 :
+        this.loopingStep == BC.LOOPING_STEPS.Q2 ? BC.LOOPING_STEPS.Q3 :
+        this.loopingStep == BC.LOOPING_STEPS.Q3 ? BC.LOOPING_STEPS.Q4 :
+        this.loopingStep == BC.LOOPING_STEPS.Q4 ? BC.LOOPING_STEPS.LINE : BC.LOOPING_STEPS.END;
 
         this.position.z = this.z;
         this.position.y = this.y;
         
-        if(this.loopingStep == "q1" || this.loopingStep == "q2"){
-            const b = this.radius/2 + (this.loopType == 'overshot' ? Math.abs(this.yDifference)/2 : 0);
-            const startAngle = this.loopingStep == "q2" ? Math.PI/2 : 0;
+        if(this.loopingStep == BC.LOOPING_STEPS.Q1 || this.loopingStep == BC.LOOPING_STEPS.Q2){
+            const b = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.OVERSHOT ? Math.abs(this.yDifference)/2 : 0);
+            const startAngle = this.loopingStep == BC.LOOPING_STEPS.Q2 ? Math.PI/2 : 0;
             this.lookup = createElipseStepLookup(this.radius/2, b, Math.PI/2, this.velocity, startAngle);
         }
-        else if(this.loopingStep == "q3" || this.loopingStep == "q4"){
-            const b = this.radius/2 + (this.loopType == 'undershot' ? Math.abs(this.yDifference)/2: 0);
-            const startAngle = this.loopingStep == "q4" ? 3 * Math.PI/2 : Math.PI;
+        else if(this.loopingStep == BC.LOOPING_STEPS.Q3 || this.loopingStep == BC.LOOPING_STEPS.Q4){
+            const b = this.radius/2 + (this.loopType == BC.LOOPING_TYPES.UNDERSHOT ? Math.abs(this.yDifference)/2: 0);
+            const startAngle = this.loopingStep == BC.LOOPING_STEPS.Q4 ? 3 * Math.PI/2 : Math.PI;
             this.lookup = createElipseStepLookup(this.radius/2, b, Math.PI/2, this.velocity, startAngle);
         }
-        else if(this.loopingStep == "line"){
+        else if(this.loopingStep == BC.LOOPING_STEPS.LINE){
             const length = this.z - this.target.z + this.overshot;
             this.lookup = createLineLookup(length, this.velocity);
         }

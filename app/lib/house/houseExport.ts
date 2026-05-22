@@ -1,15 +1,18 @@
-import { houseGroupGenerator } from "./houseBody";
-import {createCameraConfig} from "../config/importExportUtils";
 import * as THREE from "three";
-import { createLawn } from "../backyard/lawn";
-import { HOUSE_DEPTH } from "../config/houseConfig";
-import * as TYPES from "../../types/typeIndex";
-import { rotateVectorAroundAxisPosition } from "../config/3dUtils";
+
+import { houseGroupGenerator } from "./houseBody";
 import { translateLightConfigs } from "./lights";
-import {DecorationsPlacer} from "../config/decorations";
-import * as BYCONFIG from "../config/backyardConfig";
-import * as TCONFIG from "../config/treeConfig";
-import { Tree } from "../backyard/lsystems";
+
+import * as TYPES from "@/app/types/typeIndex";
+import * as BYCONFIG from "@/app/lib/config/backyardConfig";
+import * as TCONFIG from "@/app/lib/config/treeConfig";
+
+import {createCameraConfig} from "@/app/lib/config/importExportUtils";
+import { createLawn } from "@/app/lib/backyard/lawn";
+import { HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
+import { rotateVectorAroundAxisPosition } from "@/app/lib/config/3dUtils";
+import {DecorationsPlacer} from "@/app/lib/config/decorations";
+import { Tree } from "@/app/lib/backyard/lsystems";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const houses = generateHouses();
@@ -25,7 +28,7 @@ export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const allowedMaxZ = (housesSize.z - BYCONFIG.TREE_DISTANCE_EDGES) / housesSize.z;
 
     for(let i = 0; i < BYCONFIG.TREES_PLACED; i++){
-        const tree = new Tree(TCONFIG.LSystem, TCONFIG.LSystemGeometryConfig);
+        const tree = new Tree(TCONFIG.LSystem, TCONFIG.LSystemGeometryConfig2);
         decorationsPlacer.addDecorationPosition(tree, allowedMinX, allowedMaxX, allowedMinZ, allowedMaxZ);
     }
 
@@ -36,7 +39,7 @@ export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const group = new THREE.Group();
     group.add(lawn);
     group.add(houses.object);
-    group.add(trees);
+    //group.add(trees);
     return {object: group, lights: houses.lights};
 }
 
@@ -48,11 +51,11 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     const groupSize = new THREE.Box3().setFromObject(houseGroup.object).getSize(new THREE.Vector3());
     lights.push(...houseGroup.lights);
 
-    const houseGroup2 = houseGroupGenerator(6, [0,0,0]);
+    const houseGroup2 = houseGroupGenerator(4, [0,0,0]);
     const groupSize2 = new THREE.Box3().setFromObject(houseGroup2.object).getSize(new THREE.Vector3());
     const lights2 = houseGroup2.lights;
 
-    const houseGroup3 = houseGroupGenerator(6, [0,0,0]);
+    const houseGroup3 = houseGroupGenerator(4, [0,0,0]);
     const groupSize3 = new THREE.Box3().setFromObject(houseGroup3.object).getSize(new THREE.Vector3());
     const lights3 = houseGroup3.lights;
 
@@ -96,5 +99,5 @@ export function generateHouses(): TYPES.ObjectLightReturn{
 }
 
 export function createHouseCameraConfig(){
-    return createCameraConfig(new THREE.Vector3(0, 110, 100), new THREE.Vector3(0, 60, 0));
+    return createCameraConfig(new THREE.Vector3(0, 110, 130), new THREE.Vector3(0, 80, 0));
 }

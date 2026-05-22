@@ -1,4 +1,5 @@
-import * as TYPES from "../../../types/typeIndex";
+import * as TYPES from "@/app/types/typeIndex";
+
 import {generalFunctions} from "./shaderUtils";
 
 export const grassShader: TYPES.FragmentShaderType = {

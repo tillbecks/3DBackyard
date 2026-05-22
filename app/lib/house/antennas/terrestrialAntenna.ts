@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import * as HC from '../../config/houseConfig';
-import * as UTILS from '../../config/utils';
-import * as TDUTILS from '../../config/3dUtils';
-import { reflector } from 'three/tsl';
-import { RoofDecorations } from '../roofDecorations';
+
+import * as HC from '@/app/lib/config/houseConfig';
+import * as UTILS from '@/app/lib/config/utils';
+import { RoofDecorations } from '@/app/lib/house/roofDecorations';
 
 class TerrestrialAntenna{
     height: number;

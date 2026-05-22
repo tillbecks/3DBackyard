@@ -1,4 +1,4 @@
-import { fromEdgesInward, spiralIterate } from "../config/utils";
+import { fromEdgesInward } from "@/app/lib/config/utils";
 
 //Following Structure:
 

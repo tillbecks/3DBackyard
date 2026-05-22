@@ -1,9 +1,10 @@
 'use client';
 
-import * as TYPES from "@/app/types/typeIndex";
 import * as THREE from "three";
-import * as LC from "../config/lightConfig";
-import { randomBoolean, randomInRangeInt } from "../config/utils";
+
+import * as TYPES from "@/app/types/typeIndex";
+import * as LC from "@/app/lib/config/lightConfig";
+import { randomBoolean, randomInRangeInt } from "@/app/lib/config/utils";
 
 export default class LightController {
     private lightObjects: TYPES.LightObject[] = [];

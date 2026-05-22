@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { SceneController } from '../lib/scene/sceneController';
+
+import { SceneController } from '@/app/lib/scene/sceneController';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);

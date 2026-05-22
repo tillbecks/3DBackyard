@@ -36,17 +36,21 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] Balcony Positioning
 - [ ] Walls in Garden?
 - [ ] Check if ServerConnection Error is bug
-- [ ] Fix Bird Position with scene shift
-
--
-- [ ] Environment Map?
 - [ ] Sounds
 - [ ] In-Door Lighting
-- [ ] Linkage to Website
 - [ ] Infos for Visitors
+  - [ ] Overall Infos
+  - [ ] Project Infos
+- [ ] User Controlls
+  - [ ] Disable Audio
+  - [ ] Disable Birds
+- [ ] Linkage to Website
+
+- [ ] Environment Map?
   
 ### Done
 
 - [X] Smooth Window Opening
 - [X] Day-Night Cycle3 
 - [X] Fix Spike Line Lawn
+- [X] Fix Bird Position with scene shift

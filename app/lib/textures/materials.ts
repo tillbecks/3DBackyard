@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+
 import * as COLORS from './colors';
-import * as CONFIG from './textureConfig';
-import * as TYPES from '../../types/typeIndex';
 import { BRICK_SHADER, ROOF_TILE_SHADER, ROOF_FLAT_TILE_SHADER, ROOF_NORFOLK_TILE_SHADER, GRASS_SHADER } from './shader/shaderConfig';
+
+import * as TYPES from '@/app/types/typeIndex';
 
 
 export const PANE_MATERIAL = new THREE.MeshPhysicalMaterial({

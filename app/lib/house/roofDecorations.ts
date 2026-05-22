@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { EXTRA_DIST_ROOF_ELEMENTS } from '../config/houseConfig';
-import {Decoration, DecorationsPlacer} from '../config/decorations';
+
+import { EXTRA_DIST_ROOF_ELEMENTS } from '@/app/lib/config/houseConfig';
+import {Decoration, DecorationsPlacer} from '@/app/lib/config/decorations';
 
 
 export abstract class RoofDecorations extends Decoration{

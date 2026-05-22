@@ -1,7 +1,10 @@
+'use client';
+
 import * as THREE from 'three';
-import * as TYPES from '../../types/typeIndex';
-import { AMBIENT_LIGHT_CONFIG, SUN_CONFIG, getLightIntensityFromElevation, getSunPosition, LIGHT_UPDATE_INTERVAL } from '../config/sceneConfig';
 import { Sky } from 'three/addons/objects/Sky.js';
+
+import * as TYPES from '@/app/types/typeIndex';
+import { AMBIENT_LIGHT_CONFIG, SUN_CONFIG, getLightIntensityFromElevation, getSunPosition, LIGHT_UPDATE_INTERVAL } from '@/app/lib/config/sceneConfig';
 
 export function initLightSky(scene: THREE.Scene): TYPES.LightSkyController{
     let sunPosition = getSunPosition(Date.now()); // Start at midday

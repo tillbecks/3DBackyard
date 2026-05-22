@@ -1,5 +1,3 @@
-import { SceneElement } from "../house/houseElement";
-
 export function randomInRangeInt(min: number, max: number): number {
     const dif = max - min + 1;
     return Math.floor(Math.random()*dif) + min;

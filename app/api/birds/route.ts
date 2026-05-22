@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
+
 import { objectToGLB } from '@/app/lib/config/importExportUtils';
 import BirdModel from '@/app/lib/birds/birdModel';
+
 export async function GET() {
     try {        
         const model = new BirdModel();

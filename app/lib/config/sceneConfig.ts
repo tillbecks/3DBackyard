@@ -6,13 +6,13 @@ const longitude = 8.6469;
 export const LIGHT_UPDATE_INTERVAL = 60; // Update every minute
 
 export const SUN_CONFIG = {
-    MAX_SUN_INTENSITY: 7,
+    MAX_SUN_INTENSITY: 10,
     SUN_DISTANCE: 300,
     SUN_COLOR: 0xffffff,
 };
 
 export const AMBIENT_LIGHT_CONFIG = {
-    INTENSITY_MAX: 1.5,
+    INTENSITY_MAX: 2.5,
     INTENSITY_MIN: 0.5,
     COLOR: 0xffffff
 };

@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { houseGroupGenerator } from '../house/houseBody';
-import { createCameraConfig } from '../config/importExportUtils';
-import BirdModel from '../birds/birdModel';
+
+import { houseGroupGenerator } from '@/app/lib/house/houseBody';
+import { createCameraConfig } from '@/app/lib/config/importExportUtils';
+import BirdModel from '@/app/lib/birds/birdModel';
 
 export function generateShowcaseContent(){
     const returnGroup = new THREE.Group();
