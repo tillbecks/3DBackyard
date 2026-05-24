@@ -24,8 +24,6 @@ export function getSunPosition(time: number) {
     const phi = Math.PI/2 - pos.altitude;
     const theta = - (pos.azimuth - Math.PI * 0.25);
 
-    console.log("altitude: ", pos.altitude, "azimuth: ", pos.azimuth, "phi: ", phi, "theta: ", theta);
-
     return {phi: phi, theta: theta, altitude: pos.altitude, azimuth: pos.azimuth};
 }
 

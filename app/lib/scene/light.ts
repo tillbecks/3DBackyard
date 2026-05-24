@@ -41,7 +41,7 @@ export function initLightSky(scene: THREE.Scene): TYPES.LightSkyController{
 
 export function initSunlight(sunPosition: TYPES.SunPosition){
     const sunIntensity = getLightIntensityFromElevation(sunPosition.altitude, SUN_CONFIG.MAX_SUN_INTENSITY);
-    console.log("sunIntensity: ", sunIntensity);
+
     const sunLight = new THREE.DirectionalLight(SUN_CONFIG.SUN_COLOR, sunIntensity);
 
     sunLight.position.setFromSphericalCoords(SUN_CONFIG.SUN_DISTANCE, sunPosition.phi, sunPosition.theta);
@@ -72,7 +72,6 @@ export const refreshSunlight = (light: THREE.DirectionalLight, sunPosition: TYPE
 
 export function initAmbientLight(sunPosition: TYPES.SunPosition){
     const lightIntensity = getLightIntensityFromElevation(sunPosition.altitude, AMBIENT_LIGHT_CONFIG.INTENSITY_MAX, AMBIENT_LIGHT_CONFIG.INTENSITY_MIN);
-    console.log("ambientLightIntensity: ", lightIntensity);
 
     const ambientLight = new THREE.AmbientLight(AMBIENT_LIGHT_CONFIG.COLOR, lightIntensity);
 

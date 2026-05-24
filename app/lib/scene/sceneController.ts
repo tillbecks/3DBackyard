@@ -19,6 +19,8 @@ export class SceneController{
     containerRef: React.RefObject<HTMLDivElement>;
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
+    listener: THREE.AudioListener;
+    audioToggle: boolean = false;
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     skyLightController: TYPES.LightSkyController;
@@ -41,6 +43,9 @@ export class SceneController{
 
         this.scene = new THREE.Scene();
         this.camera = initCamera(width, height);
+        this.listener = new THREE.AudioListener();
+        this.camera.add(this.listener);
+
         this.renderer = initRenderer(width, height);
         this.controls = initController(this.camera, this.renderer);
         this.skyLightController = initLightSky(this.scene);
@@ -52,6 +57,12 @@ export class SceneController{
         this.timer.connect(document);
 
         this.containerRef.current.appendChild(this.renderer.domElement);
+    }
+
+    toggleAudio(){
+        this.audioToggle = !this.audioToggle;
+        this.birdController?.toggleAudio(this.audioToggle);
+        return this.audioToggle;
     }
 
     private async loadScenario() {
@@ -130,7 +141,7 @@ export class SceneController{
                 }
             });
 
-            const birdFlog = birdFlogGenerator(birdModel);
+            const birdFlog = birdFlogGenerator(birdModel, this.listener);
                 for(const bird of birdFlog.birds){
                     this.scene.add(bird.birdGeometry);
                 }

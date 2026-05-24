@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import * as TYPES from '@/app/types/typeIndex';
+import { array } from 'three/tsl';
 
 export const SURROUNDING_CENTER = new THREE.Vector3(0, 100, 0);
 export const SURROUNDING_RADIUS_DEPTH = 80;
@@ -99,3 +100,11 @@ export const LEAN_ANGLE_FACTOR = 20 ;
 
 export const ID_LEFT_WING = 'wing_left';
 export const ID_RIGHT_WING = 'wing_right';
+
+const BIRD_SOUND_PREFIX = 'ChimneySwiftScream-';
+const BIRD_SOUND_PATH = '/bird_screams/';
+const BIRD_SOUNDS_COUNT = 22;
+export const BIRD_SOUND_PATHS = Array.from({length: BIRD_SOUNDS_COUNT}, (_, i) => `${BIRD_SOUND_PREFIX}${String(i+1).padStart(2, '0')}.mp3`).map(filename => BIRD_SOUND_PATH + filename);
+
+export const BIRD_SCREAM_INTERVAL_MIN = 1; //In seconds
+export const BIRD_SCREAM_INTERVAL_MAX = 2;

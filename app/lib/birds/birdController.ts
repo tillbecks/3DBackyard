@@ -7,6 +7,9 @@ import { Trajectory, FollowCircle, MoveToTarget, LoopingGoal } from './birdTraje
 
 import * as BC from '@/app/lib/config/birdConfig';
 import * as TYPES from '@/app/types/typeIndex';
+import { AudioSelector } from '../config/audioUtils';
+import { randomInRangeFloat } from '../config/utils';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 export class BirdController{
     mode: string;
@@ -15,25 +18,78 @@ export class BirdController{
     position: THREE.Vector3;
     birds: Bird[]
     circle: Trajectory;
+    audio: THREE.PositionalAudio | null;
+    audioToggle: boolean=false;
+    audioSelector: AudioSelector;
+    listener: THREE.AudioListener | null;
     movementAccumulator: number;
     targetHit: boolean;
     onTargetHit: (() => void) = () => {};
 
 
-    constructor(model: THREE.Group | THREE.Object3D){
+    constructor(model: THREE.Group | THREE.Object3D, listener: THREE.AudioListener | null = null){
         this.mode = BC.FLIGHT_MODES.CIRCLE;
         this.target = new THREE.Vector3(0, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.lastPosition = new THREE.Vector3(0, 0, 0);
         this.movementAccumulator = 0;
+        this.listener = listener;
         this.targetHit = false;
+        this.audio = null;
 
         this.birds = [];
         for (let i=0; i<BC.BIRD_COUNT; i++){
             const newBird = birdGenerator(model);
             this.birds.push(newBird);
         }
+
         this.circle = this.getStdFollowCircle();
+
+        this.audioSelector = new AudioSelector(BC.BIRD_SOUND_PATHS);
+        this.initAudio();
+    }
+
+    toggleAudio(toggle: boolean = !this.audioToggle){
+        this.audioToggle = toggle;
+        if(this.audio){
+            if(this.audioToggle){
+                this.audioSelector.loadRandomAudio(this.audio);
+            }
+            else{
+                try { this.audio.stop(); } catch {}
+            }
+        }
+    }
+
+    initAudio(){
+        if(this.listener){
+            
+            this.audio = new THREE.PositionalAudio(this.listener);
+            this.audio.setRefDistance(20);
+
+            const loadDelay = async (sec: number, audioSelector: AudioSelector, positionalAudio: THREE.PositionalAudio) => {
+                    await new Promise(resolve => setTimeout(resolve, sec * 1000));
+                    if (!this.audioToggle) {
+                        console.debug('BirdController: loadDelay aborted because audioToggle is false');
+                        return;
+                    }
+                    audioSelector.loadRandomAudio(positionalAudio);
+                }
+
+            const onEnded = () => {
+                const audio = this.audio;
+                if(!audio) return;
+                const delay = randomInRangeFloat(BC.BIRD_SCREAM_INTERVAL_MIN, BC.BIRD_SCREAM_INTERVAL_MAX);
+                loadDelay(delay, this.audioSelector, audio);
+                audio.onEnded = onEnded;
+            };
+
+            this.audio.onEnded = onEnded;
+
+            this.birds[0].birdGeometry.add(this.audio);
+        }else{
+            this.audio = null;
+        }
     }
 
     update(deltaSeconds: number = 1 / 60){
@@ -46,7 +102,6 @@ export class BirdController{
             this.movementAccumulator -= stepInterval;
 
             const nextCirclePosition = this.circle.getNextPosition();
-            console.log("Next circle position:", nextCirclePosition);
 
             if (this.mode === BC.FLIGHT_MODES.FLIGHT_TO_GOAL && nextCirclePosition === true){
                 this.mode = BC.FLIGHT_MODES.LOOP;
@@ -114,7 +169,7 @@ export class BirdController{
     points: THREE.Mesh[] = [];
 
     drawPosition(scene: THREE.Scene, color=0xff0000, size=3, counterActive=false) {
-        //console.log(this.position);
+        
         if(this.points.length > 30){
             const oldPoint = this.points.shift();
             if(oldPoint){
@@ -157,8 +212,8 @@ export class BirdController{
 
 let counter = 0;
 
-export function birdFlogGenerator(model: THREE.Group | THREE.Object3D): BirdController{
-    return new BirdController(model);
+export function birdFlogGenerator(model: THREE.Group | THREE.Object3D, audioListener: THREE.AudioListener | null = null): BirdController{
+    return new BirdController(model, audioListener);
 }
 
 ////x rechts-links, z vorne-hinten, y oben-unten

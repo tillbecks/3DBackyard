@@ -28,7 +28,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ### Planned
 - [ ] Check if ServerConnection Error is bug or how to prevent it (Reinitiate?)
-- [ ] Sounds
 - [ ] In-Door Lighting
 - [ ] Infos for Visitors
   - [ ] Overall Infos
@@ -52,6 +51,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - [X] Add to Scene
 - [ ] Walls in Garden?
   - [ ] Partitioning Algorithm
+- [ ] Sounds
+  - [X] Bird Sounds
+  - [ ] Backyard Sounds
   
 ### Done
 
