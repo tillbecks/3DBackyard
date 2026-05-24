@@ -68,7 +68,8 @@ export const BALCONY_PLATFORM_THICKNESS: number = 1.5;
 export const BALCONY_START_BOTTOM: number = 0.2;
 export const BALCONY_WIDTH_MIN: number = 10;
 export const BALCONY_WIDTH_MAX: number = 20;
-export const BALCONY_MIN_OFFSET_FROM_CENTER: number = WINDOW_MAX_WIDTH / 2 + 1;
+
+export const BALCONY_MIN_EXTRA_WIDTH: number = 2;
 export const BALCONY_DIST_OTHER_WINDOWS: number = 2;
 
 export const BALCONY_RAILING_HEIGHT: number = 5;

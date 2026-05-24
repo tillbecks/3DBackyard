@@ -27,20 +27,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## ToDos
 
 ### Planned
-- [X] Camera Follows Birds on Window-Click
-  - [ ] Smoother?
-- [ ] Trees
-  - [X] L-Systems
-  - [ ] Different Variations
-  - [X] Add to Scene
-- [ ] Balcony Positioning
-- [ ] Walls in Garden?
-- [ ] Check if ServerConnection Error is bug
+- [ ] Check if ServerConnection Error is bug or how to prevent it (Reinitiate?)
 - [ ] Sounds
 - [ ] In-Door Lighting
 - [ ] Infos for Visitors
   - [ ] Overall Infos
   - [ ] Project Infos
+    - [ ] Camera Pan on Window
+    - [ ] Back-Button -> Camera back to initial position
 - [ ] User Controlls
   - [ ] Disable Audio
   - [ ] Disable Birds
@@ -48,9 +42,21 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - [ ] Environment Map?
   
+### In Progress
+
+- [X] Camera Follows Birds on Window-Click
+  - [ ] Smoother? -> Improve Looping behaviour
+- [ ] Trees
+  - [X] L-Systems
+  - [ ] Different Variations
+  - [X] Add to Scene
+- [ ] Walls in Garden?
+  - [ ] Partitioning Algorithm
+  
 ### Done
 
 - [X] Smooth Window Opening
 - [X] Day-Night Cycle3 
 - [X] Fix Spike Line Lawn
 - [X] Fix Bird Position with scene shift
+- [X] Fix Balcony Positioning

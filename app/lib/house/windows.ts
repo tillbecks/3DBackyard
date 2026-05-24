@@ -196,8 +196,8 @@ class Windows{
             stairWindowHolesMesh = new THREE.Mesh(stairWindowHolesGeometrie);
         }
 
-        const windowPositions = {type: this.windowBreakingScheme, windowsX: windowPositionsX, windowsRightX: windowPositionsRightX, windowWidth: this.windowWidth, stairX: stairPositionX};
-        return {"windowHoles": windowHolesMesh, "windowPanes": windowPaneGeometries, "stairWindowHoles": stairWindowHolesMesh, "stairWindowPanes": stairWindowPaneGeometries, "balconyPosition": balconyPositionX, "windowPositions": windowPositions, "balconySpace": balconySpace};
+        const windowPositions = {type: this.windowBreakingScheme, windowsX: windowPositionsX, windowsRightX: windowPositionsRightX, windowWidth: this.windowWidth, stairX: stairPositionX, balconyPositionX: balconyPositionX};
+        return {"windowHoles": windowHolesMesh, "windowPanes": windowPaneGeometries, "stairWindowHoles": stairWindowHolesMesh, "stairWindowPanes": stairWindowPaneGeometries, "windowPositions": windowPositions};
     }
 
 }
@@ -216,7 +216,7 @@ export function windowGenerator(houseWidth: number, storyCnt: number, storyHeigh
     const windowsGeometries = windows.get3DObject(storyCnt, storyHeight, houseWidth, houseDepth, getID);
     let balconies: THREE.Group | undefined = undefined;
     if (hasBalcony)
-        balconies = balconyGenerator(windowsGeometries["balconyPosition"], storyCnt, storyHeight, houseDepth, windowsGeometries["balconySpace"]);
+        balconies = balconyGenerator(windowsGeometries.windowPositions, storyCnt, storyHeight, houseDepth, houseWidth);
     
     return {"windows": windowsGeometries, "balconies": balconies};
 }

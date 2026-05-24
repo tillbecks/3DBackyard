@@ -1,21 +1,24 @@
 import * as THREE from 'three';
 
+import * as TYPES from '@/app/types/typeIndex';
+import * as HC from '@/app/lib/config/houseConfig';
 import { BALCONY_DEPTH, BALCONY_PLATFORM_THICKNESS, BALCONY_START_BOTTOM, BALCONY_WIDTH_MAX, BALCONY_WIDTH_MIN, METAL_COLOR_HEX, BALCONY_RAILING_DIAMETER_MAIN, BALCONY_RAILING_DIAMETER_SECONDARY, BALCONY_RAILING_HEIGHT, BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE, BALCONY_RAILING_SECONDARY_DISTANCE, BALCONY_RAILING_TYPES } from '@/app/lib/config/houseConfig';
-import { randomInRangeInt, randomFromObject } from '@/app/lib/config/utils';
+import { randomInRangeInt, randomFromObject, randomInRangeFloat } from '@/app/lib/config/utils';
 
 class Balcony{
+    balconyPositionX: number;
+    balconySpace: {left: number, right: number};
     balconyWidth: number;
 
-    constructor(balconyWidth: number){
-        this.balconyWidth = balconyWidth;
+    constructor(balconyPositionX: number, balconySpace: {left: number, right: number}){
+        this.balconyWidth = balconySpace.left + balconySpace.right;
+        this.balconyPositionX = balconyPositionX + (balconySpace.right - balconySpace.left)/2;
+        this.balconySpace = balconySpace;
+
     }
 
-    get3DObject(balconyPosition: number, storyCount: number, storyHeight: number, houseDepth: number, balconySpace: {left: number, right: number}){
+    get3DObject(storyCount: number, storyHeight: number, houseDepth: number){
         const balconies: THREE.Group = new THREE.Group();
-
-        const totalSpace = balconySpace.left + balconySpace.right;
-        const positionX = ((balconySpace.right - balconySpace.left) / totalSpace) * this.balconyWidth / 2;
-        
 
         const railingType: string = randomFromObject(BALCONY_RAILING_TYPES);
 
@@ -33,23 +36,73 @@ class Balcony{
             railing.position.y = BALCONY_PLATFORM_THICKNESS/2 + BALCONY_RAILING_HEIGHT/2;
             singleBalconyGroup.add(railing);
 
-            singleBalconyGroup.position.set(positionX, story*storyHeight + storyHeight * BALCONY_START_BOTTOM + BALCONY_PLATFORM_THICKNESS/2 - (storyCount*storyHeight)/2, houseDepth/2 + BALCONY_DEPTH/2)
+            singleBalconyGroup.position.set(0, story*storyHeight + storyHeight * BALCONY_START_BOTTOM + BALCONY_PLATFORM_THICKNESS/2 - (storyCount*storyHeight)/2, houseDepth/2 + BALCONY_DEPTH/2)
 
             balconies.add(singleBalconyGroup);
         }
 
-        balconies.position.x = balconyPosition;
+        balconies.position.x = this.balconyPositionX;
         return balconies;
     }
 
 }
 
-export function balconyGenerator(balconyPosition: number, storyCount: number, storyHeight: number, houseDepth: number, balconySpace: {left: number, right: number}): THREE.Group {
-    const maxWidth = Math.min(BALCONY_WIDTH_MAX, balconySpace.left+balconySpace.right);
-    const minWidth = Math.min(BALCONY_WIDTH_MIN, maxWidth);
-    const balconyWidth: number = randomInRangeInt(minWidth, maxWidth);
-    const balconies: Balcony = new Balcony(balconyWidth);
-    return balconies.get3DObject(balconyPosition, storyCount, storyHeight, houseDepth, balconySpace);
+export function balconyGenerator(windowPositions: TYPES.WindowPositions, storyCount: number, storyHeight: number, houseDepth: number, houseWidth: number): THREE.Group {
+    const balconySpace = calcBalconyPosition(windowPositions, houseWidth);
+    const minSpace = windowPositions.windowWidth/2 + HC.BALCONY_MIN_EXTRA_WIDTH
+    const leftMax = Math.max(balconySpace.left, minSpace);
+    const left = randomInRangeFloat(minSpace, leftMax);
+    
+    const rightMax = Math.max(balconySpace.right, minSpace);
+    const right = randomInRangeFloat(minSpace, rightMax);
+
+    const balconies: Balcony = new Balcony(windowPositions.balconyPositionX, {left: left, right: right});
+    return balconies.get3DObject( storyCount, storyHeight, houseDepth);
+}
+
+function calcBalconyPosition(windowPositions: TYPES.WindowPositions, houseWidth: number){
+    let spaceLeft = 0;
+    let spaceRight = 0;
+    let balconyIndex = windowPositions.windowsX.indexOf(windowPositions.balconyPositionX);
+    const halfWindowSize = windowPositions.windowWidth/2;
+    if(balconyIndex != -1){
+        if(balconyIndex == 0){
+            spaceLeft =   - houseWidth / 2 - windowPositions.balconyPositionX - HC.BALCONY_DIST_OTHER_WINDOWS;
+        } 
+        else{
+            spaceLeft = windowPositions.windowsX[balconyIndex-1] - windowPositions.balconyPositionX - windowPositions.windowWidth/2 - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }
+
+        if(balconyIndex == windowPositions.windowsX.length - 1){
+            if(windowPositions.type === HC.WINDOW_SPACING_SCHEME.EQUALLY_SPACED){
+                spaceRight = houseWidth / 2 - windowPositions.balconyPositionX - HC.BALCONY_DIST_OTHER_WINDOWS;
+            }
+            else{
+                spaceRight = windowPositions.stairX - windowPositions.balconyPositionX  - halfWindowSize - HC.BALCONY_DIST_OTHER_WINDOWS;
+            }
+        }
+        else{
+            spaceRight = windowPositions.windowsX[balconyIndex+1] - windowPositions.balconyPositionX - halfWindowSize - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }
+    }
+
+    balconyIndex = windowPositions.windowsRightX.indexOf(windowPositions.balconyPositionX);
+    if(balconyIndex != -1){
+        if(balconyIndex == 0){
+            spaceLeft =  windowPositions.balconyPositionX - windowPositions.stairX - halfWindowSize - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }else{
+            spaceLeft = windowPositions.balconyPositionX - windowPositions.windowsRightX[balconyIndex-1] - halfWindowSize - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }
+
+        if(balconyIndex == windowPositions.windowsRightX.length - 1){
+            spaceRight = houseWidth / 2 - windowPositions.balconyPositionX - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }
+        else{
+            spaceRight = windowPositions.windowsRightX[balconyIndex+1] - windowPositions.balconyPositionX - halfWindowSize - HC.BALCONY_DIST_OTHER_WINDOWS;
+        }
+    }
+
+    return {left: spaceLeft, right: spaceRight};
 }
 
 class BalconyRailings{

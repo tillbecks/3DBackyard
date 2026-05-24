@@ -6,6 +6,7 @@ export interface WindowPositions{
     windowsRightX: number[];
     stairX: number;
     windowWidth: number;
+    balconyPositionX: number;
 }
 
 export interface WallPositions{
@@ -17,18 +18,16 @@ export interface WallPositions{
 export type SubtractGeometry = THREE.BoxGeometry[][];
 
 export interface WindowReturn{
-    "windowHoles": THREE.Mesh, 
-    "windowPanes":  THREE.Group, 
-    "stairWindowHoles": THREE.Mesh | null, 
-    "stairWindowPanes": THREE.Group, 
-    "balconyPosition": number, 
-    "windowPositions": WindowPositions,
-    "balconySpace": {left: number, right: number}
+    windowHoles: THREE.Mesh, 
+    windowPanes:  THREE.Group, 
+    stairWindowHoles: THREE.Mesh | null, 
+    stairWindowPanes: THREE.Group, 
+    windowPositions: WindowPositions,
 }
 
 export interface WindowBalconiesReturn{
-    "windows": WindowReturn, 
-    "balconies"?: THREE.Group
+    windows: WindowReturn, 
+    balconies?: THREE.Group
 }
 
 export interface LightConfig{
