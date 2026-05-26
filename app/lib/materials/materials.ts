@@ -4,6 +4,7 @@ import * as COLORS from './colors';
 import { BRICK_SHADER, ROOF_TILE_SHADER, ROOF_FLAT_TILE_SHADER, ROOF_NORFOLK_TILE_SHADER, GRASS_SHADER } from './shader/shaderConfig';
 
 import * as TYPES from '@/app/types/typeIndex';
+import { randomFromArray } from '../config/utils';
 
 
 export const PANE_MATERIAL = new THREE.MeshPhysicalMaterial({
@@ -105,4 +106,14 @@ const TREE_LEAF_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.TREE_LE
 
 export function getTreeLeafMaterial(): TYPES.MaterialMix {
     return {standardMaterial: TREE_LEAF_MATERIAL, shaderMaterial: null};
+}
+
+export function getWallLightMaterialCommon(ligthness: number): THREE.MeshBasicMaterial{
+    const color = COLORS.changeColorLightness(new THREE.Color(randomFromArray(COLORS.LIGHT_COLORS_COMMON)), ligthness);
+    return new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
+}
+
+export function getWallLightMaterialRare(ligthness: number): THREE.MeshBasicMaterial{
+    const color = COLORS.getRandomHueColor(ligthness);
+    return new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
 }

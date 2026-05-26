@@ -11,7 +11,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 import * as TYPES from '@/app/types/typeIndex';
 import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '@/app/lib/config/utils';
 import { calcUVS } from '@/app/lib/config/3dUtils';
-import { getRoofMaterials } from '@/app/lib/textures/materials';
+import { getRoofMaterials } from '@/app/lib/materials/materials';
 
 
 

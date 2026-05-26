@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
-import { generateLightConfig, generateStairLightConfig } from './lights';
+//import { generateLightConfig, generateStairLightConfig } from './lights';
 
 import * as TYPES from '@/app/types/typeIndex';
 import * as HC from '@/app/lib/config/houseConfig';
-import { randomInRangeInt } from '@/app/lib/config/utils';
+import { randomBoolean, randomInRangeFloat, randomInRangeInt } from '@/app/lib/config/utils';
+import { getWallLightMaterialCommon, getWallLightMaterialRare } from '@/app/lib/materials/materials';
 
 export class Rooms{
     storyCount: number;
@@ -26,20 +27,22 @@ export class Rooms{
         this.wallInfo = windowToWallPositions(windowInfo);
     }
 
-    get3DObject(): TYPES.ObjectLightReturn {
+    get3DObject(getId: () => string): TYPES.RoomLightReturn {
         const roomGeometries = [];
         const windowSeparatorsX = this.wallInfo.wallsX;
         const windowSeperatorsXRight = this.wallInfo.wallsRightX;
         const wallPositioning = randomInRangeInt(0, Math.pow(2, windowSeparatorsX.length));
         const wallPositioningRight = randomInRangeInt(0, Math.pow(2, windowSeperatorsXRight.length));
-        const roomHeight = this.storyHeight - HC.FLOOR_THICKNESS;
+        const roomHeight = this.storyHeight - HC.FLOOR_THICKNESS - this.storyHeight * HC.BALCONY_DOOR_START_BOTTOM;
         const roomDepth = this.houseDepth - 2 * HC.WALL_THICKNESS;
 
         const storyRoomGeometries = [];
         let leftX = -this.houseWidth/2 + HC.WALL_THICKNESS;
         let rightX = 0;
         
-        const lights = [];
+        //const lights = [];
+        const wallLights: THREE.Mesh []= [];
+        const wallLightConfigs: TYPES.LightConfig[] = [];
         
         for(let i = 0; i < windowSeparatorsX.length; i++){
             if((wallPositioning & (1 << i)) != 0){
@@ -48,7 +51,6 @@ export class Rooms{
                 const roomGeometry = new THREE.BoxGeometry(roomWidth, roomHeight, roomDepth);
                 const translationX =leftX + roomWidth/2;
                 roomGeometry.translate(translationX, 0, 0);
-                //storyRooms.add(new THREE.Mesh(roomGeometry));
                 storyRoomGeometries.push(roomGeometry);
                 leftX = windowSeparatorsX[i] + HC.WALL_THICKNESS/2;
             }
@@ -64,7 +66,6 @@ export class Rooms{
         roomGeometry.translate(leftX + roomWidth/2, 0, 0);
         //storyRooms.add(new THREE.Mesh(roomGeometry));
         storyRoomGeometries.push(roomGeometry);
-
         if(this.wallInfo.type == HC.WINDOW_SPACING_SCHEME.BREAK_MIDDLE){
             leftX = HC.WALL_THICKNESS + this.gapMiddle/2 + this.stairPosition;
 
@@ -74,7 +75,6 @@ export class Rooms{
                     const roomWidth = rightX - leftX;
                     const roomGeometry = new THREE.BoxGeometry(roomWidth, roomHeight, roomDepth);
                     roomGeometry.translate(leftX + roomWidth/2, 0, 0);
-                    //storyRooms.add(new THREE.Mesh(roomGeometry));
                     storyRoomGeometries.push(roomGeometry);
                     leftX = windowSeperatorsXRight[i] + HC.WALL_THICKNESS/2;
                 }
@@ -84,7 +84,6 @@ export class Rooms{
             const roomWidth = rightX - leftX;
             const roomGeometry = new THREE.BoxGeometry(roomWidth, roomHeight, roomDepth);
             roomGeometry.translate(leftX + roomWidth/2, 0, 0);
-            //storyRooms.add(new THREE.Mesh(roomGeometry));
             storyRoomGeometries.push(roomGeometry);
         }    
 
@@ -98,10 +97,11 @@ export class Rooms{
                 geom.computeBoundingBox();
                 const position = new THREE.Vector3();
                 geom.boundingBox!.getCenter(position);
-                const roomLights = generateLightConfig(position, geom.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3());
-                //const mesh = new THREE.Mesh(geom);
+
                 story.push(geom);
-                lights.push(...roomLights);
+                const wallLight = createLightWalls(geom, getId);
+                wallLights.push(wallLight.wallLight);
+                wallLightConfigs.push(wallLight.lightConfig);
                 
             }
             roomGeometries.push(...story);
@@ -112,15 +112,17 @@ export class Rooms{
             const stairRoomHeight = this.storyCount * this.storyHeight - HC.FLOOR_THICKNESS * 2;
             const stairRoomGeometry = new THREE.BoxGeometry(stairRoomWidth, stairRoomHeight, roomDepth);
             stairRoomGeometry.translate(this.stairPosition, 0, 0);
-            const stairLights = generateStairLightConfig(new THREE.Vector3(this.stairPosition, 0, 0), new THREE.Vector3(stairRoomWidth, stairRoomHeight, roomDepth), this.storyCount);
-            lights.push(...stairLights);
+        
+            const wallLight = createLightWalls(stairRoomGeometry, getId, true);
+            wallLights.push(wallLight.wallLight);
+            wallLightConfigs.push(wallLight.lightConfig);
             roomGeometries.push(stairRoomGeometry);
         }
 
         const mergedRoomGeometry = BufferGeometryUtils.mergeGeometries(roomGeometries);
         const roomsGroup = new THREE.Group();
         roomsGroup.add(new THREE.Mesh(mergedRoomGeometry));
-        return {object: roomsGroup, lights: lights};
+        return {object: roomsGroup, lightConfigs: wallLightConfigs, wallLights: wallLights};
     }
 }
 
@@ -137,4 +139,63 @@ function windowToWallPositions(windowPositions: TYPES.WindowPositions){
     }
 
     return {type: windowPositions.type, wallsX: wallPositionsX, wallsRightX: wallPositionsRightX};
+}
+
+function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?: boolean): TYPES.WallLightReturn{
+    const walls = [];
+    const size = geom.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3();
+    const center = new THREE.Vector3();
+    geom.boundingBox?.getCenter(center);
+    const wallThickness = 0.1;
+
+    // Floor
+    const floorGeom = new THREE.BoxGeometry(size.x, wallThickness, size.z);
+    floorGeom.translate(center.x, center.y - size.y/2 + wallThickness/2, center.z);
+    walls.push(floorGeom);
+
+    // Ceiling
+    const ceilingGeom = new THREE.BoxGeometry(size.x, wallThickness, size.z);
+    ceilingGeom.translate(center.x, center.y + size.y/2 - wallThickness/2, center.z);
+    walls.push(ceilingGeom);
+
+    // Left Wall
+    const leftWallGeom = new THREE.BoxGeometry(wallThickness, size.y, size.z);
+    leftWallGeom.translate(center.x - size.x/2 + wallThickness/2, center.y, center.z);
+    walls.push(leftWallGeom);
+
+    // Right Wall
+    const rightWallGeom = new THREE.BoxGeometry(wallThickness, size.y, size.z);
+    rightWallGeom.translate(center.x + size.x/2 - wallThickness/2, center.y, center.z);
+    walls.push(rightWallGeom);
+
+    // Back Wall
+    const backWallGeom = new THREE.BoxGeometry(size.x, size.y, wallThickness);
+    backWallGeom.translate(center.x, center.y, center.z - size.z/2 + wallThickness/2);
+    walls.push(backWallGeom);
+
+    const wallsGeom = BufferGeometryUtils.mergeGeometries(walls);
+    const wallsMesh = new THREE.Mesh(wallsGeom);
+
+    const ligthness = randomInRangeFloat(HC.LIGHT_INTENSITY_MIN, HC.LIGHT_INTENSITY_MAX);
+    if(randomBoolean(HC.LIGHT_UNUSUAL_COLOR_PROBABILITY)){
+        const material = getWallLightMaterialRare(ligthness);
+        wallsMesh.material = material;
+    }else{
+        const material = getWallLightMaterialCommon(ligthness);
+        wallsMesh.material = material;
+    }
+
+    wallsMesh.name = HC.LIGHT_ID_PREFIX + getId();
+
+    const timer = isStair ? randomInRangeInt(HC.STAIR_LIGHT_TIMER_MIN, HC.STAIR_LIGHT_TIMER_MAX) : 0;
+
+    const turnedOn = isStair ? false : randomBoolean(HC.LIGHT_TURNED_ON_PROBABILITY);
+
+    const lightConfig: TYPES.LightConfig = {
+        name: wallsMesh.name,
+        initTurnedOn: turnedOn,
+        timer: timer
+    };
+
+    return {wallLight: wallsMesh, lightConfig: lightConfig};
 }

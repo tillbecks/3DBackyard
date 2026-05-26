@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import * as TYPES from '@/app/types/typeIndex';
 import * as TCONFIG from '@/app/lib/config/treeConfig';
 import { randomFromArray, randomInRangeFloat } from '@/app/lib/config/utils';
-import { getTreeBarkMaterial, getTreeLeafMaterial } from '@/app/lib/textures/materials';
+import { getTreeBarkMaterial, getTreeLeafMaterial } from '@/app/lib/materials/materials';
 import { Decoration } from '@/app/lib/config/decorations';
 
 function evolveLSystem(system: TYPES.LSystemType, iterations: number): string{

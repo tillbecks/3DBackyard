@@ -7,7 +7,7 @@ import * as LC from "@/app/lib/config/lightConfig";
 import { randomBoolean, randomInRangeInt } from "@/app/lib/config/utils";
 
 export default class LightController {
-    private lightObjects: TYPES.LightObject[] = [];
+    private lights: TYPES.LightObject[] = [];
     private lightTimers: TYPES.LightTimer[] = [];
     private offTurnableLightIndexes: number[] = [];
     private onTurnableLightIndexes: number[] = [];
@@ -15,11 +15,12 @@ export default class LightController {
     private init = false;
     private lightsAdded = false;
 
-    initController(lights: TYPES.LightConfig[]){this.lightObjects = [];
+    initController(lights: TYPES.LightConfig[]){
+        this.lights = [];
         this.lightTimers = [];
         this.offTurnableLightIndexes = [];
         this.onTurnableLightIndexes = [];
-        
+        if(lights == undefined || lights.length == 0) return;
         this.createLights(lights);
         this.init = true;
     }
@@ -27,16 +28,9 @@ export default class LightController {
     private createLights(lights: TYPES.LightConfig[]){
         for(let i=0; i<lights.length; i++){
             const lightConfig = lights[i];
-            const light = new THREE.SpotLight(new THREE.Color(0xffffff), 3000, 15, Math.PI / 2.2, 0.5, 1);
-            light.castShadow = true;
-            light.shadow.mapSize.width = 256;   // statt 2048
-            light.shadow.mapSize.height = 256;
-            light.shadow.autoUpdate = false;
-            light.position.copy(lightConfig.position);
-            light.target.position.copy(lightConfig.position).add(new THREE.Vector3(0, -1, 0));
 
             if(lightConfig.initTurnedOn && lightConfig.timer > 0){
-                this.addLightTimer({light, turnedOn: true, timer: lightConfig.timer}, i);
+                this.addLightTimer({name: lightConfig.name, turnedOn: true, timer: lightConfig.timer}, i);
             }
             else if(lightConfig.initTurnedOn){
                 this.offTurnableLightIndexes.push(i);
@@ -45,21 +39,16 @@ export default class LightController {
                 this.onTurnableLightIndexes.push(i);
             }
 
-            this.lightObjects.push({light, turnedOn: lightConfig.initTurnedOn, timer: lightConfig.timer});
+            this.lights.push({name: lightConfig.name, turnedOn: lightConfig.initTurnedOn, timer: lightConfig.timer});
         }
     }
 
     private addLightsToScene(scene: THREE.Scene){
         if(this.lightsAdded) return;
+        for(const index of this.onTurnableLightIndexes){
+            this.turnLightOff(this.lights[index].name, scene);
+        }
         this.lightsAdded = true;
-        for(const index of this.offTurnableLightIndexes){
-            scene.add(this.lightObjects[index].light);
-            this.lightObjects[index].light.shadow.needsUpdate = true;
-        }
-        for(const lightTimer of this.lightTimers){
-            scene.add(lightTimer.light.light);
-            lightTimer.light.light.shadow.needsUpdate = true;
-        }
     }
 
     updateLights(deltaTime: number, scene: THREE.Scene){
@@ -80,12 +69,13 @@ export default class LightController {
             if(randomBoolean(LC.TURN_ON_PROB_SEC)){
                 if(this.onTurnableLightIndexes.length > 0){
                     lightOnIndex = this.onTurnableLightIndexes[randomInRangeInt(0, this.onTurnableLightIndexes.length - 1)];
-                    this.lightObjects[lightOnIndex].turnedOn = true;
-                    scene.add(this.lightObjects[lightOnIndex].light);
-                    this.lightObjects[lightOnIndex].light.shadow.needsUpdate = true;
+                    this.lights[lightOnIndex].turnedOn = true;
+                    /*scene.add(this.lights[lightOnIndex].light);
+                    this.lights[lightOnIndex].light.shadow.needsUpdate = true;*/
+                    this.turnLightOn(this.lights[lightOnIndex].name, scene);
                     this.onTurnableLightIndexes.splice(this.onTurnableLightIndexes.indexOf(lightOnIndex), 1);
-                    if(this.lightObjects[lightOnIndex].timer > 0){
-                        this.addLightTimer(this.lightObjects[lightOnIndex], lightOnIndex);
+                    if(this.lights[lightOnIndex].timer > 0){
+                        this.addLightTimer(this.lights[lightOnIndex], lightOnIndex);
                     }
                     
                 }
@@ -93,14 +83,14 @@ export default class LightController {
             if(randomBoolean(LC.TURN_OFF_PROB_SEC)){
                 if(this.offTurnableLightIndexes.length > 0){
                     const lightOffIndex = this.offTurnableLightIndexes[randomInRangeInt(0, this.offTurnableLightIndexes.length - 1)];
-                    this.lightObjects[lightOffIndex].turnedOn = false;
-                    scene.remove(this.lightObjects[lightOffIndex].light);
+                    this.lights[lightOffIndex].turnedOn = false;
+                    this.turnLightOff(this.lights[lightOffIndex].name, scene);
                     this.offTurnableLightIndexes.splice(this.offTurnableLightIndexes.indexOf(lightOffIndex), 1);
                     this.onTurnableLightIndexes.push(lightOffIndex);
                 }
             }    
 
-            if(lightOnIndex && this.lightObjects[lightOnIndex].timer == 0){
+            if(lightOnIndex && this.lights[lightOnIndex].timer == 0){
                 this.offTurnableLightIndexes.push(lightOnIndex);
             }
         }
@@ -112,7 +102,7 @@ export default class LightController {
             lightTimer.timeElapsed += deltaTime;
             if(lightTimer.timeElapsed >= lightTimer.light.timer){
                 lightTimer.light.turnedOn = false;
-                scene.remove(lightTimer.light.light);
+                this.turnLightOff(lightTimer.light.name, scene);
                 this.lightTimers.splice(i, 1);  // ← Entfernen
                 this.onTurnableLightIndexes.push(lightTimer.lightIndex);
             }
@@ -123,4 +113,17 @@ export default class LightController {
         this.lightTimers.push({light, timeElapsed: 0, lightIndex: index});
     }
 
+    private turnLightOn(lightName: string, scene: THREE.Scene){
+        const wallLight = scene.getObjectByName(lightName);
+        if(wallLight){
+            wallLight.visible = true;
+        }
+    }
+
+    private turnLightOff(lightName: string, scene: THREE.Scene){
+        const wallLight = scene.getObjectByName(lightName);
+        if(wallLight){
+            wallLight.visible = false;
+        }
+    }
 }

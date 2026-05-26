@@ -30,32 +30,41 @@ export interface WindowBalconiesReturn{
     balconies?: THREE.Group
 }
 
+export interface WallLightReturn{
+    wallLight: THREE.Mesh;
+    lightConfig: LightConfig;
+}
+
 export interface LightConfig{
-    color: number;
-    intensity: number;
-    position: THREE.Vector3;
+    name: string;
     initTurnedOn: boolean;
     timer: number;
 }
 
+export interface RoomLightReturn{
+    object: THREE.Group;
+    lightConfigs: LightConfig[];
+    wallLights: THREE.Mesh[];
+}
+
 export interface ObjectLightReturn{
     object: THREE.Group;
-    lights: LightConfig[];
+    lightConfigs: LightConfig[];
 }
 
 export interface HouseReturn{
     object: THREE.Group;
-    lights: LightConfig[];
+    lightConfigs: LightConfig[];
     housesWidths: number[];
 }
 
 export interface APIObjectLightReturn{
     object: string;
-    lights: LightConfig[];
+    lightConfigs: LightConfig[];
 }
 
 export interface LightObject{
-    light: THREE.SpotLight;
+    name: string;
     turnedOn: boolean;
     timer: number;
 }

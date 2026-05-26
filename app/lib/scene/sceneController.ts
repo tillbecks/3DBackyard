@@ -9,11 +9,12 @@ import { initLightSky } from './light';
 
 import * as TYPES from '@/app/types/typeIndex';
 import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
-import { loadShader } from '@/app/lib/textures/shader/shaderConfig';
+import { loadShader } from '@/app/lib/materials/shader/shaderConfig';
 import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
 import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '@/app/lib/config/windowUtils';
 import { calcCenterOfGeometries, cameraFollowObject } from '@/app/lib/config/3dUtils';
+import LightController from './lightController';
 
 export class SceneController{
     containerRef: React.RefObject<HTMLDivElement>;
@@ -25,6 +26,7 @@ export class SceneController{
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     skyLightController: TYPES.LightSkyController;
+    lightController: LightController;
     birdController: BirdController | null = null;
     timer: THREE.Timer;
 
@@ -36,6 +38,8 @@ export class SceneController{
 
 
     constructor(containerRef: React.RefObject<HTMLDivElement | null>, document: Document){ 
+        this.scenario = scenarios.backyard;
+
         if(!containerRef.current) throw new Error('Container reference is null');
         this.containerRef = containerRef as React.RefObject<HTMLDivElement>;
 
@@ -51,9 +55,10 @@ export class SceneController{
         this.controls = initController(this.camera, this.renderer);
         this.skyLightController = initLightSky(this.scene);
         this.animations.push(this.skyLightController.update);
-        this.scenario = scenarios.backyard;
 
         this.tweenGroup = new Group();
+        this.lightController = new LightController();
+
         this.timer = new THREE.Timer();
         this.timer.connect(document);
 
@@ -125,8 +130,12 @@ export class SceneController{
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
+                    console.log(`Mesh loaded: ${child.name}`);
                 }
             });
+            console.log("Lights loaded from API:", content.lightConfigs);
+            this.lightController.initController(content.lightConfigs);
+            this.animations.push((deltaSeconds) => this.lightController.updateLights(deltaSeconds, this.scene));
             this.scene.add(loadedScene);
         } catch (error) {
             console.error('Error loading scene:', error);

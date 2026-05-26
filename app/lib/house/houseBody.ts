@@ -3,11 +3,11 @@ import * as THREE from 'three';
 import { roofGenerator } from "./roof";
 import { windowGenerator } from "./windows";
 import {Rooms} from "./rooms";
-import { translateLightConfigs, translateXLightConfigs } from "./lights";
+//import { translateLightConfigs, translateXLightConfigs } from "./lights";
 
 import { MAX_STORY_COUNT, MIN_STORY_COUNT, MAX_STORY_HEIGHT, MIN_STORY_HEIGHT, MAX_HOUSE_WIDTH, MIN_HOUSE_WIDTH, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import { randomInRangeInt, randomInRangeIntDividableTwo, randomFromObject } from "@/app/lib/config/utils";
-import { getHouseMaterials } from "@/app/lib/textures/materials";
+import { getHouseMaterials } from "@/app/lib/materials/materials";
 import { calcUVS, subtractGeometry } from "@/app/lib/config/3dUtils";
 import * as TYPES from "@/app/types/typeIndex";
 
@@ -59,32 +59,33 @@ class HouseBody{
         houseWithoutWindows = subtractGeometry(houseWithoutWindows, windowsBalconies["windows"]["stairWindowHoles"]);
 
         const rooms = new Rooms(this.storyCount, this.storyHeight, this.houseWidth, HOUSE_DEPTH, windowsBalconies["windows"]["windowPositions"]);
-        const roomsObject = rooms.get3DObject();
+        const roomsObject = rooms.get3DObject(() => this.getNewChildId());
         houseWithoutWindows = subtractGeometry(houseWithoutWindows, roomsObject.object);
-        const lights = roomsObject.lights;
+        const lights = roomsObject.lightConfigs;
 
         // Generate UVs nach der CSG-Operation
         calcUVS(houseWithoutWindows.geometry);
 
-        houseWithoutWindows.castShadow = true;
-        houseWithoutWindows.receiveShadow = true;
         houseWithoutWindows.material = material;
         houseWithoutWindows.userData = {shader: shaderMaterial};
         houseWithoutWindows.name = "house";
 
         this.houseGroup.add(houseWithoutWindows);
+        for(const wallLight of roomsObject.wallLights){
+            this.houseGroup.add(wallLight);
+        };
         this.houseGroup.add(roof);
         this.houseGroup.add(windowsBalconies["windows"]["windowPanes"]);
         this.houseGroup.add(windowsBalconies["windows"]["stairWindowPanes"]);
 
-        return {object: this.houseGroup, lights: lights};
+        return {object: this.houseGroup, lightConfigs: lights};
     } 
 };
 
 //x rechts-links, z vorne-hinten, y oben-unten
 export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): TYPES.HouseReturn {
     const houseGroup = new THREE.Group();
-    const lights = [];
+    const lightConfigs = [];
     const housesWidths: number[] = [];
     let housesWidth: number = 0;
 
@@ -114,10 +115,10 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         const houseMesh = objectLight.object;
         const positionY = Math.floor(houseHeight/2);
         const positionX = housesWidth - Math.floor(houseWidth/2);
-        translateLightConfigs(objectLight.lights, new THREE.Vector3(positionX, positionY, 0));
+        //translateLightConfigs(objectLight.lightConfigs, new THREE.Vector3(positionX, positionY, 0));
         houseMesh.position.set(positionX, positionY, 0);
         houseGroup.add(houseMesh);
-        lights.push(...objectLight.lights);
+        lightConfigs.push(...objectLight.lightConfigs);
     }
 
     for(const child of houseGroup.children){
@@ -125,6 +126,6 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
             child.position.x -= housesWidth/2;
         }
     }
-    translateXLightConfigs(lights, -housesWidth/2);
-    return {object: houseGroup, lights: lights, housesWidths: housesWidths};
+    //translateXLightConfigs(lightConfigs, -housesWidth/2);
+    return {object: houseGroup, lightConfigs: lightConfigs, housesWidths: housesWidths};
 };

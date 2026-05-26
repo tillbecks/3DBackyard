@@ -6,7 +6,7 @@ import { balconyGenerator } from "./balcony";
 import * as HC from '@/app/lib/config/houseConfig';
 import * as TYPES from '@/app/types/typeIndex';
 import { randomInRangeInt, randomFromObject, randomBoolean } from "@/app/lib/config/utils";
-import { PANE_MATERIAL } from '@/app/lib/textures/materials';
+import { PANE_MATERIAL } from '@/app/lib/materials/materials';
 
 class Windows{
     windowCntPerStory: number;

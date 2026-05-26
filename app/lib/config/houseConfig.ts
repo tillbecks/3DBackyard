@@ -246,13 +246,15 @@ export const LIGHT_TYPES = {
 export const STAIR_LIGHT_TIMER_MIN: number = 40;
 export const STAIR_LIGHT_TIMER_MAX: number = 80;
 export const STAIR_LIGHT_INTENSITY: number = 0.5;
-export const LIGHT_INTENSITY_MIN: number = 4.0;
-export const LIGHT_INTENSITY_MAX: number = 4.0;
-export const LIGHT_UNUSUAL_COLOR_PROBABILITY: number = 0.02;
+export const LIGHT_INTENSITY_MIN: number = 0.25;
+export const LIGHT_INTENSITY_MAX: number = 0.75;
+export const LIGHT_UNUSUAL_COLOR_PROBABILITY: number = 0.005;
 export const LIGHT_DISTANCE_TO_WALL: number = 1;
-export const LIGHT_TURNED_ON_PROBABILITY: number = 0.05;
+export const LIGHT_TURNED_ON_PROBABILITY: number = 0.2;
 
 export const LIGHTS_PER_CUBIC_UNIT_MIN: number = 0.000002;
 export const LIGHTS_PER_CUBIC_UNIT_MAX: number = 0.000005;
 
 export const LIGHTS_PER_ROOM_MIN: number = 1;
+
+export const LIGHT_ID_PREFIX: string = "light_";

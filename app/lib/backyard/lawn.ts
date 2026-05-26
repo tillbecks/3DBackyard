@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
-import { LAWN_MIX_MATERIAL } from "@/app/lib/textures/materials";
+import { LAWN_MIX_MATERIAL } from "@/app/lib/materials/materials";
+
 import { LAWN_FIELDS_PER_SIZE, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import { createRandomHeightMap, mapHeightMapToPlane } from "@/app/lib/config/3dUtils";
 

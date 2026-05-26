@@ -31,4 +31,12 @@ export const TREE_BARK_COLOR = 0x5a3e1b; //"#5a3e1b"
 
 export const TREE_LEAF_COLOR = 0x228B22; //"#228B22"
 
-export const LIGHT_COLORS_COMMON = [0xffffff, 0xffee88, 0xffdd55, 0xffffaa]; //[ "#ffffff", "#fff3ae", "#fada59", "#ffffaa"]
+export const LIGHT_COLORS_COMMON = [0xffffff, 0xffee88, 0xfffdea, 0xffffc3]; //[ "#ffffff", "#fff3ae", "#fffdea", "#ffffc3"]
+
+export const getRandomHueColor = (lightness: number=1) => new THREE.Color().setHSL(Math.random(), 1, lightness);
+
+export const changeColorLightness = (color: THREE.Color, lightness: number): number => {
+    const hsl = {} as THREE.HSL;
+    color.getHSL(hsl);
+    return new THREE.Color().setHSL(hsl.h, hsl.s, THREE.MathUtils.clamp(lightness, 0, 1)).getHex();
+}

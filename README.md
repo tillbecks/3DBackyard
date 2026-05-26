@@ -28,15 +28,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ### Planned
 - [ ] Check if ServerConnection Error is bug or how to prevent it (Reinitiate?)
-- [ ] In-Door Lighting
 - [ ] Infos for Visitors
   - [ ] Overall Infos
   - [ ] Project Infos
     - [ ] Camera Pan on Window
     - [ ] Back-Button -> Camera back to initial position
-- [ ] User Controlls
-  - [ ] Disable Audio
-  - [ ] Disable Birds
 - [ ] Linkage to Website
 
 - [ ] Environment Map?
@@ -54,6 +50,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds
+- [X] In-Door Lighting
+  - [ ] ToDo: Check Stair-Lighting
   
 ### Done
 
@@ -62,3 +60,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [X] Fix Spike Line Lawn
 - [X] Fix Bird Position with scene shift
 - [X] Fix Balcony Positioning
+- [X] User Controlls
+  - [X] Disable Audio
+  - [X] Disable Birds

@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
         else {
             const objectLight = generateHousesWithLawn();
             object = objectLight.object;
-            lights = objectLight.lights;
+            lights = objectLight.lightConfigs;
         }
 
         const glbBufferString = await objectToGLBBase64(object);
         const sendJson = {
             object: glbBufferString,
-            lights: lights
+            lightConfigs: lights
         }
         
         return NextResponse.json(sendJson);

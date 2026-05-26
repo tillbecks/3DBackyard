@@ -5,8 +5,8 @@ import { brickFragmentShader } from "./brickTextures";
 import { roofTileShader, flatTileShader, norfolkTileShader } from "./roofTextures";
 import { grassShader } from "./grassTextures";
 
-import * as TCONFIG from '@/app/lib/textures/textureConfig';
-import { hexNumberToVec3 } from "@/app/lib/textures/colors";
+import * as TCONFIG from '../textureConfig';
+import { hexNumberToVec3 } from "../colors";
 import * as TYPE from "@/app/types/typeIndex";
 
 
