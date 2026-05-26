@@ -21,6 +21,7 @@ export class SceneController{
     camera: THREE.PerspectiveCamera;
     listener: THREE.AudioListener;
     audioToggle: boolean = false;
+    birdToggle: boolean = true;
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     skyLightController: TYPES.LightSkyController;
@@ -63,6 +64,12 @@ export class SceneController{
         this.audioToggle = !this.audioToggle;
         this.birdController?.toggleAudio(this.audioToggle);
         return this.audioToggle;
+    }
+
+    toggleBirds(){
+        this.birdToggle = !this.birdToggle;
+        this.birdController?.toggleBirds(this.birdToggle);
+        return this.birdToggle;
     }
 
     private async loadScenario() {
@@ -184,9 +191,10 @@ export class SceneController{
     };
 
     start() {
-        this.loadScenario();
+        const loadPromise = this.loadScenario();
         this.timer.getDelta();
         requestAnimationFrame(this.animate);
+        return loadPromise;
     }
 
     animate = (timestamp: number) => {

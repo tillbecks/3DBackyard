@@ -2,18 +2,49 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { SceneController } from '@/app/lib/scene/sceneController';
-import Button from '@/app/components/Button';
+import * as TYPES from '@/app/types/typeIndex';
+
+import { SceneController } from '@/app/lib/scene/sceneController'
+import { ButtonMenu } from '@/app/components/Buttons';
+import { ButtonIcon } from '@/app/components/Icons';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
     const sceneControllerRef = useRef<SceneController | null>(null);
+
+
     const [audioEnabled, setAudioEnabled] = useState(false);
+    const [birdsEnabled, setBirdsEnabled] = useState(true);
+    const [controllerLoaded, setControllerLoaded] = useState(false);
+
+    const handleBirdToggle = () => {setBirdsEnabled(sceneControllerRef.current?.toggleBirds() ?? !birdsEnabled);};
+
+    const handleAudioToggle = () => {setAudioEnabled(sceneControllerRef.current?.toggleAudio() ?? !audioEnabled);};
+
+    const birdToggleConfig: TYPES.ToggleButtonConfig = {
+        type: 'toggle' as const,
+        toggled: birdsEnabled,
+        onToggle: handleBirdToggle,
+        childrenToggleOn: <ButtonIcon path='/icons/BirdsOn.png' />,
+        childrenToggleOff: <ButtonIcon path='/icons/BirdsOff.png' />,
+    };
+
+    const audioToggleConfig: TYPES.ToggleButtonConfig = {
+        type: 'toggle' as const,
+        toggled: audioEnabled,
+        onToggle: handleAudioToggle,
+        childrenToggleOn: <ButtonIcon path='/icons/SoundOn.png' />,
+        childrenToggleOff: <ButtonIcon path='/icons/SoundOff.png' />,
+    };
+
+    const toggleList = [birdToggleConfig, audioToggleConfig];
 
     useEffect(() => {
         const sceneController = new SceneController(containerRef, document);
         sceneControllerRef.current = sceneController;
-        sceneController.start();
+        sceneController.start().then(() => {
+            setControllerLoaded(true);
+        });
 
         // Window Resize Handler
         const handleResize = () => {
@@ -41,15 +72,7 @@ export default function SceneViewer() {
                 overflow: 'hidden',
             }}
         >
-            <Button
-                onClick={() => {
-                    const nextAudioState = sceneControllerRef.current?.toggleAudio() ?? false;
-                    setAudioEnabled(nextAudioState);
-                }}
-                position={{ top: '20px', right: '20px' }}
-            >
-                {audioEnabled ? 'Disable Bird Audio' : 'Enable Bird Audio'}
-            </Button>
+            {controllerLoaded && <ButtonMenu buttonConfigs={toggleList} />}
         </div>
     );
 }

@@ -20,6 +20,7 @@ export class BirdController{
     circle: Trajectory;
     audio: THREE.PositionalAudio | null;
     audioToggle: boolean=false;
+    birdToggle: boolean=true;
     audioSelector: AudioSelector;
     listener: THREE.AudioListener | null;
     movementAccumulator: number;
@@ -51,13 +52,36 @@ export class BirdController{
 
     toggleAudio(toggle: boolean = !this.audioToggle){
         this.audioToggle = toggle;
-        if(this.audio){
-            if(this.audioToggle){
-                this.audioSelector.loadRandomAudio(this.audio);
-            }
-            else{
-                try { this.audio.stop(); } catch {}
-            }
+        if(this.audioToggle){
+            this.startAudio();
+        }
+        else{
+            this.stopAudio();
+        }
+    }
+
+    toggleBirds(toggle: boolean = !this.birdToggle){
+        this.birdToggle = toggle;
+        if(!this.birdToggle){
+            this.birds.forEach(bird => {
+                bird.birdGeometry.visible = false;
+            });
+            this.stopAudio();
+        }else{
+            this.birds.forEach(bird => {
+                bird.birdGeometry.visible = true;
+            });
+            this.startAudio();
+        }
+    }
+
+    stopAudio(){
+        try { this.audio?.stop(); } catch {}
+    }
+
+    startAudio(){
+        if(this.audioToggle && this.audio){
+            this.audioSelector.loadRandomAudio(this.audio);
         }
     }
 
@@ -78,7 +102,8 @@ export class BirdController{
 
             const onEnded = () => {
                 const audio = this.audio;
-                if(!audio) return;
+                const birds = this.birds;
+                if(!audio || !birds) return;
                 const delay = randomInRangeFloat(BC.BIRD_SCREAM_INTERVAL_MIN, BC.BIRD_SCREAM_INTERVAL_MAX);
                 loadDelay(delay, this.audioSelector, audio);
                 audio.onEnded = onEnded;
@@ -93,6 +118,7 @@ export class BirdController{
     }
 
     update(deltaSeconds: number = 1 / 60){
+        if(!this.birdToggle) return;
         this.movementAccumulator += deltaSeconds;
         const stepInterval = 60 / BC.BIRD_MOVES_PER_MINUTE;
 

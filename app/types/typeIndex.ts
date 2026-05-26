@@ -4,3 +4,4 @@ export * from './treeTypes';
 export * from './sceneTypes';
 export * from './routeTypes';
 export * from './birdTypes';
+export * from './uiTypes';
