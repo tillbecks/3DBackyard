@@ -11,6 +11,7 @@ import { createLawn } from "@/app/lib/backyard/lawn";
 import { HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import {DecorationsPlacer} from "@/app/lib/config/decorations";
 import { Tree } from "@/app/lib/backyard/lsystems";
+import { yardPartitioning } from "@/app/lib/backyard/walls";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const houses = generateHouses();
@@ -61,7 +62,7 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     const groupSize4 = new THREE.Box3().setFromObject(houseGroup4.object).getSize(new THREE.Vector3());
     const lights4 = houseGroup4.lightConfigs;
 
-    //yardPartitioning(houseGroup.housesWidths, houseGroup2.housesWidths, houseGroup3.housesWidths, houseGroup4.housesWidths);
+    yardPartitioning(houseGroup.housesWidths, houseGroup3.housesWidths, houseGroup4.housesWidths, houseGroup2.housesWidths);
     const zTranslation2 =  groupSize.x/2 + groupSize2.z/2;
     const xTranslation2 = groupSize.z/2 + groupSize2.x/2;
     const zTranslation3 = groupSize.x/2 + groupSize3.z/2;

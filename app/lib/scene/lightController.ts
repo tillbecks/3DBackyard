@@ -70,8 +70,7 @@ export default class LightController {
                 if(this.onTurnableLightIndexes.length > 0){
                     lightOnIndex = this.onTurnableLightIndexes[randomInRangeInt(0, this.onTurnableLightIndexes.length - 1)];
                     this.lights[lightOnIndex].turnedOn = true;
-                    /*scene.add(this.lights[lightOnIndex].light);
-                    this.lights[lightOnIndex].light.shadow.needsUpdate = true;*/
+                    
                     this.turnLightOn(this.lights[lightOnIndex].name, scene);
                     this.onTurnableLightIndexes.splice(this.onTurnableLightIndexes.indexOf(lightOnIndex), 1);
                     if(this.lights[lightOnIndex].timer > 0){
