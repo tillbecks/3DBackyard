@@ -4,23 +4,27 @@ import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 
 import * as TYPES from '@/app/types/typeIndex';
-import { AMBIENT_LIGHT_CONFIG, SUN_CONFIG, getLightIntensityFromElevation, getSunPosition, LIGHT_UPDATE_INTERVAL } from '@/app/lib/config/sceneConfig';
+import { AMBIENT_LIGHT_CONFIG, SUN_CONFIG, getLightIntensityFromElevation, getSunPosition, LIGHT_UPDATE_INTERVAL, MOON_LIGHT_CONFIG, getMoonLightIntensityFromElevation, getMoonPosition } from '@/app/lib/config/sceneConfig';
 
 export function initLightSky(scene: THREE.Scene): TYPES.LightSkyController{
     let sunPosition = getSunPosition(Date.now()); // Start at midday
+    let moonPosition = getMoonPosition(Date.now());
     
     const sunlight = initSunlight(sunPosition);
+    const moonLight = initMoonlight(moonPosition);
     const ambientLight = initAmbientLight(sunPosition);
     const sky = initSky(sunPosition);
 
     let timePassed = 0;
 
     scene.add(sunlight);
+    scene.add(moonLight);
     scene.add(ambientLight);
     scene.add(sky);
 
     return {
         sunlight,
+        moonLight,
         ambientLight,
         sky,
 
@@ -29,7 +33,9 @@ export function initLightSky(scene: THREE.Scene): TYPES.LightSkyController{
                 timePassed -= LIGHT_UPDATE_INTERVAL;
 
                 sunPosition = getSunPosition(Date.now());
+                moonPosition = getMoonPosition(Date.now());
                 refreshSunlight(sunlight, sunPosition);
+                refreshMoonlight(moonLight, moonPosition);
                 refreshAmbientLight(ambientLight, sunPosition);
                 refreshSkySunPosition(sky, sunPosition);
             }else{
@@ -46,7 +52,7 @@ export function initSunlight(sunPosition: TYPES.SunPosition){
 
     sunLight.position.setFromSphericalCoords(SUN_CONFIG.SUN_DISTANCE, sunPosition.phi, sunPosition.theta);
 
-    sunLight.target.position.set(0,50,0);
+    sunLight.target.position.set(0,0,0);
     sunLight.castShadow = true;
     sunLight.shadow.camera.left   = -400;
     sunLight.shadow.camera.right  =  400;
@@ -63,11 +69,42 @@ export function initSunlight(sunPosition: TYPES.SunPosition){
     return sunLight;
 }
 
+
 export const refreshSunlight = (light: THREE.DirectionalLight, sunPosition: TYPES.SunPosition) => {
     const sunIntensity = getLightIntensityFromElevation(sunPosition.altitude, SUN_CONFIG.MAX_SUN_INTENSITY);
 
     light.intensity = sunIntensity;
     light.position.setFromSphericalCoords(SUN_CONFIG.SUN_DISTANCE, sunPosition.phi, sunPosition.theta);
+}
+
+export function initMoonlight(moonPosition: TYPES.SunPosition){
+    const moonIntensity = getMoonLightIntensityFromElevation(moonPosition.altitude);
+
+    const moonLight = new THREE.DirectionalLight(MOON_LIGHT_CONFIG.COLOR, moonIntensity);
+
+    moonLight.position.setFromSphericalCoords(MOON_LIGHT_CONFIG.MOON_DISTANCE, moonPosition.phi, moonPosition.theta);
+    moonLight.target.position.set(0,0,0);
+    moonLight.castShadow = true;
+    moonLight.shadow.camera.left   = -400;
+    moonLight.shadow.camera.right  =  400;
+    moonLight.shadow.camera.top    =  250;
+    moonLight.shadow.camera.bottom = -250;
+    moonLight.shadow.mapSize.width  = 1024;
+    moonLight.shadow.mapSize.height = 1024;
+    moonLight.shadow.bias = -0.001;
+    moonLight.shadow.normalBias = 0.2;
+    
+    moonLight.shadow.camera.near = 1;
+    moonLight.shadow.camera.far  = 500;
+
+    return moonLight;
+}
+
+export const refreshMoonlight = (light: THREE.DirectionalLight, moonPosition: TYPES.SunPosition) => {
+    const moonIntensity = getMoonLightIntensityFromElevation(moonPosition.altitude);
+
+    light.intensity = moonIntensity;
+    light.position.setFromSphericalCoords(MOON_LIGHT_CONFIG.MOON_DISTANCE, moonPosition.phi, moonPosition.theta);
 }
 
 export function initAmbientLight(sunPosition: TYPES.SunPosition){

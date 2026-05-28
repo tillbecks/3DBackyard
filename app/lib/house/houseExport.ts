@@ -11,14 +11,13 @@ import { createLawn } from "@/app/lib/backyard/lawn";
 import { HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import {DecorationsPlacer} from "@/app/lib/config/decorations";
 import { Tree } from "@/app/lib/backyard/lsystems";
-import { yardPartitioning } from "@/app/lib/backyard/walls";
+import { YardWalls } from "@/app/lib/backyard/walls";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const houses = generateHouses();
     const housesBounds = new THREE.Box3().setFromObject(houses.object);
     const housesSize = new THREE.Vector3();
     housesBounds.getSize(housesSize);
-    houses.object.translateZ(-housesSize.z/2 + HOUSE_DEPTH * 1.5);
 
     const decorationsPlacer = new DecorationsPlacer(housesSize.x - 2 * HOUSE_DEPTH, housesSize.z - 2 * HOUSE_DEPTH);
     const allowedMinX = BYCONFIG.TREE_DISTANCE_EDGES / housesSize.x;
@@ -34,6 +33,7 @@ export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const trees = decorationsPlacer.positionDecorations(new THREE.Vector3(0, 0, 0));
 
     const lawn = createLawn(housesSize.x, housesSize.z);
+    lawn.position.set(0, 0, 0);
 
     const group = new THREE.Group();
     group.add(lawn);
@@ -46,48 +46,48 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     const housesGroup = new THREE.Group();
     const lightConfigs = [];
     
-    const houseGroup = houseGroupGenerator(6, [0,0,0]);
-    const groupSize = new THREE.Box3().setFromObject(houseGroup.object).getSize(new THREE.Vector3());
-    lightConfigs.push(...houseGroup.lightConfigs);
+    const houseGroupN = houseGroupGenerator(6, [0,0,0]);
+    const groupSizeN = new THREE.Box3().setFromObject(houseGroupN.object).getSize(new THREE.Vector3());
+    lightConfigs.push(...houseGroupN.lightConfigs);
 
-    const houseGroup2 = houseGroupGenerator(4, [0,0,0]);
-    const groupSize2 = new THREE.Box3().setFromObject(houseGroup2.object).getSize(new THREE.Vector3());
-    const lights2 = houseGroup2.lightConfigs;
+    const houseGroupE = houseGroupGenerator(4, [0,0,0]);
+    const groupSizeE = new THREE.Box3().setFromObject(houseGroupE.object).getSize(new THREE.Vector3());
+    lightConfigs.push(...houseGroupE.lightConfigs);
 
-    const houseGroup3 = houseGroupGenerator(4, [0,0,0]);
-    const groupSize3 = new THREE.Box3().setFromObject(houseGroup3.object).getSize(new THREE.Vector3());
-    const lights3 = houseGroup3.lightConfigs;
+    const houseGroupS = houseGroupGenerator(6, [0,0,0]);
+    const groupSizeS = new THREE.Box3().setFromObject(houseGroupS.object).getSize(new THREE.Vector3());
+    lightConfigs.push(...houseGroupS.lightConfigs);
 
-    const houseGroup4 = houseGroupGenerator(6, [0,0,0]);
-    const groupSize4 = new THREE.Box3().setFromObject(houseGroup4.object).getSize(new THREE.Vector3());
-    const lights4 = houseGroup4.lightConfigs;
+    const houseGroupW = houseGroupGenerator(4, [0,0,0]);
+    const groupSizeW = new THREE.Box3().setFromObject(houseGroupW.object).getSize(new THREE.Vector3());
+    lightConfigs.push(...houseGroupW.lightConfigs);
 
-    yardPartitioning(houseGroup.housesWidths, houseGroup3.housesWidths, houseGroup4.housesWidths, houseGroup2.housesWidths);
-    const zTranslation2 =  groupSize.x/2 + groupSize2.z/2;
-    const xTranslation2 = groupSize.z/2 + groupSize2.x/2;
-    const zTranslation3 = groupSize.x/2 + groupSize3.z/2;
-    const xTranslation3 = groupSize.z/2 + groupSize3.x/2;
-    const zTranslation4 = (groupSize2.x + groupSize3.x)/2 + groupSize4.z/2 + groupSize.z/2;
+    const yardWidth = Math.max(groupSizeN.x, groupSizeS.x);
+    const yardDepth = Math.max(groupSizeE.x, groupSizeW.x);
 
-    lightConfigs.push(...lights2);
-    lightConfigs.push(...lights3);
-    lightConfigs.push(...lights4);
+    const zTranslationN = yardDepth/2 + groupSizeN.z/2;
+    houseGroupN.object.translateZ(- zTranslationN);
+    
+    const zTranslationE = yardWidth/2 + groupSizeE.z/2;
+    houseGroupE.object.rotateY(-Math.PI / 2);
+    houseGroupE.object.translateZ(- zTranslationE);
+    
+    const zTranslationS = yardDepth/2 + groupSizeS.z/2;
+    houseGroupS.object.rotateY(Math.PI);
+    houseGroupS.object.translateZ(- zTranslationS);
 
-    houseGroup2.object.rotateY(Math.PI / 2);
-    houseGroup2.object.translateX(- xTranslation2);
-    houseGroup2.object.translateZ(- zTranslation2);
+    const zTranslationW = yardWidth/2 + groupSizeW.z/2;
+    houseGroupW.object.rotateY(Math.PI / 2);
+    houseGroupW.object.translateZ(- zTranslationW);
 
-    houseGroup3.object.rotateY(-Math.PI / 2);
-    houseGroup3.object.translateX( xTranslation3);
-    houseGroup3.object.translateZ(- zTranslation3);
+    housesGroup.add(houseGroupN.object);
+    housesGroup.add(houseGroupE.object);
+    housesGroup.add(houseGroupS.object);
+    housesGroup.add(houseGroupW.object);
 
-    houseGroup4.object.rotateY(Math.PI);
-    houseGroup4.object.translateZ(- zTranslation4);
+    const walls = new YardWalls(houseGroupN.housesWidths, houseGroupE.housesWidths, houseGroupS.housesWidths, houseGroupW.housesWidths, yardWidth, yardDepth);
+    housesGroup.add(walls.get3DObject());
 
-    housesGroup.add(houseGroup.object);
-    housesGroup.add(houseGroup2.object);
-    housesGroup.add(houseGroup3.object);
-    housesGroup.add(houseGroup4.object);
     return {object: housesGroup, lightConfigs: lightConfigs};
 }
 

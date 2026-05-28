@@ -117,3 +117,7 @@ export function getWallLightMaterialRare(ligthness: number): THREE.MeshBasicMate
     const color = COLORS.getRandomHueColor(ligthness);
     return new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
 }
+
+export function getWallMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_GARDEN_WALL, roughness: 0.9, side: THREE.DoubleSide}), shaderMaterial: BRICK_SHADER.getShaderMaterialConfig(COLORS.BRICK_COLOR_GARDEN_WALL)};
+}

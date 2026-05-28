@@ -2,10 +2,14 @@ import * as THREE from 'three';
 import { ADDITION, Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg';
 import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
 
-export function createAxisHelper(mesh: THREE.Mesh | THREE.Group, length: number = 2): THREE.AxesHelper {
+export function createAxisHelper(mesh: THREE.Mesh | THREE.Group | THREE.Vector3, length: number = 2): THREE.AxesHelper {
     const axisHelper = new THREE.AxesHelper(length);
-    axisHelper.position.copy(mesh.position);
-    axisHelper.rotation.copy(mesh.rotation);
+    if (mesh instanceof THREE.Vector3) {
+        axisHelper.position.copy(mesh);
+    } else {
+        axisHelper.position.copy(mesh.position);
+        axisHelper.rotation.copy(mesh.rotation);
+    }
     return axisHelper;
 }
 

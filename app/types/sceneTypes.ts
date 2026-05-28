@@ -10,6 +10,7 @@ export interface SunPosition{
 
 export interface LightSkyController {
     sunlight: THREE.DirectionalLight;
+    moonLight: THREE.DirectionalLight;
     ambientLight: THREE.AmbientLight;
     sky: Sky;
     update: (deltaSeconds: number) => void;

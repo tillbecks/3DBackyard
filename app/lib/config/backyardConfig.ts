@@ -9,3 +9,15 @@ export const EDGE_PLOT_TYPES = {
 export const TREE_DISTANCE_EDGES = 40;
 
 export const TREES_PLACED = 4;
+
+export const WALL_HEIGHT_MIN = 15;
+export const WALL_HEIGHT_MAX = 25;
+export const WALL_DEPTH = 4;
+export const WALL_EXTRA_TO_HOUSE = 5;
+
+export const PLOT_DIRECTIONS = {
+    FROM_NORTH: 0,
+    FROM_EAST: 1,
+    FROM_SOUTH: 2,
+    FROM_WEST: 3
+}

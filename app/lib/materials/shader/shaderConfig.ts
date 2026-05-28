@@ -89,7 +89,7 @@ export function getShader(id: string, uniforms: Record<string, { value: unknown 
     materialClone.onBeforeCompile = (shader) => {
         Object.assign(shader.uniforms, uniforms);
         injectShader(shader, fragmentShader);
-    };
+    };  
     return materialClone;
 
     } catch (error) {

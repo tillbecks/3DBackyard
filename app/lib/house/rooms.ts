@@ -150,27 +150,27 @@ function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?
 
     // Floor
     const floorGeom = new THREE.BoxGeometry(size.x, wallThickness, size.z);
-    floorGeom.translate(center.x, center.y - size.y/2 + wallThickness/2, center.z);
+    floorGeom.translate(center.x, center.y - size.y/2 + wallThickness, center.z);
     walls.push(floorGeom);
 
     // Ceiling
     const ceilingGeom = new THREE.BoxGeometry(size.x, wallThickness, size.z);
-    ceilingGeom.translate(center.x, center.y + size.y/2 - wallThickness/2, center.z);
+    ceilingGeom.translate(center.x, center.y + size.y/2 - wallThickness, center.z);
     walls.push(ceilingGeom);
 
     // Left Wall
     const leftWallGeom = new THREE.BoxGeometry(wallThickness, size.y, size.z);
-    leftWallGeom.translate(center.x - size.x/2 + wallThickness/2, center.y, center.z);
+    leftWallGeom.translate(center.x - size.x/2 + wallThickness, center.y, center.z);
     walls.push(leftWallGeom);
 
     // Right Wall
     const rightWallGeom = new THREE.BoxGeometry(wallThickness, size.y, size.z);
-    rightWallGeom.translate(center.x + size.x/2 - wallThickness/2, center.y, center.z);
+    rightWallGeom.translate(center.x + size.x/2 - wallThickness, center.y, center.z);
     walls.push(rightWallGeom);
 
     // Back Wall
     const backWallGeom = new THREE.BoxGeometry(size.x, size.y, wallThickness);
-    backWallGeom.translate(center.x, center.y, center.z - size.z/2 + wallThickness/2);
+    backWallGeom.translate(center.x, center.y, center.z - size.z/2 + wallThickness);
     walls.push(backWallGeom);
 
     const wallsGeom = BufferGeometryUtils.mergeGeometries(walls);

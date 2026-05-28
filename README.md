@@ -24,6 +24,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+
 ## ToDos
 
 ### Planned
@@ -44,9 +45,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] Trees
   - [X] L-Systems
   - [ ] Different Variations
-  - [X] Add to Scene
-- [ ] Walls in Garden?
-  - [ ] Partitioning Algorithm
+  - [ ] Position in Gardens
+- [X] Walls in Garden?
+  - [X] Partitioning Algorithm
+  - [X] Positioning Walls based on partitioning ;()
+  - [ ] Decorations
+  - [ ] Fix Texture Clipping 
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds
@@ -63,3 +67,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [X] User Controlls
   - [X] Disable Audio
   - [X] Disable Birds
+- [X] Moonlight

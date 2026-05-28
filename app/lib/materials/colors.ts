@@ -6,6 +6,7 @@ export const PANE_HIGHLIGHT_COLOR = 0xffff99;
 export const WINDOW_FRAME_COLOR = 0xffffff;
 
 export const BRICK_COLOR_RED = 0x7e3729; //"#7e3729"
+export const BRICK_COLOR_GARDEN_WALL = 0x382121; //"#382121"
 export const BRICK_COLOR_SANDSTONE = 0xb6a37b; //"#b6a37b"
 
 export const HOUSE_PLASTER_COLOR = [0xd9d9d9, 0xca7514, 0xdfa917]; //["#d9d9d9", "#ccac88", "#e2d09f"]
