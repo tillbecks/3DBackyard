@@ -56,6 +56,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - [ ] Backyard Sounds
 - [X] In-Door Lighting
   - [ ] ToDo: Check Stair-Lighting
+  - [ ] Create "Rythms" for different times
   
 ### Done
 

@@ -6,6 +6,7 @@ import { Group } from '@tweenjs/tween.js';
 
 import { initCamera, initController, initRenderer } from './scene';
 import { initLightSky } from './light';
+import { CameraController } from './cameraController';
 
 import * as TYPES from '@/app/types/typeIndex';
 import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
@@ -13,7 +14,7 @@ import { loadShader } from '@/app/lib/materials/shader/shaderConfig';
 import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
 import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '@/app/lib/config/windowUtils';
-import { calcCenterOfGeometries, cameraFollowObject } from '@/app/lib/config/3dUtils';
+import { calcCenterOfGeometries } from '@/app/lib/config/3dUtils';
 import LightController from './lightController';
 
 export class SceneController{
@@ -21,12 +22,13 @@ export class SceneController{
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     listener: THREE.AudioListener;
-    audioToggle: boolean = false;
-    birdToggle: boolean = true;
+    audioToggle: boolean;
+    birdToggle: boolean;
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     skyLightController: TYPES.LightSkyController;
     lightController: LightController;
+    cameraController: CameraController;
     birdController: BirdController | null = null;
     timer: THREE.Timer;
 
@@ -37,8 +39,11 @@ export class SceneController{
     private tweenGroup: Group;
 
 
-    constructor(containerRef: React.RefObject<HTMLDivElement | null>, document: Document){ 
+    constructor(containerRef: React.RefObject<HTMLDivElement | null>, document: Document, audioToggle: boolean, birdToggle: boolean){ 
         this.scenario = scenarios.backyard;
+
+        this.audioToggle = audioToggle;
+        this.birdToggle = birdToggle;
 
         if(!containerRef.current) throw new Error('Container reference is null');
         this.containerRef = containerRef as React.RefObject<HTMLDivElement>;
@@ -58,6 +63,7 @@ export class SceneController{
 
         this.tweenGroup = new Group();
         this.lightController = new LightController();
+        this.cameraController = new CameraController(this.camera, new THREE.Vector3(0, 0, 0), this.controls);
 
         this.timer = new THREE.Timer();
         this.timer.connect(document);
@@ -107,11 +113,8 @@ export class SceneController{
                 throw new Error(`HTTP error! status: ${sceneConfigResponse.status}`);
             }
             const sceneConfig = await sceneConfigResponse.json();
-            this.camera.position.copy(new THREE.Vector3(...sceneConfig.cameraConfig.position));
-            this.camera.lookAt(new THREE.Vector3(...sceneConfig.cameraConfig.aim));
-
-            this.controls.target.copy(new THREE.Vector3(...sceneConfig.cameraConfig.aim));
-            this.controls.update();
+            this.cameraController.setPosition(new THREE.Vector3(...sceneConfig.cameraConfig.position));
+            this.cameraController.setTarget(new THREE.Vector3(...sceneConfig.cameraConfig.aim));
         } catch (error) {
             console.error('Error loading scene:', error);
         }
@@ -157,10 +160,8 @@ export class SceneController{
                 }
             });
 
-            const birdFlog = birdFlogGenerator(birdModel, this.listener);
-                for(const bird of birdFlog.birds){
-                    this.scene.add(bird.birdGeometry);
-                }
+            const birdFlog = birdFlogGenerator(birdModel, this.listener, this.birdToggle, this.audioToggle);
+            birdFlog.addBirdsToScene(this.scene);
             this.animations.push((deltaSeconds) => {birdFlog.update(deltaSeconds);});
             return birdFlog;
         } catch (error) {
@@ -188,8 +189,16 @@ export class SceneController{
             const center = calcCenterOfGeometries(windows);
             if(this.birdController){
                 this.controls.enabled = false;
-                this.states.lookAtTargetBuffer = new THREE.Vector3();
-                const followFunction = (deltaSeconds: number) => cameraFollowObject(this.camera, this.birdController!.birds[0].birdGeometry, deltaSeconds, this.states.lookAtTargetBuffer as THREE.Vector3);
+                //this.states.lookAtTargetBuffer = new THREE.Vector3();
+
+                const followFunction = (deltaSeconds: number) => 
+                    {
+                        const birdsActivated = () => this.birdToggle;
+                        if(birdsActivated())
+                            this.cameraController.followObject(this.birdController!.birds[0].birdGeometry, deltaSeconds, true, -2, 2);
+                        else
+                            this.cameraController.followObject(center, deltaSeconds, false, -10, 0.5);
+                    }
                 this.animations.push(followFunction);
                 const functionIndex = this.animations.length - 1;
 

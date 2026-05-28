@@ -40,7 +40,7 @@ export default function SceneViewer() {
     const toggleList = [birdToggleConfig, audioToggleConfig];
 
     useEffect(() => {
-        const sceneController = new SceneController(containerRef, document);
+        const sceneController = new SceneController(containerRef, document, audioEnabled, birdsEnabled);
         sceneControllerRef.current = sceneController;
         sceneController.start().then(() => {
             setControllerLoaded(true);
