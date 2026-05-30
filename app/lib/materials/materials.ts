@@ -102,10 +102,10 @@ export function getTreeBarkMaterial(): TYPES.MaterialMix {
     return {standardMaterial: TREE_BARK_MATERIAL, shaderMaterial: null};
 }
 
-const TREE_LEAF_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.TREE_LEAF_COLOR, roughness: 1.0, side: THREE.DoubleSide});
+const makeTreeLeafMaterial = (lightness: number) => new THREE.MeshStandardMaterial({color: COLORS.changeColorLightness(new THREE.Color(COLORS.TREE_LEAF_COLOR), lightness), roughness: 1.0, side: THREE.DoubleSide});
 
-export function getTreeLeafMaterial(): TYPES.MaterialMix {
-    return {standardMaterial: TREE_LEAF_MATERIAL, shaderMaterial: null};
+export function getTreeLeafMaterial(lightness: number): TYPES.MaterialMix {
+    return {standardMaterial: makeTreeLeafMaterial(lightness), shaderMaterial: null};
 }
 
 export function getWallLightMaterialCommon(ligthness: number): THREE.MeshBasicMaterial{

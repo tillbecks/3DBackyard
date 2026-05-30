@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 import * as TYPES from '@/app/types/typeIndex';
-import { array } from 'three/tsl';
 
 export const SURROUNDING_CENTER = new THREE.Vector3(0, 100, 0);
 export const SURROUNDING_RADIUS_DEPTH = 80;

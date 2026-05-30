@@ -14,6 +14,7 @@ export default class LightController {
     private timeElapsed: number = 0;
     private init = false;
     private lightsAdded = false;
+    private time: Date= new Date();
 
     initController(lights: TYPES.LightConfig[]){
         this.lights = [];
@@ -31,6 +32,7 @@ export default class LightController {
 
             if(lightConfig.initTurnedOn && lightConfig.timer > 0){
                 this.addLightTimer({name: lightConfig.name, turnedOn: true, timer: lightConfig.timer}, i);
+                this.onTurnableLightIndexes.push(i);
             }
             else if(lightConfig.initTurnedOn){
                 this.offTurnableLightIndexes.push(i);
@@ -66,7 +68,8 @@ export default class LightController {
         this.timeElapsed -= secondsElapsed;
 
         for(let i = 0; i < secondsElapsed; i++){
-            if(randomBoolean(LC.TURN_ON_PROB_SEC)){
+            const onOffProbabilities = LC.turnOnOffProbs[this.time.getHours()];
+            if(randomBoolean(onOffProbabilities.on)){
                 if(this.onTurnableLightIndexes.length > 0){
                     lightOnIndex = this.onTurnableLightIndexes[randomInRangeInt(0, this.onTurnableLightIndexes.length - 1)];
                     this.lights[lightOnIndex].turnedOn = true;
@@ -74,12 +77,13 @@ export default class LightController {
                     this.turnLightOn(this.lights[lightOnIndex].name, scene);
                     this.onTurnableLightIndexes.splice(this.onTurnableLightIndexes.indexOf(lightOnIndex), 1);
                     if(this.lights[lightOnIndex].timer > 0){
+                        console.log(`Turning on light ${this.lights[lightOnIndex].name} with timer ${this.lights[lightOnIndex].timer}`);
                         this.addLightTimer(this.lights[lightOnIndex], lightOnIndex);
                     }
                     
                 }
             }            
-            if(randomBoolean(LC.TURN_OFF_PROB_SEC)){
+            if(randomBoolean(onOffProbabilities.off)){
                 if(this.offTurnableLightIndexes.length > 0){
                     const lightOffIndex = this.offTurnableLightIndexes[randomInRangeInt(0, this.offTurnableLightIndexes.length - 1)];
                     this.lights[lightOffIndex].turnedOn = false;

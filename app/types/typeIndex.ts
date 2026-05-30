@@ -5,3 +5,4 @@ export * from './sceneTypes';
 export * from './routeTypes';
 export * from './birdTypes';
 export * from './uiTypes';
+export * from './yardTypes';

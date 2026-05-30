@@ -28,13 +28,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## ToDos
 
 ### Planned
-- [ ] Check if ServerConnection Error is bug or how to prevent it (Reinitiate?)
 - [ ] Infos for Visitors
   - [ ] Overall Infos
   - [ ] Project Infos
     - [ ] Camera Pan on Window
     - [ ] Back-Button -> Camera back to initial position
 - [ ] Linkage to Website
+- [ ] Optimization
+  - [ ] Trees
+- [ ] Fix Bird Trajectory
 
 - [ ] Environment Map?
   
@@ -42,21 +44,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - [X] Camera Follows Birds on Window-Click
   - [ ] Smoother? -> Improve Looping behaviour
-- [ ] Trees
-  - [X] L-Systems
-  - [ ] Different Variations
-  - [ ] Position in Gardens
-- [X] Walls in Garden?
+- [ ] Walls in Garden
   - [X] Partitioning Algorithm
   - [X] Positioning Walls based on partitioning ;()
-  - [ ] Decorations
+  - [X] Decorations
   - [ ] Fix Texture Clipping 
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds
-- [X] In-Door Lighting
-  - [ ] ToDo: Check Stair-Lighting
-  - [ ] Create "Rythms" for different times
   
 ### Done
 
@@ -69,3 +64,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - [X] Disable Audio
   - [X] Disable Birds
 - [X] Moonlight
+- [X] Check if ServerConnection Error is bug or how to prevent it (Reinitiate?)
+- [X] Trees
+  - [X] L-Systems
+  - [X] Different Variations
+  - [X] Position in Gardens
+- [X] In-Door Lighting
+  - [X] ToDo: Check Stair-Lighting
+  - [X] Create "Rythms" for different times

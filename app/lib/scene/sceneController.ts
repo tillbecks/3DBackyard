@@ -12,6 +12,7 @@ import * as TYPES from '@/app/types/typeIndex';
 import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
 import { loadShader } from '@/app/lib/materials/shader/shaderConfig';
 import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
+import { fetchWithTimeout, isAbortError } from '@/app/lib/config/fetchUtils';
 import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
 import { bindMouseMovementToRaycaster } from '@/app/lib/config/windowUtils';
 import { calcCenterOfGeometries } from '@/app/lib/config/3dUtils';
@@ -37,6 +38,7 @@ export class SceneController{
     private scenarioLoaded: boolean = false;
     private animations: ((deltaSeconds: number) => void)[] = [];
     private tweenGroup: Group;
+    private loadAbortController: AbortController | null = null;
 
 
     constructor(containerRef: React.RefObject<HTMLDivElement | null>, document: Document, audioToggle: boolean, birdToggle: boolean){ 
@@ -108,7 +110,9 @@ export class SceneController{
 
     private async initScene(scenario: string){
         try {
-            const sceneConfigResponse = await fetch(`/api/scene?scenario=${scenario}`);
+            // create a per-load AbortController so we can cancel fetches on close
+            this.loadAbortController = new AbortController();
+            const sceneConfigResponse = await fetchWithTimeout(`/api/scene?scenario=${scenario}`, {}, 7000, this.loadAbortController.signal);
             if (!sceneConfigResponse.ok) {
                 throw new Error(`HTTP error! status: ${sceneConfigResponse.status}`);
             }
@@ -116,14 +120,15 @@ export class SceneController{
             this.cameraController.setPosition(new THREE.Vector3(...sceneConfig.cameraConfig.position));
             this.cameraController.setTarget(new THREE.Vector3(...sceneConfig.cameraConfig.aim));
         } catch (error) {
-            console.error('Error loading scene:', error);
+            if (isAbortError(error)) console.warn('Scene load aborted');
+            else console.error('Error loading scene:', error);
         }
     }
 
     // GLB laden von API
     private async loadContent(scenario: string) {
         try {
-            const contentResponse = await fetch(`/api/scene-objects?scenario=${scenario}`);
+            const contentResponse = await fetchWithTimeout(`/api/scene-objects?scenario=${scenario}`, {}, 15000, this.loadAbortController?.signal);
             if (!contentResponse.ok ) {
                 throw new Error(`HTTP error! status: ${contentResponse.status}`);
             }
@@ -141,13 +146,14 @@ export class SceneController{
             this.animations.push((deltaSeconds) => this.lightController.updateLights(deltaSeconds, this.scene));
             this.scene.add(loadedScene);
         } catch (error) {
-            console.error('Error loading scene:', error);
+            if (isAbortError(error)) console.warn('Scene content load aborted');
+            else console.error('Error loading scene:', error);
         }
     };
 
     private async loadBirds(scenario: string) {
         try {
-            const birdModelResponse = await fetch('/api/birds');
+            const birdModelResponse = await fetchWithTimeout('/api/birds', {}, 15000, this.loadAbortController?.signal);
             if (!birdModelResponse.ok) {
                 throw new Error(`HTTP error! status: ${birdModelResponse.status}`);
             }
@@ -165,7 +171,8 @@ export class SceneController{
             this.animations.push((deltaSeconds) => {birdFlog.update(deltaSeconds);});
             return birdFlog;
         } catch (error) {
-            console.error('Error loading birds:', error);
+            if (isAbortError(error)) console.warn('Bird model load aborted');
+            else console.error('Error loading birds:', error);
             return null;
         }
     };
@@ -236,6 +243,11 @@ export class SceneController{
     };
 
     close(){
+        // abort any in-flight loading fetches
+        if (this.loadAbortController) {
+            try { this.loadAbortController.abort(); } catch (e) {}
+            this.loadAbortController = null;
+        }
         this.renderer.dispose();
         this.scene.clear();
     }

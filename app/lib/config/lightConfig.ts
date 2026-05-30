@@ -1,4 +1,26 @@
-export const TURN_ON_PROB_SEC = 0.2; // 20 times per minute
-export const TURN_OFF_PROB_SEC = 0.1; // 30 times per minute
-
-export const INIT_TURN_ON_COUNT = 20;
+export const turnOnOffProbs: { [hours: number]: { on: number, off: number } } = {
+    0: { on: 0.05, off: 0.1 },
+    1: { on: 0.02, off: 0.1 },
+    2: { on: 0.02, off: 0.1 },
+    3: { on: 0.02, off: 0.1 },
+    4: { on: 0.05, off: 0.1 },
+    5: { on: 0.1, off: 0.1 },
+    6: { on: 0.2, off: 0.1 },
+    7: { on: 0.2, off: 0.1 },
+    8: { on: 0.2, off: 0.15 },
+    9: { on: 0.2, off: 0.15 },
+    10:{ on: 0.1, off: 0.15 },
+    11:{ on: 0.1, off: 0.1 },
+    12:{ on: 0.05, off: 0.1 },
+    13:{ on: 0.05, off: 0.1 },
+    14:{ on: 0.05, off: 0.1 },
+    15:{ on: 0.05, off: 0.1 },
+    16:{ on: 0.05, off: 0.1 },
+    17:{ on: 0.05, off: 0.1 },
+    18:{ on: 0.05, off: 0.15 },
+    19:{ on: 0.1, off: 0.15 },
+    20:{ on: 0.2, off: 0.15},
+    21:{ on: 0.3, off: 0.15 },
+    22:{ on: 0.24, off: 0.15 },
+    23:{ on: 0.1, off: 0.15 },
+}

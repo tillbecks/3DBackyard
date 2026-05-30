@@ -27,6 +27,15 @@ export function markerSphere(radius: number = 0.5, color: number = 0xff0000): TH
     return new THREE.Mesh(geometry, material);
 }
 
+export function markerRect(center: {x: number, z: number, y: number}, width: number, depth: number, color: number = 0xff0000): THREE.Mesh {
+    const geometry = new THREE.PlaneGeometry(width, depth);
+    const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+    const rect = new THREE.Mesh(geometry, material);
+    rect.rotation.x = Math.PI / 2; // Rotate to lie flat on the ground
+    rect.position.set(center.x, center.y, center.z);
+    return rect;
+}
+
 export function calcCenterOfGeometries(object: THREE.Object3D | THREE.Object3D[]): THREE.Vector3 {
     const center = new THREE.Vector3();
     let count = 0;

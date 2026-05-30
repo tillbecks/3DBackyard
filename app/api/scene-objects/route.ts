@@ -4,7 +4,7 @@ import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
-import { generateStdLSystemTree } from '@/app/lib/backyard/lsystems';
+import { generateStdLSystemTree } from '@/app/lib/backyard/trees';
 import * as TYPES from '@/app/types/typeIndex';
 
 import * as THREE from 'three';

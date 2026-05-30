@@ -14,3 +14,17 @@ export interface LSystemConfig{
     thicknessFactor: number;
     iterations: number;
 }
+
+export interface LeafConfig {
+    widthMin : number;
+    widthMax : number;
+    depthMin : number;
+    depthMax : number;
+    heightMin : number;
+    heightMax : number;
+    heightSegments: number;
+    widthSegments: number;
+    leafColorLightnessMin: number;
+    leafColorLightnessMax: number;
+    scale: number;
+}

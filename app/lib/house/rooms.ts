@@ -5,6 +5,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 import * as TYPES from '@/app/types/typeIndex';
 import * as HC from '@/app/lib/config/houseConfig';
+import {turnOnOffProbs} from '@/app/lib/config/lightConfig';
 import { randomBoolean, randomInRangeFloat, randomInRangeInt } from '@/app/lib/config/utils';
 import { getWallLightMaterialCommon, getWallLightMaterialRare } from '@/app/lib/materials/materials';
 
@@ -111,8 +112,9 @@ export class Rooms{
             const stairRoomWidth = this.gapMiddle;
             const stairRoomHeight = this.storyCount * this.storyHeight - HC.FLOOR_THICKNESS * 2;
             const stairRoomGeometry = new THREE.BoxGeometry(stairRoomWidth, stairRoomHeight, roomDepth);
+            stairRoomGeometry.computeBoundingBox();
             stairRoomGeometry.translate(this.stairPosition, 0, 0);
-        
+            
             const wallLight = createLightWalls(stairRoomGeometry, getId, true);
             wallLights.push(wallLight.wallLight);
             wallLightConfigs.push(wallLight.lightConfig);
@@ -142,6 +144,7 @@ function windowToWallPositions(windowPositions: TYPES.WindowPositions){
 }
 
 function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?: boolean): TYPES.WallLightReturn{
+    if(!geom.boundingBox) geom.computeBoundingBox();
     const walls = [];
     const size = geom.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3();
     const center = new THREE.Vector3();
@@ -189,7 +192,7 @@ function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?
 
     const timer = isStair ? randomInRangeInt(HC.STAIR_LIGHT_TIMER_MIN, HC.STAIR_LIGHT_TIMER_MAX) : 0;
 
-    const turnedOn = isStair ? false : randomBoolean(HC.LIGHT_TURNED_ON_PROBABILITY);
+    const turnedOn = isStair ? false : randomBoolean(turnOnOffProbs[new Date().getHours()].on);
 
     const lightConfig: TYPES.LightConfig = {
         name: wallsMesh.name,

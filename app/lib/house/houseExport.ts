@@ -10,7 +10,7 @@ import {createCameraConfig} from "@/app/lib/config/importExportUtils";
 import { createLawn } from "@/app/lib/backyard/lawn";
 import { HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import {DecorationsPlacer} from "@/app/lib/config/decorations";
-import { Tree } from "@/app/lib/backyard/lsystems";
+import { Tree } from "@/app/lib/backyard/trees";
 import { YardWalls } from "@/app/lib/backyard/walls";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
@@ -18,27 +18,13 @@ export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const housesBounds = new THREE.Box3().setFromObject(houses.object);
     const housesSize = new THREE.Vector3();
     housesBounds.getSize(housesSize);
-
-    const decorationsPlacer = new DecorationsPlacer(housesSize.x - 2 * HOUSE_DEPTH, housesSize.z - 2 * HOUSE_DEPTH);
-    const allowedMinX = BYCONFIG.TREE_DISTANCE_EDGES / housesSize.x;
-    const allowedMaxX = (housesSize.x - BYCONFIG.TREE_DISTANCE_EDGES) / housesSize.x;
-    const allowedMinZ = BYCONFIG.TREE_DISTANCE_EDGES / housesSize.z;
-    const allowedMaxZ = (housesSize.z - BYCONFIG.TREE_DISTANCE_EDGES) / housesSize.z;
-
-    for(let i = 0; i < BYCONFIG.TREES_PLACED; i++){
-        const tree = new Tree(TCONFIG.LSystem, TCONFIG.LSystemGeometryConfig2);
-        decorationsPlacer.addDecorationPosition(tree, allowedMinX, allowedMaxX, allowedMinZ, allowedMaxZ);
-    }
-
-    const trees = decorationsPlacer.positionDecorations(new THREE.Vector3(0, 0, 0));
-
+    
     const lawn = createLawn(housesSize.x, housesSize.z);
     lawn.position.set(0, 0, 0);
 
     const group = new THREE.Group();
     group.add(lawn);
     group.add(houses.object);
-    //group.add(trees);
     return {object: group, lightConfigs: houses.lightConfigs};
 }
 
