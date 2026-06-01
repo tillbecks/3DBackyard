@@ -1,7 +1,10 @@
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '@/app/lib/config/houseConfig';
 import { randomFromObject } from '@/app/lib/config/utils';
+import { getRoofGutterMaterial } from '../materials/materials';
+import { createAxisHelper } from '../config/3dUtils';
 
 
 const GUTTER_POS: { LEFT: string; RIGHT: string } = {
@@ -20,14 +23,7 @@ class RoofGutter{
         const gutterGroup: THREE.Group = new THREE.Group();
 
         const geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(1, 1, roofWidth, 32, 1, false,0,Math.PI);
-        //material with a grey color like a roof gutter
-        const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: 0x7a7a7a});
-        material.side = THREE.DoubleSide;
-        const gutter: THREE.Mesh = new THREE.Mesh(geometry, material);
-        gutter.castShadow = true;
-        gutter.receiveShadow = true;
-        gutterGroup.add(gutter);
-        gutterGroup.rotateZ(-0.5*Math.PI)
+        geometry.rotateZ(-0.5*Math.PI);
 
 
         let posX: number = 0;
@@ -51,12 +47,16 @@ class RoofGutter{
             bendStart: 5,
             bendEnd: 8,});
         const curveGeometry: THREE.TubeGeometry = new THREE.TubeGeometry(gutterCurve, houseHeight, 0.7, 8, false);
-        const curve: THREE.Mesh = new THREE.Mesh(curveGeometry, material);
-        curve.castShadow = true;
-        curve.receiveShadow = true;
-        curve.rotateZ(0.5*Math.PI);
-        curve.translateX(-posX);
-        gutterGroup.add(curve);
+        
+        curveGeometry.translate(-posX,0,0);
+
+        const mergedGeometry = BufferGeometryUtils.mergeGeometries([geometry, curveGeometry]);
+        const materialMix = getRoofGutterMaterial();
+        const gutterMesh: THREE.Mesh = new THREE.Mesh(mergedGeometry, materialMix.standardMaterial);
+        gutterMesh.userData.shader = materialMix.shaderMaterial;
+        gutterGroup.add(gutterMesh);
+
+        gutterGroup.translateZ(1);
         
         return gutterGroup;
     }

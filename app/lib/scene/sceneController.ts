@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three-stdlib';
 import { Group } from '@tweenjs/tween.js';
+import Stats from 'three/addons/libs/stats.module.js';
 
 import { initCamera, initController, initRenderer } from './scene';
 import { initLightSky } from './light';
@@ -11,6 +12,7 @@ import { CameraController } from './cameraController';
 import * as TYPES from '@/app/types/typeIndex';
 import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
 import { loadShader } from '@/app/lib/materials/shader/shaderConfig';
+import { addGradientToScene } from '@/app/lib/materials/materialUtils';
 import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
 import { fetchWithTimeout, isAbortError } from '@/app/lib/config/fetchUtils';
 import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
@@ -32,6 +34,7 @@ export class SceneController{
     cameraController: CameraController;
     birdController: BirdController | null = null;
     timer: THREE.Timer;
+    stats: Stats = new Stats();
 
     private states: Record<string, unknown> = {};
     private scenario: TYPES.RouteParams;
@@ -71,6 +74,7 @@ export class SceneController{
         this.timer.connect(document);
 
         this.containerRef.current.appendChild(this.renderer.domElement);
+        this.containerRef.current.appendChild(this.stats.dom);
     }
 
     toggleAudio(){
@@ -96,6 +100,7 @@ export class SceneController{
                 await this.loadShowcase();
             }
             loadShader(this.scene);
+
             this.scenarioLoaded = true;
         } catch (error) {
             console.error('Error loading scenario:', error);
@@ -141,7 +146,9 @@ export class SceneController{
                     console.log(`Mesh loaded: ${child.name}`);
                 }
             });
-            console.log("Lights loaded from API:", content.lightConfigs);
+
+            //addGradientToScene(loadedScene);
+
             this.lightController.initController(content.lightConfigs);
             this.animations.push((deltaSeconds) => this.lightController.updateLights(deltaSeconds, this.scene));
             this.scene.add(loadedScene);
@@ -236,6 +243,7 @@ export class SceneController{
             this.tweenGroup.update();
 
             this.renderer.render(this.scene, this.camera);
+            console.log(this.renderer.info.render);
         } catch (error) {
             console.error('Render error:', error);
             return;

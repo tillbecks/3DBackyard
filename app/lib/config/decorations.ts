@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import * as UTILS from '@/app/lib/config/utils';
 import { SceneElement } from '@/app/lib/house/houseElement';
+import { AntennaPole } from '../house/antennas/terrestrialAntenna';
 
 
 export abstract class Decoration extends SceneElement{
@@ -18,6 +19,19 @@ export abstract class Decoration extends SceneElement{
         this.z = 0;
         this.y = 0;
     }
+
+    positionDecorations(offset: THREE.Vector3): THREE.Object3D{
+        this.x += offset.x;
+        this.y += offset.y;
+        this.z += offset.z;
+
+        const obj = this.get3DObject();
+
+        this.afterPositioning();
+        return obj;
+    }
+
+    afterPositioning(): void{};
 }
 
 export class DecorationsPlacer{
@@ -43,6 +57,8 @@ export class DecorationsPlacer{
             ? [[0, allowedMaxZ], [allowedMinZ, 1]]
             : [[allowedMinZ, allowedMaxZ]];
 
+        
+
         // Alle Segment-Kombinationen als Rechtecke aufbauen
         type Rect = { minX: number; maxX: number; minZ: number; maxZ: number; weight: number };
         const rects: Rect[] = [];
@@ -51,9 +67,9 @@ export class DecorationsPlacer{
         for (const [minX, maxX] of xSegments) {
             for (const [minZ, maxZ] of zSegments) {
             const area = (maxX - minX) * (maxZ - minZ);
-            if (area > 0) {
-                rects.push({ minX, maxX, minZ, maxZ, weight: area });
-                totalArea += area;
+            if (area >= 0) {
+                rects.push({ minX, maxX, minZ, maxZ, weight: area || 1 });
+                totalArea += area || 1;
             }
             }
         }
@@ -112,21 +128,19 @@ export class DecorationsPlacer{
         if (attempts === maxAttempts) {
             console.warn(`Could not find valid position after ${maxAttempts} attempts. Decoration skipped.`);
         }
-        if (!positionValid) return;
-
+        if (!positionValid){ 
+            return;
+        }
         this.decorations.push({ deco: newDecoration, freeDiameter: extraDiameter + newDecoration.diameter });
     }
 
     positionDecorations(offset: THREE.Vector3): THREE.Group{
         const group = new THREE.Group();
         for(const d of this.decorations){
-            const obj = d.deco.get3DObject();
-            obj.position.x = d.deco.x;
-            obj.position.y = d.deco.y;
-            obj.position.z = d.deco.z;
-            group.add(obj);
+            const deco = d.deco.positionDecorations(offset);
+            deco.position.set(d.deco.x, d.deco.y, d.deco.z);
+            group.add(deco);
         }
-        group.position.add(offset);
         return group;
     }
 }

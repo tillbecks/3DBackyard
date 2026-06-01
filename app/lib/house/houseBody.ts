@@ -22,8 +22,9 @@ class HouseBody{
     houseWidth: number;
     leftSize: number;
     rightSize: number;
+    mergeableWindows: boolean;
 
-    constructor(storyCount: number, storyHeight: number, houseWidth: number, leftSize: number, rightSize: number){
+    constructor(storyCount: number, storyHeight: number, houseWidth: number, leftSize: number, rightSize: number, mergeableWindows: boolean = true){
         this.houseGroup = new THREE.Group();
 
         this.id = HouseBody.globalId++;
@@ -33,6 +34,7 @@ class HouseBody{
         this.leftSize = leftSize;
         this.rightSize = rightSize;
         this.childId = 0;
+        this.mergeableWindows = mergeableWindows;
     }
 
     getNewChildId(): string{
@@ -50,7 +52,7 @@ class HouseBody{
         const roof: THREE.Group = roofGenerator(HOUSE_DEPTH, this.houseWidth, mixedMaterial, this.leftSize, this.rightSize, houseHeight);
         roof.position.setY(houseHeight/2);
 
-        const windowsBalconies = windowGenerator(this.houseWidth, this.storyCount, this.storyHeight, HOUSE_DEPTH, () => this.getNewChildId());
+        const windowsBalconies = windowGenerator(this.houseWidth, this.storyCount, this.storyHeight, HOUSE_DEPTH, () => this.getNewChildId(), this.mergeableWindows);
         const balconies: THREE.Group | undefined = windowsBalconies["balconies"];
         if(balconies)
             this.houseGroup.add(balconies);
@@ -83,7 +85,7 @@ class HouseBody{
 };
 
 //x rechts-links, z vorne-hinten, y oben-unten
-export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number]): TYPES.HouseReturn {
+export function houseGroupGenerator(houseCnt: number, centerPoint: [number, number, number], mergeableWindows: boolean = true): TYPES.HouseReturn {
     const houseGroup = new THREE.Group();
     const lightConfigs = [];
     const housesWidths: number[] = [];
@@ -110,7 +112,7 @@ export function houseGroupGenerator(houseCnt: number, centerPoint: [number, numb
         const houseHeight = storyCnt != null && storyHeight != null ? storyCnt * storyHeight : 0;
         const leftHouse = lastStoryCnt == null || lastStoryHeight == null ? 1 : lastStoryCnt * lastStoryHeight < houseHeight ? 1 : 0;
         const rightHouse = nextStoryCnt == null || nextStoryHeight == null ? 1 : nextStoryCnt * nextStoryHeight < houseHeight ? 1 : 0;
-        const house = new HouseBody( storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse);
+        const house = new HouseBody( storyCnt != null ? storyCnt : 0, storyHeight != null ? storyHeight : 0, houseWidth, leftHouse, rightHouse, mergeableWindows);
         const objectLight = house.get3DContent();
         const houseMesh = objectLight.object;
         const positionY = Math.floor(houseHeight/2);

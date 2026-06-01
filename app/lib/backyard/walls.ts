@@ -1,13 +1,16 @@
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import * as TYPES from '@/app/types/typeIndex';
 
 import * as BYCONFIG from "@/app/lib/config/backyardConfig";
 import { randomBoolean, randomFromArray, randomInRangeInt } from "@/app/lib/config/utils";
-import { calcUVS } from '../config/3dUtils';
-import { getWallMaterial } from '../materials/materials';
+import { calcUVS, instancedMeshToMergedMesh } from '../config/3dUtils';
+import { getTreeBarkMaterial, getTreeLeafMaterial, getWallMaterial } from '../materials/materials';
 import {Tree} from './trees';
 import {DecorationsPlacer} from '../config/decorations';
+import { instance } from 'three/tsl';
+import { TREE_BARK_COLOR } from '../materials/colors';
 
 //Following Structure:
 
@@ -58,29 +61,45 @@ export class YardWalls{
     get3DObject(): THREE.Group {
         const allGroup = new THREE.Group();
 
-        const wallsGroup = new THREE.Group();  
         const materialMix = getWallMaterial();
+
+        const wallGeometries = [];
 
         for(let i= 0; i < this.wallPositioning.length; i++){
             const wall = this.wallPositioning[i];
             const geometry = new THREE.BoxGeometry(wall.orientation === 0 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.x2 - wall.x1), BYCONFIG.WALL_HEIGHT_MAX, wall.orientation === 1 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.z2 - wall.z1));
-            calcUVS(geometry);
-            const standardMaterial = materialMix.standardMaterial.clone();
-            const wallMesh = new THREE.Mesh(geometry, standardMaterial);
-            wallMesh.userData.shader = materialMix.shaderMaterial;
-            wallMesh.position.set(wall.x1 + (wall.x2 - wall.x1) / 2, BYCONFIG.WALL_HEIGHT_MAX / 2, wall.z1 + (wall.z2 - wall.z1) / 2);
-            wallsGroup.add(wallMesh);
-        
+            geometry.translate(wall.x1 + (wall.x2 - wall.x1) / 2, BYCONFIG.WALL_HEIGHT_MAX / 2, wall.z1 + (wall.z2 - wall.z1) / 2);
+            wallGeometries.push(geometry);        
         }
-        calcUVS(wallsGroup);
-        allGroup.add(wallsGroup);
+        const mergedWallGeometries = BufferGeometryUtils.mergeGeometries(wallGeometries);
+        calcUVS(mergedWallGeometries);
+        const mergedWallMesh = new THREE.Mesh(mergedWallGeometries, materialMix.standardMaterial);
+        mergedWallMesh.userData.shader = materialMix.shaderMaterial;
+        allGroup.add(mergedWallMesh);
 
-        const treeGroup = new THREE.Group();
+        const leafGeometries = [];
+        const treeGeometries = [];
         for(const treePositioner of this.treePositioner){
-            const trees = treePositioner.placer.positionDecorations(treePositioner.center);
-            treeGroup.add(trees);
+            treePositioner.placer.positionDecorations(treePositioner.center);
+            for(const tree of treePositioner.placer.decorations){
+                if(tree.deco instanceof Tree){
+                    treeGeometries.push(tree.deco.branchGeometries);
+                    leafGeometries.push(tree.deco.leafGeometries);
+                }
+            }
         }
-        allGroup.add(treeGroup);
+
+        const leafGeometry = BufferGeometryUtils.mergeGeometries(leafGeometries.flat());
+        const leafMaterial = getTreeLeafMaterial();
+        const leafMesh = new THREE.Mesh(leafGeometry, leafMaterial.standardMaterial);
+        leafMesh.userData.shader = leafMaterial.shaderMaterial;
+        allGroup.add(leafMesh);
+
+        const treeGeometry = BufferGeometryUtils.mergeGeometries(treeGeometries.flat());
+        const treeMaterial = getTreeBarkMaterial();
+        const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial.standardMaterial);
+        treeMesh.userData.shader = treeMaterial.shaderMaterial;
+        allGroup.add(treeMesh);
 
         return allGroup;
     }

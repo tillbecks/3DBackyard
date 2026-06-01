@@ -34,8 +34,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
     - [ ] Camera Pan on Window
     - [ ] Back-Button -> Camera back to initial position
 - [ ] Linkage to Website
-- [ ] Optimization
-  - [ ] Trees
 - [ ] Fix Bird Trajectory
 
 - [ ] Environment Map?
@@ -44,14 +42,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - [X] Camera Follows Birds on Window-Click
   - [ ] Smoother? -> Improve Looping behaviour
-- [ ] Walls in Garden
-  - [X] Partitioning Algorithm
-  - [X] Positioning Walls based on partitioning ;()
-  - [X] Decorations
-  - [ ] Fix Texture Clipping 
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds
+- [ ] Optimization
+  - [ ] MergeGeometries
+    - [X] MergeGeometries By Material
+    - [ ] Cleanup material creation -> All materials from materials.ts
+    - [ ] Material-Data instead of Material?
   
 ### Done
 
@@ -72,3 +70,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [X] In-Door Lighting
   - [X] ToDo: Check Stair-Lighting
   - [X] Create "Rythms" for different times
+- [X] Walls in Garden
+  - [X] Partitioning Algorithm
+  - [X] Positioning Walls based on partitioning ;()
+  - [X] Decorations
+  - [X] Fix Texture Clipping 

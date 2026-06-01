@@ -7,7 +7,7 @@ export const SURROUNDING_RADIUS_DEPTH = 80;
 export const SURROUNDING_RADIUS_WIDTH = 100;
 export const SURROUNDING_RADIUS_HEIGHT = 50;
 export const BIRD_COUNT = 7;
-const BIRD_MOVES_PER_SECOND = 45;
+const BIRD_MOVES_PER_SECOND = 20;
 export const BIRD_MOVES_PER_MINUTE = BIRD_MOVES_PER_SECOND * 60;
 
 export const STD_BIRD_CONFIG: TYPES.BirdConfig = {

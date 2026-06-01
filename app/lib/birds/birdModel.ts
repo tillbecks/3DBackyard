@@ -31,28 +31,19 @@ export default class BirdModel {
         this.leftWing = new THREE.Mesh(wingGeometry(birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wingMaterial);
         this.leftWing.position.y += birdParameter.wingShiftUp;
         this.leftWing.position.x -= birdParameter.wingShiftOutside;
-        this.leftWing.castShadow = true;
-        this.leftWing.receiveShadow = true;
         this.leftWing.name= ID_LEFT_WING;
         this.rightWing = new THREE.Mesh(wingGeometry(-birdParameter.wingScalex, birdParameter.wingScaley, 0.2), wingMaterial);
         this.rightWing.position.y += birdParameter.wingShiftUp;
         this.rightWing.position.x += birdParameter.wingShiftOutside;
-        this.rightWing.castShadow = true;
-        this.rightWing.receiveShadow = true;
         this.rightWing.name = ID_RIGHT_WING;
 
         const tailMaterial = new THREE.MeshStandardMaterial({color: birdColor, side: THREE.DoubleSide});
         const tail = new THREE.Mesh(tailGeometry(birdParameter.tailScale, birdParameter.tailLength), tailMaterial);
-        tail.castShadow = true;
-        tail.receiveShadow = true;
         tail.position.z =  - birdParameter.bodyLength * birdParameter.bodyNormalLength * birdParameter.bodyCenterPercentage * birdParameter.tailScale;
         tail.position.y = birdParameter.bodySize * 0.1;
 
         const bodyMaterial = new THREE.MeshStandardMaterial({color: birdColor, side: THREE.DoubleSide});
         const body = new THREE.Mesh(bodyGeometry(birdParameter.bodyLength, birdParameter.bodySize, birdParameter.bodyCenterPercentage), bodyMaterial);
-        body.castShadow = true;
-        body.receiveShadow = true;
-
 
         this.model.add(tail);
         this.model.add(body);

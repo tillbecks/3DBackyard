@@ -29,8 +29,27 @@ export class roofDecorationsPlacer extends DecorationsPlacer{
     }
 
     addDecorationPosition(newDecoration: RoofDecorations, allowedMinX: number, allowedMaxX: number, allowedMinZ: number, allowedMaxZ: number, extraDiameter: number = EXTRA_DIST_ROOF_ELEMENTS): void {
+        
         super.addDecorationPosition(newDecoration, allowedMinX, allowedMaxX, allowedMinZ, allowedMaxZ, extraDiameter);
         newDecoration.calculateYPosition(this.areaDepth, this.roofAngle);
+    }
+
+    // In roofDecorationsPlacer:
+    positionDecorations(offset: THREE.Vector3): THREE.Group {
+        const group = new THREE.Group();
+        for (const d of this.decorations) {
+            // Z erst mit Offset updaten, dann Y neu berechnen:
+            d.deco.x += offset.x;
+            d.deco.z += offset.z;
+            d.deco.calculateYPosition(this.areaDepth, this.roofAngle);
+            d.deco.y += offset.y; // Dach-Höhe drauf nach der Berechnung
+
+            const obj = d.deco.get3DObject();
+            obj.position.set(d.deco.x, d.deco.y, d.deco.z);
+            d.deco.afterPositioning();
+            group.add(obj);
+        }
+        return group;
     }
 }
 

@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 export interface LSystemType{
     axiom: string;
     rules: Record<string, string[]>;
@@ -27,4 +29,17 @@ export interface LeafConfig {
     leafColorLightnessMin: number;
     leafColorLightnessMax: number;
     scale: number;
+}
+
+
+export interface LeafCollector {
+  mesh: THREE.InstancedMesh;
+  dummy: THREE.Object3D;
+  color: THREE.Color;
+  index: number;
+}
+
+export interface LeafPreCollector {
+    matrix: THREE.Matrix4;
+    colorLightnessVariation: number;
 }

@@ -1,10 +1,11 @@
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import { roofGutterGenerator } from './roofGutter';
 import { terrestrialAntennaGenerator } from './antennas/terrestrialAntenna';
 import { antennaGenerator } from './antennas/satelliteAntenna';
 import { SceneElement } from './houseElement';
-import { RoofDecorations, roofDecorationsPlacer } from './roofDecorations';
+import { roofDecorationsPlacer } from './roofDecorations';
 import { chimneyGenerator } from './chimneys/topChimneys';
 
 import * as HC from '@/app/lib/config/houseConfig';
@@ -34,7 +35,6 @@ class Roof extends SceneElement{
 
         const pitchFrontHeight: number = roofPitchLength + HC.ROOF_WALL_THICKNESS + this.overhang;
         const roofHouseMaterial = houseMaterial.standardMaterial;
-        roofHouseMaterial.side = THREE.DoubleSide;
         const roofGroup: THREE.Group = new THREE.Group();
         
         const roofSideAGeometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -43,19 +43,8 @@ class Roof extends SceneElement{
             -houseWidth / 2, 0, -houseDepth / 2,      // Bottom back
             -houseWidth / 2, 0, houseDepth / 2        // Bottom front
         ]), 3));
-        roofSideAGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([
-            0.5, 1,
-            0, 0,
-            1, 0
-        ]), 2));
         roofSideAGeometry.setIndex([0, 1, 2]);
         roofSideAGeometry.computeVertexNormals();    
-        const roofSideA: THREE.Mesh = new THREE.Mesh(roofSideAGeometry, roofHouseMaterial);
-        roofSideA.castShadow = true;
-        roofSideA.receiveShadow = true;
-        roofSideA.userData.shader = houseMaterial.shaderMaterial;
-        calcUVS(roofSideA.geometry);
-        roofGroup.add(roofSideA);
 
         const roofSideBGeometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         roofSideBGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
@@ -63,66 +52,59 @@ class Roof extends SceneElement{
             houseWidth / 2, 0, -houseDepth / 2,      // Bottom back
             houseWidth / 2, 0, houseDepth / 2        // Bottom front
         ]), 3));
-        roofSideBGeometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([
-            0.5, 1,
-            0, 0,
-            1, 0
-        ]), 2));
         roofSideBGeometry.setIndex([0, 1, 2]);
         roofSideBGeometry.computeVertexNormals();  
-        const roofSideB: THREE.Mesh = new THREE.Mesh(roofSideBGeometry, roofHouseMaterial);
-        roofSideB.castShadow = true;
-        roofSideB.receiveShadow = true;
-        roofSideB.userData.shader = houseMaterial.shaderMaterial;
-        calcUVS(roofSideB.geometry);
-        roofGroup.add(roofSideB);
+        const mergedRoofSideGeometry = BufferGeometryUtils.mergeGeometries([roofSideAGeometry, roofSideBGeometry]);
+        calcUVS(mergedRoofSideGeometry);
+        const mergedRoofMesh = new THREE.Mesh(mergedRoofSideGeometry, roofHouseMaterial);
+        mergedRoofMesh.userData.shader = houseMaterial.shaderMaterial;
+
+        roofGroup.add(mergedRoofMesh);
 
         const roofWidth: number = houseWidth + (leftHouse+rightHouse)*HC.ROOF_OVERHANG_SIDES;
 
         const moveYFront: number = (pitchFrontHeight / 2) - this.overhang;
         const roofPitchFront: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, HC.ROOF_WALL_THICKNESS);
-        const roofPitchFrontMesh: THREE.Mesh = new THREE.Mesh(roofPitchFront, roofMaterial);
-        roofPitchFrontMesh.castShadow = true;
-        roofPitchFrontMesh.receiveShadow = true; 
-        roofPitchFrontMesh.userData.shader = roofMaterialMix.shaderMaterial;
+        
+        const pitchFrontMatrix = new THREE.Matrix4();
         if(leftHouse + rightHouse == 1){
-            roofPitchFrontMesh.translateX((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
+            pitchFrontMatrix.multiply(new THREE.Matrix4().makeTranslation((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2), 0, 0));
         }
-        roofPitchFrontMesh.translateZ(houseDepth/2);
-        roofPitchFrontMesh.rotateX(-roofAngle);
-        roofPitchFrontMesh.translateY(moveYFront);
-        roofPitchFrontMesh.translateZ(HC.ROOF_WALL_THICKNESS/2);
+        pitchFrontMatrix.multiply(new THREE.Matrix4().makeTranslation(0,0,houseDepth/2));
+        pitchFrontMatrix.multiply(new THREE.Matrix4().makeRotationX(-roofAngle));
+        pitchFrontMatrix.multiply(new THREE.Matrix4().makeTranslation(0,moveYFront,0));
+        pitchFrontMatrix.multiply(new THREE.Matrix4().makeTranslation(0,0,HC.ROOF_WALL_THICKNESS/2));
+        roofPitchFront.applyMatrix4(pitchFrontMatrix);
 
         const pitchBackHeight: number = roofPitchLength + this.overhang;
         const moveYBack: number = (pitchBackHeight / 2) - this.overhang;
         const roofPitchBack: THREE.BoxGeometry = new THREE.BoxGeometry(roofWidth, pitchFrontHeight, HC.ROOF_WALL_THICKNESS);
-        const roofPitchBackMesh: THREE.Mesh = new THREE.Mesh(roofPitchBack, roofMaterial);
-        roofPitchBackMesh.castShadow = true;
-        roofPitchBackMesh.receiveShadow = true;
-        roofPitchBackMesh.userData.shader = roofMaterialMix.shaderMaterial;
+        
+        const pitchBackMatrix = new THREE.Matrix4();
         if(leftHouse + rightHouse == 1){
-            roofPitchBackMesh.translateX((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
+            pitchBackMatrix.multiply(new THREE.Matrix4().makeTranslation((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2), 0, 0));
         }
-        roofPitchBackMesh.translateZ(-houseDepth/2);
-        roofPitchBackMesh.rotateX(roofAngle);
-        roofPitchBackMesh.translateY(moveYBack);
-        roofPitchBackMesh.translateZ(-HC.ROOF_WALL_THICKNESS/2);
+        pitchBackMatrix.multiply(new THREE.Matrix4().makeTranslation(0,0,-houseDepth/2));
+        pitchBackMatrix.multiply(new THREE.Matrix4().makeRotationX(roofAngle));
+        pitchBackMatrix.multiply(new THREE.Matrix4().makeTranslation(0,moveYBack,0));
+        pitchBackMatrix.multiply(new THREE.Matrix4().makeTranslation(0,0,-HC.ROOF_WALL_THICKNESS/2));
+        roofPitchBack.applyMatrix4(pitchBackMatrix);
 
-        calcUVS(roofPitchFrontMesh.geometry);
-        calcUVS(roofPitchBackMesh.geometry);
-        roofGroup.add(roofPitchFrontMesh);
-        roofGroup.add(roofPitchBackMesh);
+        const roofPitchGeometry = BufferGeometryUtils.mergeGeometries([roofPitchFront, roofPitchBack]);
+        calcUVS(roofPitchGeometry);
+        const roofPitchMesh = new THREE.Mesh(roofPitchGeometry, roofMaterial);
+        roofPitchMesh.userData.shader = roofMaterialMix.shaderMaterial;
+        roofGroup.add(roofPitchMesh);
 
         const roofGutter: THREE.Group = roofGutterGenerator(roofWidth, houseWidth, houseHeight, leftHouse, rightHouse);
         
         roofGutter.translateZ(houseDepth/2);
-        roofGutter.rotateY(-roofAngle);
-        roofGutter.translateX(this.overhang);
+        roofGutter.rotateX(-roofAngle);
+        roofGutter.translateY(-this.overhang);
         roofGutter.translateZ(HC.ROOF_WALL_THICKNESS);
-        roofGutter.rotateY(roofAngle);
-        roofGutter.translateZ(1);
+        roofGutter.rotateX(roofAngle);
         if(leftHouse + rightHouse == 1){
-            roofGutter.translateY((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES/2));
+            roofGutter.translateX((rightHouse - leftHouse)*(HC.ROOF_OVERHANG_SIDES));
         }
         roofGroup.add(roofGutter);
 
@@ -133,12 +115,10 @@ class Roof extends SceneElement{
             decorationsPlacer.addDecorationPosition(antenna, HC.ANTENNA_MIN_X, HC.ANTENNA_MAX_X, HC.ANTENNA_MIN_Z, HC.ANTENNA_MAX_Z);
         }
 
-        let roofDecoration: RoofDecorations[] = [];
-
         if(randomBoolean(HC.SATELLITE_RECEIVER_PROBABILITY)){
             const amnt = randomInRangeInt(1, HC.MAX_SATELLITE_RECEIVERS);
 
-            for(let i = 0; i < 2; i++){
+            for(let i = 0; i < amnt; i++){
                 const bowl = antennaGenerator();
                 //houseDepth/4 makes the antennas only spawn on the upper half of the front roof pitch
                 decorationsPlacer.addDecorationPosition(bowl, HC.SATELLITE_RECEIVER_MIN_X, HC.SATELLITE_RECEIVER_MAX_X, HC.SATELLITE_RECEIVER_MIN_Z, HC.SATELLITE_RECEIVER_MAX_Z);

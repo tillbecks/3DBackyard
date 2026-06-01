@@ -4,10 +4,10 @@ import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';
-import { generateStdLSystemTree } from '@/app/lib/backyard/trees';
 import * as TYPES from '@/app/types/typeIndex';
 
 import * as THREE from 'three';
+import { mergeSameMaterial } from '@/app/lib/config/meshMaterialMerger';
 
 export async function GET(request: NextRequest) {
     try {        
@@ -21,15 +21,21 @@ export async function GET(request: NextRequest) {
         }else if(scenario == scenarios.birdShowcase.sub){
             object = generateBirdShowcaseContent();
         }else if(scenario == scenarios.tree.sub){
-            object = generateStdLSystemTree();
+            //object = generateLSystemTree();
         }
         else {
             const objectLight = generateHousesWithLawn();
             object = objectLight.object;
+            try {
+                const optimizedObject = mergeSameMaterial(object);
+                object = optimizedObject;
+            } catch (error) {
+                console.error('Error during material merging:', error);
+            }
             lights = objectLight.lightConfigs;
         }
 
-        const glbBufferString = await objectToGLBBase64(object);
+        const glbBufferString = object !== null ? await objectToGLBBase64(object) : null;
         const sendJson = {
             object: glbBufferString,
             lightConfigs: lights

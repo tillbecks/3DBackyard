@@ -32,7 +32,7 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     const housesGroup = new THREE.Group();
     const lightConfigs = [];
     
-    const houseGroupN = houseGroupGenerator(6, [0,0,0]);
+    const houseGroupN = houseGroupGenerator(6, [0,0,0], false);
     const groupSizeN = new THREE.Box3().setFromObject(houseGroupN.object).getSize(new THREE.Vector3());
     lightConfigs.push(...houseGroupN.lightConfigs);
 

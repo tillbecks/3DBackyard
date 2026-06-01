@@ -5,7 +5,16 @@ import { BRICK_SHADER, ROOF_TILE_SHADER, ROOF_FLAT_TILE_SHADER, ROOF_NORFOLK_TIL
 
 import * as TYPES from '@/app/types/typeIndex';
 import { randomFromArray } from '../config/utils';
+import { color } from 'three/tsl';
 
+function createToonMaterial(color: THREE.Color | string | number): THREE.MeshStandardMaterial {
+    const threeColor = typeof color === "string" ? new THREE.Color(color) : color;
+    return new THREE.MeshStandardMaterial({
+        color: threeColor,
+        side: THREE.DoubleSide,
+        roughness: 0.95
+    });
+}
 
 export const PANE_MATERIAL = new THREE.MeshPhysicalMaterial({
   color: COLORS.PANE_COLOR,
@@ -25,14 +34,12 @@ export const PANE_HIGHLIGHT_MATERIAL = new THREE.MeshPhysicalMaterial({
   envMapIntensity: 1 // Crucial for looking like glass
 });
 
-export const WINDOW_FRAME_NORMAL_MATERIAL = new THREE.MeshBasicMaterial({
-    color: COLORS.WINDOW_FRAME_COLOR,
-});
+export const WINDOW_FRAME_NORMAL_MATERIAL = createToonMaterial(COLORS.WINDOW_FRAME_COLOR);
 
 
-const BRICK_MATERIAL_RED = new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_RED, roughness: 0.9}); 
-const BRICK_MATERIAL_SANDSTONE = new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_SANDSTONE, roughness: 0.9}); 
-const BRICK_MATERIAL_PLASTER = COLORS.HOUSE_PLASTER_COLOR.map(color => new THREE.MeshStandardMaterial({color: color, roughness: 0.9}));
+const BRICK_MATERIAL_RED = createToonMaterial(COLORS.BRICK_COLOR_RED);
+const BRICK_MATERIAL_SANDSTONE = createToonMaterial(COLORS.BRICK_COLOR_SANDSTONE);
+const BRICK_MATERIAL_PLASTER = COLORS.HOUSE_PLASTER_COLOR.map(color => createToonMaterial(color));
 
 export function getHouseMaterials(): Record<string, TYPES.MaterialMix> {
   const materials: Record<string, TYPES.MaterialMix> = {
@@ -47,9 +54,9 @@ export function getHouseMaterials(): Record<string, TYPES.MaterialMix> {
   return materials;
 }
 
-const ROOF_TILE_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.ROOF_TILE_COLOR, roughness: 0.9, side: THREE.DoubleSide});
-const ROOF_FLAT_TILE_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.ROOF_FLAT_TILE_COLOR, roughness: 0.9, side: THREE.DoubleSide}); 
-const ROOF_NORFOLK_TILE_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.ROOF_NORFOLK_TILE_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+const ROOF_TILE_MATERIAL = createToonMaterial(COLORS.ROOF_TILE_COLOR);
+const ROOF_FLAT_TILE_MATERIAL = createToonMaterial(COLORS.ROOF_FLAT_TILE_COLOR);
+const ROOF_NORFOLK_TILE_MATERIAL = createToonMaterial(COLORS.ROOF_NORFOLK_TILE_COLOR);
 
 export function getRoofMaterials(): Record<string, TYPES.MaterialMix> {
     return {
@@ -59,18 +66,22 @@ export function getRoofMaterials(): Record<string, TYPES.MaterialMix> {
     }
 }
 
-const LAWN_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.GRASS_COLOR_FRESH, roughness: 1, side: THREE.DoubleSide});
+const LAWN_MATERIAL = createToonMaterial(COLORS.GRASS_COLOR_FRESH);
 
 export const LAWN_MIX_MATERIAL = {standardMaterial: LAWN_MATERIAL, shaderMaterial: GRASS_SHADER.getShaderMaterialConfig(COLORS.GRASS_COLOR_FRESH)};
 
-const FLAT_METAL_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.METAL_MATERIAL_COLOR, roughness: 0.5, metalness: 0.8, side: THREE.DoubleSide});
+const FLAT_METAL_MATERIAL = createToonMaterial(COLORS.METAL_MATERIAL_COLOR);
 const SHINY_METAL_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.METAL_MATERIAL_COLOR, roughness: 0.2, metalness: 0.9, side: THREE.DoubleSide});
 
-const SMALL_CHIMNEY_BRICK_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_RED, roughness: 0.9, side: THREE.DoubleSide});
+const SMALL_CHIMNEY_BRICK_MATERIAL = createToonMaterial(COLORS.BRICK_COLOR_RED);
 
-const CHIMNEY_ROOF_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.ROOF_TILE_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+const CHIMNEY_ROOF_MATERIAL = createToonMaterial(COLORS.ROOF_TILE_COLOR);
 
-const BETON_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.BETON_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+const BETON_MATERIAL = createToonMaterial(COLORS.BETON_COLOR);
+
+export function getAntennaMaterial(): TYPES.MaterialMix{
+    return {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null}
+}
 
 export function getChimneyMaterials(): Record<string, TYPES.MaterialMix> {
     return {
@@ -96,16 +107,16 @@ export function getFlatMetalMaterial(): TYPES.MaterialMix {
     return {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null};
 }
 
-const TREE_BARK_MATERIAL = new THREE.MeshStandardMaterial({color: COLORS.TREE_BARK_COLOR, roughness: 0.9, side: THREE.DoubleSide});
+const TREE_BARK_MATERIAL = createToonMaterial(COLORS.TREE_BARK_COLOR);
 
 export function getTreeBarkMaterial(): TYPES.MaterialMix {
     return {standardMaterial: TREE_BARK_MATERIAL, shaderMaterial: null};
 }
 
-const makeTreeLeafMaterial = (lightness: number) => new THREE.MeshStandardMaterial({color: COLORS.changeColorLightness(new THREE.Color(COLORS.TREE_LEAF_COLOR), lightness), roughness: 1.0, side: THREE.DoubleSide});
+const TREE_LEAF_MATERIAL = createToonMaterial(new THREE.Color(COLORS.TREE_LEAF_COLOR));
 
-export function getTreeLeafMaterial(lightness: number): TYPES.MaterialMix {
-    return {standardMaterial: makeTreeLeafMaterial(lightness), shaderMaterial: null};
+export function getTreeLeafMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: TREE_LEAF_MATERIAL, shaderMaterial: null};
 }
 
 export function getWallLightMaterialCommon(ligthness: number): THREE.MeshBasicMaterial{
@@ -119,5 +130,17 @@ export function getWallLightMaterialRare(ligthness: number): THREE.MeshBasicMate
 }
 
 export function getWallMaterial(): TYPES.MaterialMix {
-    return {standardMaterial: new THREE.MeshStandardMaterial({color: COLORS.BRICK_COLOR_GARDEN_WALL, roughness: 0.9, side: THREE.DoubleSide}), shaderMaterial: BRICK_SHADER.getShaderMaterialConfig(COLORS.BRICK_COLOR_GARDEN_WALL)};
+    return {standardMaterial: new THREE.MeshToonMaterial({color: COLORS.BRICK_COLOR_GARDEN_WALL, side: THREE.DoubleSide}), shaderMaterial: BRICK_SHADER.getShaderMaterialConfig(COLORS.BRICK_COLOR_GARDEN_WALL)};
+}
+
+export function getBalconyRailingMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null};
+}
+
+export function getBalconyFloorMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: BETON_MATERIAL, shaderMaterial: null};
+}
+
+export function getRoofGutterMaterial(): TYPES.MaterialMix {
+    return {standardMaterial: FLAT_METAL_MATERIAL, shaderMaterial: null};
 }

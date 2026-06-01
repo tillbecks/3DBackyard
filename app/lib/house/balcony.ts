@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import * as TYPES from '@/app/types/typeIndex';
 import * as HC from '@/app/lib/config/houseConfig';
-import { BALCONY_DEPTH, BALCONY_PLATFORM_THICKNESS, BALCONY_START_BOTTOM, BALCONY_WIDTH_MAX, BALCONY_WIDTH_MIN, METAL_COLOR_HEX, BALCONY_RAILING_DIAMETER_MAIN, BALCONY_RAILING_DIAMETER_SECONDARY, BALCONY_RAILING_HEIGHT, BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE, BALCONY_RAILING_SECONDARY_DISTANCE, BALCONY_RAILING_TYPES } from '@/app/lib/config/houseConfig';
-import { randomInRangeInt, randomFromObject, randomInRangeFloat } from '@/app/lib/config/utils';
+import { BALCONY_DEPTH, BALCONY_PLATFORM_THICKNESS, BALCONY_START_BOTTOM, BALCONY_RAILING_DIAMETER_MAIN, BALCONY_RAILING_DIAMETER_SECONDARY, BALCONY_RAILING_HEIGHT, BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE, BALCONY_RAILING_SECONDARY_DISTANCE, BALCONY_RAILING_TYPES } from '@/app/lib/config/houseConfig';
+import { randomFromObject, randomInRangeFloat } from '@/app/lib/config/utils';
+import { getBalconyFloorMaterial, getBalconyRailingMaterial } from '../materials/materials';
 
 class Balcony{
     balconyPositionX: number;
@@ -19,29 +21,38 @@ class Balcony{
 
     get3DObject(storyCount: number, storyHeight: number, houseDepth: number){
         const balconies: THREE.Group = new THREE.Group();
+        const railingGeometries: THREE.BufferGeometry[] = [];
+        const balconyGeometries: THREE.BufferGeometry[] = [];
 
         const railingType: string = randomFromObject(BALCONY_RAILING_TYPES);
 
         for (let story=0; story<storyCount; story++){
-            const singleBalconyGroup: THREE.Group = new THREE.Group();
+
+            const balconyTranslation = new THREE.Vector3(this.balconyPositionX, story*storyHeight + storyHeight * BALCONY_START_BOTTOM - (storyCount*storyHeight)/2, houseDepth/2 + BALCONY_DEPTH/2);
 
             const balconyGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.balconyWidth, BALCONY_PLATFORM_THICKNESS, BALCONY_DEPTH);
-            const balconyMaterial: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: 0x606060});
-            const balconyMesh: THREE.Mesh = new THREE.Mesh(balconyGeometry, balconyMaterial);
-            balconyMesh.castShadow = true;
-            balconyMesh.receiveShadow = true;
 
-            singleBalconyGroup.add(balconyMesh);
-            const railing: THREE.Group = balconyRailingGenerator(this.balconyWidth, storyHeight, story == storyCount - 1, railingType);
-            railing.position.y = BALCONY_PLATFORM_THICKNESS/2 + BALCONY_RAILING_HEIGHT/2;
-            singleBalconyGroup.add(railing);
+            const railing: THREE.BufferGeometry = balconyRailingGenerator(this.balconyWidth, storyHeight, story == storyCount - 1, railingType);
+            railing.translate(balconyTranslation.x, BALCONY_PLATFORM_THICKNESS/2 + BALCONY_RAILING_HEIGHT/2 + balconyTranslation.y, balconyTranslation.z);
+            railingGeometries.push(railing);
 
-            singleBalconyGroup.position.set(0, story*storyHeight + storyHeight * BALCONY_START_BOTTOM + BALCONY_PLATFORM_THICKNESS/2 - (storyCount*storyHeight)/2, houseDepth/2 + BALCONY_DEPTH/2)
-
-            balconies.add(singleBalconyGroup);
+            balconyGeometry.translate(balconyTranslation.x, balconyTranslation.y, balconyTranslation.z);
+            balconyGeometries.push(balconyGeometry);
         }
 
-        balconies.position.x = this.balconyPositionX;
+        const mergedRailingGeometry = BufferGeometryUtils.mergeGeometries(railingGeometries);
+        const railingMaterialMix = getBalconyRailingMaterial();
+        const mergedRailingMesh = new THREE.Mesh(mergedRailingGeometry, railingMaterialMix.standardMaterial);
+        mergedRailingMesh.userData.shader = railingMaterialMix.shaderMaterial;
+
+        const mergedBalconyGeometry = BufferGeometryUtils.mergeGeometries(balconyGeometries);
+        const balconyMaterialMix = getBalconyFloorMaterial();
+        const mergedBalconyMesh = new THREE.Mesh(mergedBalconyGeometry, balconyMaterialMix.standardMaterial);
+        mergedBalconyMesh.userData.shader = balconyMaterialMix.shaderMaterial;
+
+        balconies.add(mergedRailingMesh);
+        balconies.add(mergedBalconyMesh);
+
         return balconies;
     }
 
@@ -112,25 +123,20 @@ class BalconyRailings{
         this.railingType = railingType;
     }
 
-    get3DObject(balconyWidth: number, storyHeight: number, topStory: boolean): THREE.Group{
-        const balconyMaterial: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({color: METAL_COLOR_HEX});
-        const railingGroup: THREE.Group = new THREE.Group();
+    get3DObject(balconyWidth: number, storyHeight: number, topStory: boolean): THREE.BufferGeometry{
+        const railingBufferGeometries: THREE.BufferGeometry[] = [];
 
         const mainPillarLength = this.railingType == BALCONY_RAILING_TYPES.CONNECTED && !topStory ? storyHeight-BALCONY_PLATFORM_THICKNESS : BALCONY_RAILING_HEIGHT;
         const mainPillarY = this.railingType == BALCONY_RAILING_TYPES.CONNECTED && !topStory ? storyHeight/2 - BALCONY_RAILING_HEIGHT/2 - BALCONY_PLATFORM_THICKNESS/2 : 0;
         //Railing main pillars
         const pillarGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(BALCONY_RAILING_DIAMETER_MAIN/2, BALCONY_RAILING_DIAMETER_MAIN/2, mainPillarLength, 16, 1, false);
-        const pillar1: THREE.Mesh = new THREE.Mesh(pillarGeometry, balconyMaterial);
-        pillar1.position.set(-balconyWidth/2+BALCONY_RAILING_DIST_EDGE, mainPillarY, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
-        pillar1.castShadow = true;
-        pillar1.receiveShadow = true;
-        railingGroup.add(pillar1);
+        pillarGeometry.translate(-balconyWidth/2+BALCONY_RAILING_DIST_EDGE, mainPillarY, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
+        railingBufferGeometries.push(pillarGeometry);
 
-        const pillar2: THREE.Mesh = new THREE.Mesh(pillarGeometry, balconyMaterial);
-        pillar2.position.set(balconyWidth/2-BALCONY_RAILING_DIST_EDGE, mainPillarY, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
-        pillar2.castShadow = true;
-        pillar2.receiveShadow = true;
-        railingGroup.add(pillar2);
+        const pillar2Geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(BALCONY_RAILING_DIAMETER_MAIN/2, BALCONY_RAILING_DIAMETER_MAIN/2, mainPillarLength, 16, 1, false);
+        pillar2Geometry.translate(balconyWidth/2-BALCONY_RAILING_DIST_EDGE, mainPillarY, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
+        railingBufferGeometries.push(pillar2Geometry);
+
 
         const lowerHorizontalHeightShift: number = BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE - BALCONY_RAILING_DIAMETER_MAIN;
         const mainHorizontalLength: number = balconyWidth - 2*BALCONY_RAILING_DIST_EDGE;
@@ -138,50 +144,40 @@ class BalconyRailings{
         
         //Railing main horizontals
         const railingHorizontalGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(BALCONY_RAILING_DIAMETER_MAIN/2, BALCONY_RAILING_DIAMETER_MAIN/2, mainHorizontalLength, 16, 1, false);
-        const railingHorizontal: THREE.Mesh = new THREE.Mesh(railingHorizontalGeometry, balconyMaterial);
-        railingHorizontal.position.set(0, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
-        railingHorizontal.rotateZ(Math.PI/2);
-        railingHorizontal.castShadow = true;
-        railingHorizontal.receiveShadow = true;
-        railingGroup.add(railingHorizontal);
-        const railingLowerHorizontal: THREE.Mesh = railingHorizontal.clone();
-        railingLowerHorizontal.position.setY(-lowerHorizontalHeightShift);
-        railingLowerHorizontal.castShadow = true;
-        railingLowerHorizontal.receiveShadow = true;
-        railingGroup.add(railingLowerHorizontal);
+        railingHorizontalGeometry.rotateZ(Math.PI/2);
+        railingHorizontalGeometry.translate(0, 0, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
+        //const railingHorizontal: THREE.Mesh = new THREE.Mesh(railingHorizontalGeometry, balconyMaterial);
+        const railingUpperHorizontalGeometry: THREE.CylinderGeometry = railingHorizontalGeometry.clone();
+        railingUpperHorizontalGeometry.translate(0, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, 0);
+        railingBufferGeometries.push(railingUpperHorizontalGeometry);
+
+        const railingLowerHorizontalGeometry: THREE.CylinderGeometry = railingHorizontalGeometry.clone(); //Maybe problematisch, da Position und Rotation übernommen werden
+        railingLowerHorizontalGeometry.translate(0, -lowerHorizontalHeightShift, 0);
+        railingBufferGeometries.push(railingLowerHorizontalGeometry);
 
         const railingHorizontalGeometryWall: THREE.CylinderGeometry = new THREE.CylinderGeometry(BALCONY_RAILING_DIAMETER_MAIN/2, BALCONY_RAILING_DIAMETER_MAIN/2, wallHorizontalLength, 16, 1, false);
-        const railingHorizontalWall1: THREE.Mesh = new THREE.Mesh(railingHorizontalGeometryWall, balconyMaterial);
-        railingHorizontalWall1.position.set(-balconyWidth/2 + BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, - BALCONY_RAILING_DIST_EDGE/2);
-        railingHorizontalWall1.rotateZ(Math.PI/2);
-        railingHorizontalWall1.rotateX(Math.PI/2);
-        railingHorizontalWall1.castShadow = true;
-        railingHorizontalWall1.receiveShadow = true;
-        railingGroup.add(railingHorizontalWall1);
-        const railingLowerHorizontalWall1: THREE.Mesh = railingHorizontalWall1.clone();
-        railingLowerHorizontalWall1.position.setY(-lowerHorizontalHeightShift);
-        railingLowerHorizontalWall1.castShadow = true;
-        railingLowerHorizontalWall1.receiveShadow = true;
-        railingGroup.add(railingLowerHorizontalWall1);
+        railingHorizontalGeometryWall.rotateX(Math.PI/2);
+        railingHorizontalGeometryWall.translate(-balconyWidth/2 + BALCONY_RAILING_DIST_EDGE, 0, - BALCONY_RAILING_DIST_EDGE/2);
+        const railingUpperHorizontalWall1Geometry: THREE.CylinderGeometry = railingHorizontalGeometryWall.clone();
+        railingUpperHorizontalWall1Geometry.translate(0, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, 0);
+        railingBufferGeometries.push(railingUpperHorizontalWall1Geometry);
 
-        const railingHorizontalWall2: THREE.Mesh = new THREE.Mesh(railingHorizontalGeometryWall, balconyMaterial);
-        railingHorizontalWall2.position.set(balconyWidth/2 - BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, - BALCONY_RAILING_DIST_EDGE/2);
-        railingHorizontalWall2.rotateZ(Math.PI/2);
-        railingHorizontalWall2.rotateX(Math.PI/2);
-        railingHorizontalWall2.castShadow = true;
-        railingHorizontalWall2.receiveShadow = true;
-        railingGroup.add(railingHorizontalWall2);
-        const railingLowerHorizontalWall2: THREE.Mesh = railingHorizontalWall2.clone();
-        railingLowerHorizontalWall2.position.setY(-lowerHorizontalHeightShift);
-        railingLowerHorizontalWall2.castShadow = true;
-        railingLowerHorizontalWall2.receiveShadow = true;
-        railingGroup.add(railingLowerHorizontalWall2);
+        const railingLowerHorizontalWall1Geometry: THREE.CylinderGeometry = railingHorizontalGeometryWall.clone();
+        railingLowerHorizontalWall1Geometry.translate(0, -lowerHorizontalHeightShift, 0);
+        railingBufferGeometries.push(railingLowerHorizontalWall1Geometry);
+
+        const railingHorizontalWall2Geometry: THREE.CylinderGeometry = railingHorizontalGeometryWall.clone();
+        railingHorizontalWall2Geometry.translate(balconyWidth - 2* BALCONY_RAILING_DIST_EDGE, 0, - BALCONY_RAILING_DIST_EDGE/2);
+        const railingUpperHorizontalWall2Geometry: THREE.CylinderGeometry = railingHorizontalWall2Geometry.clone();
+        railingUpperHorizontalWall2Geometry.translate(0, BALCONY_RAILING_HEIGHT/2 - BALCONY_RAILING_DIAMETER_MAIN/2, 0);
+        railingBufferGeometries.push(railingUpperHorizontalWall2Geometry);
+
+        const railingLowerHorizontalWall2Geometry: THREE.CylinderGeometry = railingHorizontalWall2Geometry.clone();
+        railingLowerHorizontalWall2Geometry.translate(0, -lowerHorizontalHeightShift, 0);
+        railingBufferGeometries.push(railingLowerHorizontalWall2Geometry);
 
         const secondaryPillarGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(BALCONY_RAILING_DIAMETER_SECONDARY/2, BALCONY_RAILING_DIAMETER_SECONDARY/2, BALCONY_RAILING_HEIGHT - BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE - BALCONY_RAILING_DIAMETER_MAIN, 16, 1, false);
-        const standardSecondaryPillar: THREE.Mesh = new THREE.Mesh(secondaryPillarGeometry, balconyMaterial);
-        standardSecondaryPillar.castShadow = true;
-        standardSecondaryPillar.receiveShadow = true;
-        standardSecondaryPillar.position.setY(BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE - BALCONY_RAILING_DIAMETER_MAIN/2);
+        secondaryPillarGeometry.translate(0, BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE - BALCONY_RAILING_DIAMETER_MAIN/2, 0);
 
         const mainVerticalSecondaryPillars: number = Math.floor(mainHorizontalLength / BALCONY_RAILING_SECONDARY_DISTANCE);
         const wallVerticalSecondaryPillars: number = Math.floor(wallHorizontalLength / BALCONY_RAILING_SECONDARY_DISTANCE);
@@ -192,29 +188,28 @@ class BalconyRailings{
         const wallXStart: number = -BALCONY_DEPTH/2 + wallXRealDistance;
 
         for(let i=0; i<mainVerticalSecondaryPillars; i++){
-            const secondaryPillar: THREE.Mesh = standardSecondaryPillar.clone();
-            secondaryPillar.position.setX(mainXStart + i*mainXRealDistance);
-            secondaryPillar.position.setZ(BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
-            railingGroup.add(secondaryPillar);
+            const secondaryPillar: THREE.CylinderGeometry = secondaryPillarGeometry.clone();
+            secondaryPillar.translate(mainXStart + i*mainXRealDistance, 0, BALCONY_DEPTH/2 - BALCONY_RAILING_DIST_EDGE);
+            railingBufferGeometries.push(secondaryPillar);
         }
 
         for(let i=0; i<wallVerticalSecondaryPillars; i++){
-            const secondaryPillarWall1: THREE.Mesh = standardSecondaryPillar.clone();
-            secondaryPillarWall1.position.setX(-balconyWidth/2 + BALCONY_RAILING_DIST_EDGE);
-            secondaryPillarWall1.position.setZ(wallXStart + i*wallXRealDistance);
-            railingGroup.add(secondaryPillarWall1);
+            const secondaryPillarWall1: THREE.CylinderGeometry = secondaryPillarGeometry.clone();
+            secondaryPillarWall1.translate(-balconyWidth/2 + BALCONY_RAILING_DIST_EDGE, 0, wallXStart + i*wallXRealDistance);
+            railingBufferGeometries.push(secondaryPillarWall1);
 
-            const secondaryPillarWall2: THREE.Mesh = standardSecondaryPillar.clone();
-            secondaryPillarWall2.position.setX(balconyWidth/2 - BALCONY_RAILING_DIST_EDGE);
-            secondaryPillarWall2.position.setZ(wallXStart + i*wallXRealDistance);
-            railingGroup.add(secondaryPillarWall2);
+            const secondaryPillarWall2: THREE.CylinderGeometry = secondaryPillarGeometry.clone();
+            secondaryPillarWall2.translate(balconyWidth/2 - BALCONY_RAILING_DIST_EDGE, 0, wallXStart + i*wallXRealDistance);
+            railingBufferGeometries.push(secondaryPillarWall2);
         }
 
-        return railingGroup;
+        const railingGeometry = BufferGeometryUtils.mergeGeometries(railingBufferGeometries);
+
+        return railingGeometry;
     }
 }
 
-export function balconyRailingGenerator(balconyWidth: number, storyHeight: number, topStory: boolean, balconyType: string): THREE.Group {
+export function balconyRailingGenerator(balconyWidth: number, storyHeight: number, topStory: boolean, balconyType: string): THREE.BufferGeometry {
     const balconyRailings = new BalconyRailings(balconyType);
     return balconyRailings.get3DObject(balconyWidth, storyHeight, topStory);
 }

@@ -8,6 +8,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 import {turnOnOffProbs} from '@/app/lib/config/lightConfig';
 import { randomBoolean, randomInRangeFloat, randomInRangeInt } from '@/app/lib/config/utils';
 import { getWallLightMaterialCommon, getWallLightMaterialRare } from '@/app/lib/materials/materials';
+import { makeUnmergeable } from '../config/meshMaterialMerger';
 
 export class Rooms{
     storyCount: number;
@@ -143,7 +144,7 @@ function windowToWallPositions(windowPositions: TYPES.WindowPositions){
     return {type: windowPositions.type, wallsX: wallPositionsX, wallsRightX: wallPositionsRightX};
 }
 
-function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?: boolean): TYPES.WallLightReturn{
+function createRoomWallGeometries(geom: THREE.BoxGeometry): THREE.BufferGeometry {
     if(!geom.boundingBox) geom.computeBoundingBox();
     const walls = [];
     const size = geom.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3();
@@ -176,7 +177,11 @@ function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?
     backWallGeom.translate(center.x, center.y, center.z - size.z/2 + wallThickness);
     walls.push(backWallGeom);
 
-    const wallsGeom = BufferGeometryUtils.mergeGeometries(walls);
+    return BufferGeometryUtils.mergeGeometries(walls) || new THREE.BufferGeometry();
+}
+
+function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?: boolean): TYPES.WallLightReturn{
+    const wallsGeom = createRoomWallGeometries(geom);
     const wallsMesh = new THREE.Mesh(wallsGeom);
 
     const ligthness = randomInRangeFloat(HC.LIGHT_INTENSITY_MIN, HC.LIGHT_INTENSITY_MAX);
@@ -189,6 +194,7 @@ function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?
     }
 
     wallsMesh.name = HC.LIGHT_ID_PREFIX + getId();
+    makeUnmergeable(wallsMesh);
 
     const timer = isStair ? randomInRangeInt(HC.STAIR_LIGHT_TIMER_MIN, HC.STAIR_LIGHT_TIMER_MAX) : 0;
 

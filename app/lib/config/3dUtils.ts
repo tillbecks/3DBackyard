@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ADDITION, Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
 
 export function createAxisHelper(mesh: THREE.Mesh | THREE.Group | THREE.Vector3, length: number = 2): THREE.AxesHelper {
@@ -223,4 +224,33 @@ export function cameraFollowObject(camera: THREE.Camera, object: THREE.Object3D,
     camera.lookAt(lookAtTargetBuffer);
     camera.quaternion.slerp(targetQuat, lookLerpFactor );
     camera.position.lerp(object.position, posLerpFactor);
+}
+
+export function instancedMeshToMergedMesh(instancedMesh: THREE.InstancedMesh): THREE.Mesh {
+    const matrix = new THREE.Matrix4();
+    const geometries: THREE.BufferGeometry[] = [];
+
+    for (let i = 0; i < instancedMesh.count; i++) {
+        instancedMesh.getMatrixAt(i, matrix);
+        const geo = instancedMesh.geometry.clone();
+        geo.applyMatrix4(matrix);
+
+        // Farbe als Vertex-Color einbacken
+        if (instancedMesh.instanceColor) {
+            const color = new THREE.Color();
+            instancedMesh.getColorAt(i, color);
+            const colors = new Float32Array(geo.attributes.position.count * 3);
+            colors.fill(0);
+            for (let j = 0; j < geo.attributes.position.count; j++) {
+                colors[j * 3]     = color.r;
+                colors[j * 3 + 1] = color.g;
+                colors[j * 3 + 2] = color.b;
+            }
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+        geometries.push(geo);
+    }
+
+    const merged = mergeGeometries(geometries, false)!;
+    return new THREE.Mesh(merged, instancedMesh.material);
 }

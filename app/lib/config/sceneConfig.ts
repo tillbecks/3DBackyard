@@ -6,15 +6,15 @@ const longitude = 8.6469;
 export const LIGHT_UPDATE_INTERVAL = 5;
 
 export const SUN_CONFIG = {
-    MAX_SUN_INTENSITY: 10,
+    MAX_SUN_INTENSITY: 4,
     SUN_DISTANCE: 300,
-    SUN_COLOR: 0xffffff,
+    SUN_COLOR: 0xffffeb,//"#"
 };
 
 export const AMBIENT_LIGHT_CONFIG = {
-    INTENSITY_MAX: 2.5,
-    INTENSITY_MIN: 0.5,
-    COLOR: 0xffffff
+    INTENSITY_MAX: 5.5,
+    INTENSITY_MIN: 2.5,
+    COLOR: 0xffffff 
 };
 
 export const MOON_LIGHT_CONFIG = {
