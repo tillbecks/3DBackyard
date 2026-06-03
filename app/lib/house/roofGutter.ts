@@ -3,7 +3,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '@/app/lib/config/houseConfig';
 import { randomFromObject } from '@/app/lib/config/utils';
-import { getRoofGutterMaterial } from '../materials/materials';
+import { materialShaderConfigs } from '../materials/materials';
 import { createAxisHelper } from '../config/3dUtils';
 
 
@@ -22,7 +22,7 @@ class RoofGutter{
     get3DObject(roofWidth: number, houseWidth: number, houseHeight: number, leftHouse: number, rightHouse: number): THREE.Group{
         const gutterGroup: THREE.Group = new THREE.Group();
 
-        const geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(1, 1, roofWidth, 32, 1, false,0,Math.PI);
+        const geometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(1, 1, roofWidth, 8, 1, false,0,Math.PI);
         geometry.rotateZ(-0.5*Math.PI);
 
 
@@ -51,9 +51,9 @@ class RoofGutter{
         curveGeometry.translate(-posX,0,0);
 
         const mergedGeometry = BufferGeometryUtils.mergeGeometries([geometry, curveGeometry]);
-        const materialMix = getRoofGutterMaterial();
-        const gutterMesh: THREE.Mesh = new THREE.Mesh(mergedGeometry, materialMix.standardMaterial);
-        gutterMesh.userData.shader = materialMix.shaderMaterial;
+        const materialMix = materialShaderConfigs.ROOF_GUTTER_MATERIAL();
+        const gutterMesh: THREE.Mesh = new THREE.Mesh(mergedGeometry);
+        gutterMesh.userData.materialConfig = materialMix;
         gutterGroup.add(gutterMesh);
 
         gutterGroup.translateZ(1);

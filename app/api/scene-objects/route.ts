@@ -26,12 +26,12 @@ export async function GET(request: NextRequest) {
         else {
             const objectLight = generateHousesWithLawn();
             object = objectLight.object;
-            try {
+            /*try {
                 const optimizedObject = mergeSameMaterial(object);
                 object = optimizedObject;
             } catch (error) {
                 console.error('Error during material merging:', error);
-            }
+            }*/
             lights = objectLight.lightConfigs;
         }
 

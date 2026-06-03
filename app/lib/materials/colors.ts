@@ -41,3 +41,9 @@ export const changeColorLightness = (color: THREE.Color, lightness: number): num
     color.getHSL(hsl);
     return new THREE.Color().setHSL(hsl.h, hsl.s, THREE.MathUtils.clamp(lightness, 0, 1)).getHex();
 }
+
+export const PLASTIC_COLOR = 0xfffff6; //"#fffff6"
+
+export const WALLPAPER_COLOR = 0x0000000e; //"#0000000e"
+
+export const MISSING_COLOR = 0xff00ff; //"#ff00ff"

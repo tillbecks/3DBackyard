@@ -7,7 +7,7 @@ export const SURROUNDING_RADIUS_DEPTH = 80;
 export const SURROUNDING_RADIUS_WIDTH = 100;
 export const SURROUNDING_RADIUS_HEIGHT = 50;
 export const BIRD_COUNT = 7;
-const BIRD_MOVES_PER_SECOND = 20;
+const BIRD_MOVES_PER_SECOND = 30;
 export const BIRD_MOVES_PER_MINUTE = BIRD_MOVES_PER_SECOND * 60;
 
 export const STD_BIRD_CONFIG: TYPES.BirdConfig = {
@@ -34,15 +34,15 @@ export const TARGET_LOOP_BIRD_CONFIG: TYPES.BirdConfig = {
     biasFactor: 0.02
 }
 
+export const MIN_SPEED = 1.0;
 export const MAX_SPEED = 3.0;
-export const CIRCLE_SPEED = MAX_SPEED * 0.5;
-export const TARGET_APPROACH_SPEED = MAX_SPEED * 0.6;
-export const MIN_SPEED = 1.5;
+export const CIRCLE_SPEED = MAX_SPEED * 0.7;
+export const TARGET_APPROACH_SPEED = MAX_SPEED * 0.7;
 
 export const PROTECTED_RANGE = 10;
 export const VISUAL_RANGE = 20;
 
-export const INIT_SPEED_MIN = 1.5;
+export const INIT_SPEED_MIN = 1.0;
 export const INIT_SPEED_MAX = 2.0;
 export const INIT_CENTER_DISTANCE = 20; //Should be smaller than surrounding_radius
 

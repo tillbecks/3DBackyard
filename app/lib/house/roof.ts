@@ -12,7 +12,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 import * as TYPES from '@/app/types/typeIndex';
 import { randomInRangeInt, angleToRad, randomBoolean, randomFromObject } from '@/app/lib/config/utils';
 import { calcUVS } from '@/app/lib/config/3dUtils';
-import { getRoofMaterials } from '@/app/lib/materials/materials';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 
 
 
@@ -26,15 +26,14 @@ class Roof extends SceneElement{
         this.overhang = overhang;
     }
 
-    get3DObject(houseDepth: number, houseWidth: number, houseMaterial: TYPES.MaterialMix, leftHouse: number, rightHouse: number, houseHeight: number): THREE.Group{
-        const roofMaterialMix: TYPES.MaterialMix = randomFromObject(getRoofMaterials());
-        const roofMaterial = roofMaterialMix.standardMaterial;
+    get3DObject(houseDepth: number, houseWidth: number, houseMaterialConfig: TYPES.MaterialShaderConfig, leftHouse: number, rightHouse: number, houseHeight: number): THREE.Group{
+        const roofMaterialMix: TYPES.MaterialShaderConfig = materialShaderConfigs.ROOF_MATERIAL();
         const roofPitchLength: number = Math.sqrt(Math.pow(this.roofHeight, 2) + Math.pow(houseDepth/2, 2));
         //const roofAngle = Math.asin(this.roofHeight/roofPitchLength);
         const roofAngle: number = angleToRad(90)-Math.atan(this.roofHeight/(houseDepth/2));
 
         const pitchFrontHeight: number = roofPitchLength + HC.ROOF_WALL_THICKNESS + this.overhang;
-        const roofHouseMaterial = houseMaterial.standardMaterial;
+        const roofHouseMaterial = houseMaterialConfig;
         const roofGroup: THREE.Group = new THREE.Group();
         
         const roofSideAGeometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -56,8 +55,8 @@ class Roof extends SceneElement{
         roofSideBGeometry.computeVertexNormals();  
         const mergedRoofSideGeometry = BufferGeometryUtils.mergeGeometries([roofSideAGeometry, roofSideBGeometry]);
         calcUVS(mergedRoofSideGeometry);
-        const mergedRoofMesh = new THREE.Mesh(mergedRoofSideGeometry, roofHouseMaterial);
-        mergedRoofMesh.userData.shader = houseMaterial.shaderMaterial;
+        const mergedRoofMesh = new THREE.Mesh(mergedRoofSideGeometry);
+        mergedRoofMesh.userData.materialConfig = houseMaterialConfig;
 
         roofGroup.add(mergedRoofMesh);
 
@@ -92,8 +91,8 @@ class Roof extends SceneElement{
 
         const roofPitchGeometry = BufferGeometryUtils.mergeGeometries([roofPitchFront, roofPitchBack]);
         calcUVS(roofPitchGeometry);
-        const roofPitchMesh = new THREE.Mesh(roofPitchGeometry, roofMaterial);
-        roofPitchMesh.userData.shader = roofMaterialMix.shaderMaterial;
+        const roofPitchMesh = new THREE.Mesh(roofPitchGeometry);
+        roofPitchMesh.userData.materialConfig = roofMaterialMix;
         roofGroup.add(roofPitchMesh);
 
         const roofGutter: THREE.Group = roofGutterGenerator(roofWidth, houseWidth, houseHeight, leftHouse, rightHouse);
@@ -126,7 +125,7 @@ class Roof extends SceneElement{
         }
 
         if(randomBoolean(HC.CHIMNEY_PROBABILITY)){
-            const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterial);
+            const chimney = chimneyGenerator(Math.PI/2 - roofAngle, houseMaterialConfig);
             decorationsPlacer.addDecorationPosition(chimney, HC.CHIMNEY_MIN_X, HC.CHIMNEY_MAX_X, HC.CHIMNEY_MIN_Z, HC.CHIMNEY_MAX_Z);
         }
 
@@ -137,7 +136,7 @@ class Roof extends SceneElement{
     }
 }
 
-export function roofGenerator(houseDepth: number, houseWidth: number, houseMaterial: TYPES.MaterialMix, leftHouse: number, rightHouse: number, houseHeight: number): THREE.Group {
+export function roofGenerator(houseDepth: number, houseWidth: number, houseMaterial: TYPES.MaterialShaderConfig, leftHouse: number, rightHouse: number, houseHeight: number): THREE.Group {
     const roofHeight: number =  randomInRangeInt(HC.MIN_ROOF_HEIGHT, HC.MAX_ROOF_HEIGHT);
     const roofOverhang: number = randomInRangeInt(HC.MIN_ROOF_OVERHANG, HC.MAX_ROOF_OVERHANG);
     //const roofColor: string =  adjustColor("#8e8e8e", 20);

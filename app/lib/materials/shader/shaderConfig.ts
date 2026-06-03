@@ -66,7 +66,7 @@ export const GRASS_SHADER = {id: "grass", getShaderMaterialConfig: (color: numbe
     }
 }};
 
-export function getShader(id: string, uniforms: Record<string, { value: unknown }>, material: THREE.MeshStandardMaterial): THREE.MeshStandardMaterial {
+export function getShader(id: string, uniforms: Record<string, { value: unknown }>, material: THREE.Material): THREE.Material {
     try{
     let fragmentShader: TYPE.FragmentShaderType;
     switch(id) {
@@ -95,21 +95,6 @@ export function getShader(id: string, uniforms: Record<string, { value: unknown 
     } catch (error) {
         console.error(`Error creating shader material for shader ${id}:`, error);
         return material;
-    }
-}
-
-export function loadShader(scene: THREE.Scene | THREE.Group): void {
-    for (const child of scene.children) {
-        child.traverse((mesh) => {
-            if(mesh instanceof THREE.Mesh && mesh.userData.shader){
-                try {
-                    const shaderMaterial = getShader(mesh.userData.shader.id, mesh.userData.shader.uniforms, mesh.material);
-                    mesh.material = shaderMaterial;
-                } catch (error) {
-                    console.error(`Error loading shader for ${mesh.name}:`, error);
-                }
-            }
-        });
     }
 }
 

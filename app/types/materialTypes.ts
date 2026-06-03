@@ -24,9 +24,9 @@ export interface ShaderMaterialConfig {
     uniforms: ShaderUniforms;
 }
 
-export interface MaterialMix{
-    standardMaterial: THREE.Material;
-    shaderMaterial: ShaderMaterialConfig | null;
+export interface MaterialShaderConfig{
+    materialId: string;
+    shaderConfig: ShaderMaterialConfig | null;
 }
 
 export interface FragmentShaderType{
@@ -34,4 +34,4 @@ export interface FragmentShaderType{
     main: string
 }
 
-export type MaterialFunction = (height: number, width: number, depth: number) => MaterialMix;
+export type MaterialFunction = (height: number, width: number, depth: number) => MaterialShaderConfig;

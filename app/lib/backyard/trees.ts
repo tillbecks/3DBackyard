@@ -2,11 +2,9 @@
 
 import { degToRad } from 'three/src/math/MathUtils.js';
 import * as THREE from 'three';
-import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 import * as TYPES from '@/app/types/typeIndex';
 import { randomFromArray, randomInRangeFloat } from '@/app/lib/config/utils';
-import { getTreeBarkMaterial } from '@/app/lib/materials/materials';
 import { Decoration } from '@/app/lib/config/decorations';
 
 function evolveLSystem(system: TYPES.LSystemType, iterations: number): string{
@@ -67,7 +65,6 @@ function createLeafGeometry(leafConfig: TYPES.LeafConfig, worldMatrix: THREE.Mat
 function recursiveStringTo3DOperation(
     string: string,
     config: TYPES.LSystemConfig,
-    material: TYPES.MaterialMix,
     leafConfig: TYPES.LeafConfig,
     currentMatrix: THREE.Matrix4
 ): { branchGeometries: THREE.BufferGeometry[], leafGeometries: THREE.BufferGeometry[], leftOverString: string } {
@@ -85,7 +82,8 @@ function recursiveStringTo3DOperation(
             const geometry = new THREE.CylinderGeometry(
                 config.initialThickness * config.thicknessFactor,
                 config.initialThickness,
-                config.initialLength
+                config.initialLength,
+                8
             );
             const geoMatrix = currentMatrix.clone().multiply(
                 new THREE.Matrix4().makeTranslation(0, config.initialLength / 2, 0)
@@ -99,43 +97,43 @@ function recursiveStringTo3DOperation(
             const nextMatrix = currentMatrix.clone().multiply(
                 new THREE.Matrix4().makeTranslation(0, config.initialLength, 0)
             );
-            const returnObj = recursiveStringTo3DOperation(remainingString, newConfig, material, leafConfig, nextMatrix);
+            const returnObj = recursiveStringTo3DOperation(remainingString, newConfig, leafConfig, nextMatrix);
             returnObj.branchGeometries.push(geometry);
             return returnObj;
         }
         case "+": {
             const angle = degToRad(config.pitchAngle + randomInRangeFloat(-config.pitchAngleVariance, config.pitchAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationX(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case "-": {
             const angle = degToRad(-config.pitchAngle + randomInRangeFloat(-config.pitchAngleVariance, config.pitchAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationX(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case ">": {
             const angle = degToRad(config.pitchAngle + randomInRangeFloat(-config.pitchAngleVariance, config.pitchAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationZ(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case "<": {
             const angle = degToRad(-config.pitchAngle + randomInRangeFloat(-config.pitchAngleVariance, config.pitchAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationZ(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case "&": {
             const angle = degToRad(config.rollAngle + randomInRangeFloat(-config.rollAngleVariance, config.rollAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationY(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case "^": {
             const angle = degToRad(-config.rollAngle + randomInRangeFloat(-config.rollAngleVariance, config.rollAngleVariance));
             const nextMatrix = currentMatrix.clone().multiply(new THREE.Matrix4().makeRotationY(angle));
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, nextMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, nextMatrix);
         }
         case "[": {
-            const returnObj = recursiveStringTo3DOperation(remainingString, config, material, leafConfig, currentMatrix);
-            const secReturnObj = recursiveStringTo3DOperation(returnObj.leftOverString, config, material, leafConfig, currentMatrix);
+            const returnObj = recursiveStringTo3DOperation(remainingString, config, leafConfig, currentMatrix);
+            const secReturnObj = recursiveStringTo3DOperation(returnObj.leftOverString, config, leafConfig, currentMatrix);
             return {
                 branchGeometries: [...returnObj.branchGeometries, ...secReturnObj.branchGeometries],
                 leafGeometries: [...returnObj.leafGeometries, ...secReturnObj.leafGeometries],
@@ -147,12 +145,12 @@ function recursiveStringTo3DOperation(
         }
         case "L": {
             const leafGeo = createLeafGeometry(leafConfig, currentMatrix);
-            const returnObj = recursiveStringTo3DOperation(remainingString, config, material, leafConfig, currentMatrix);
+            const returnObj = recursiveStringTo3DOperation(remainingString, config, leafConfig, currentMatrix);
             returnObj.leafGeometries.push(leafGeo);
             return returnObj;
         }
         default: {
-            return recursiveStringTo3DOperation(remainingString, config, material, leafConfig, currentMatrix);
+            return recursiveStringTo3DOperation(remainingString, config, leafConfig, currentMatrix);
         }
     }
 }
@@ -175,11 +173,10 @@ export class Tree extends Decoration {
 
     get3DObject(): THREE.Group {
         const evolvedString = addLeavesToTerminals(evolveLSystem(this.lSystem, this.lSystemConfig.iterations));
-        const material = getTreeBarkMaterial();
         const initialMatrix = new THREE.Matrix4(); // Identity — Position kommt in afterPositioning
 
         const returnObj = recursiveStringTo3DOperation(
-            evolvedString, this.lSystemConfig, material, this.leafConfig, initialMatrix
+            evolvedString, this.lSystemConfig, this.leafConfig, initialMatrix
         );
 
         this.branchGeometries = returnObj.branchGeometries;

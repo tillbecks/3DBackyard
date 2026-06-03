@@ -52,6 +52,7 @@ console.assert(
 );
 
 export const WINDOW_OPENING_TIME: number = 2000;
+export const UNMERGEABLE_WINDOW_MIN_STORY: number = 2;
 
 export const FASSADE_MATERIALS = {
     BRICKS: "brick" as const,
@@ -246,8 +247,8 @@ export const LIGHT_TYPES = {
 export const STAIR_LIGHT_TIMER_MIN: number = 15;
 export const STAIR_LIGHT_TIMER_MAX: number = 23;
 export const STAIR_LIGHT_INTENSITY: number = 0.5;
-export const LIGHT_INTENSITY_MIN: number = 0.4;
-export const LIGHT_INTENSITY_MAX: number = 0.75;
+export const LIGHT_INTENSITY_MIN: number = 0.6;
+export const LIGHT_INTENSITY_MAX: number = 0.9;
 export const LIGHT_UNUSUAL_COLOR_PROBABILITY: number = 0.005;
 export const LIGHT_DISTANCE_TO_WALL: number = 1;
 

@@ -104,7 +104,7 @@ function bodyGeometry(length = 5, scale = 1, bodyCenterPercentage = 0.6): THREE.
     const curvePoints = curve.getPoints(40);
     const tdCurvePoints = curvePoints.map(p => new THREE.Vector2(p.x, p.y));
 
-    const geometry = new THREE.LatheGeometry(tdCurvePoints, 16);
+    const geometry = new THREE.LatheGeometry(tdCurvePoints, 8);
     geometry.rotateX(Math.PI / 2);
 
     geometry.translate(0, 0, - 1.1 * length * scale * bodyCenterPercentage);

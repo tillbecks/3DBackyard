@@ -3,7 +3,7 @@ const SunCalc = require('suncalc3');
 const latitude = 49.8787;
 const longitude = 8.6469;
 
-export const LIGHT_UPDATE_INTERVAL = 5;
+export const LIGHT_UPDATE_INTERVAL = 30;
 
 export const SUN_CONFIG = {
     MAX_SUN_INTENSITY: 4,
@@ -12,8 +12,8 @@ export const SUN_CONFIG = {
 };
 
 export const AMBIENT_LIGHT_CONFIG = {
-    INTENSITY_MAX: 5.5,
-    INTENSITY_MIN: 2.5,
+    INTENSITY_MAX: 4.5,
+    INTENSITY_MIN: 1.5,
     COLOR: 0xffffff 
 };
 

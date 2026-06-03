@@ -11,8 +11,7 @@ import { CameraController } from './cameraController';
 
 import * as TYPES from '@/app/types/typeIndex';
 import { scenarios, mainScenarios } from '@/app/lib/config/routeConfig';
-import { loadShader } from '@/app/lib/materials/shader/shaderConfig';
-import { addGradientToScene } from '@/app/lib/materials/materialUtils';
+import { loadMaterials } from '@/app/lib/materials/materialUtils';
 import { glbToObject, objectFromGLBBase64 } from '@/app/lib/config/importExportUtils';
 import { fetchWithTimeout, isAbortError } from '@/app/lib/config/fetchUtils';
 import { birdFlogGenerator, BirdController } from '@/app/lib/birds/birdController';
@@ -99,7 +98,7 @@ export class SceneController{
                 }
                 await this.loadShowcase();
             }
-            loadShader(this.scene);
+            loadMaterials(this.scene);
 
             this.scenarioLoaded = true;
         } catch (error) {
@@ -143,11 +142,8 @@ export class SceneController{
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
-                    console.log(`Mesh loaded: ${child.name}`);
                 }
             });
-
-            //addGradientToScene(loadedScene);
 
             this.lightController.initController(content.lightConfigs);
             this.animations.push((deltaSeconds) => this.lightController.updateLights(deltaSeconds, this.scene));
@@ -244,6 +240,7 @@ export class SceneController{
 
             this.renderer.render(this.scene, this.camera);
             console.log(this.renderer.info.render);
+            this.stats.update();
         } catch (error) {
             console.error('Render error:', error);
             return;

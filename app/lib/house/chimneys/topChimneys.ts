@@ -5,7 +5,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 
 import { randomInRangeInt, randomInRangeFloat, randomFromObject } from '@/app/lib/config/utils';
 import { createSinusHeightMap, mapHeightMapToPlane, calcUVS  } from '@/app/lib/config/3dUtils';
-import { getBetonMaterial, getChimneyMaterials, getChimneyRoofMaterial, getFlatMetalMaterial } from '@/app/lib/materials/materials';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 import {RoofDecorations} from '@/app/lib/house/roofDecorations';
 
 class TopChimney extends RoofDecorations{
@@ -13,9 +13,9 @@ class TopChimney extends RoofDecorations{
     depth: number;
     height: number;
     roofAngle: number;
-    materialMix: TYPES.MaterialMix;
+    materialMix: TYPES.MaterialShaderConfig;
 
-    constructor(width: number, depth: number, height: number, roofAngle: number, materialMix: TYPES.MaterialMix){
+    constructor(width: number, depth: number, height: number, roofAngle: number, materialMix: TYPES.MaterialShaderConfig){
         super(Math.sqrt(Math.pow(width/2, 2) + Math.pow(depth/2, 2)) * 2);
         this.width = width;
         this.depth = depth;
@@ -34,19 +34,19 @@ class TopChimney extends RoofDecorations{
         return group;
     }
 
-    getBasicBlockGeometry(material: TYPES.MaterialMix): THREE.Group{
+    getBasicBlockGeometry(material: TYPES.MaterialShaderConfig): THREE.Group{
         const BlockGeometryGroup = new THREE.Group();
 
         const geometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
         geometry.translate(0, this.height/2, 0);
-        const geometryMesh = new THREE.Mesh(geometry, material.standardMaterial);
-        geometryMesh.userData.shader = material.shaderMaterial;
+        const geometryMesh = new THREE.Mesh(geometry);
+        geometryMesh.userData.materialConfig = material;
 
         const extraHeight = this.depth * Math.tan(this.roofAngle);
         const roofSlopeGeometry = new THREE.BoxGeometry(this.width, extraHeight, this.depth);
         roofSlopeGeometry.translate(0, - extraHeight/2, 0);
-        const roofSlopeMesh = new THREE.Mesh(roofSlopeGeometry, material.standardMaterial);
-        roofSlopeMesh.userData.shader = material.shaderMaterial;
+        const roofSlopeMesh = new THREE.Mesh(roofSlopeGeometry);
+        roofSlopeMesh.userData.materialConfig = material;
         
         BlockGeometryGroup.add(geometryMesh);
         BlockGeometryGroup.add(roofSlopeMesh);
@@ -69,7 +69,7 @@ class TopChimney extends RoofDecorations{
     }
 }
 
-export function chimneyGenerator(roofAngle: number, material: TYPES.MaterialMix): TopChimney{
+export function chimneyGenerator(roofAngle: number, material: TYPES.MaterialShaderConfig): TopChimney{
     const width = randomInRangeInt(HC.CHIMNEY_WIDTH_MIN, HC.CHIMNEY_WIDTH_MAX);
     const depth = randomInRangeInt(HC.CHIMNEY_DEPTH_MIN, HC.CHIMNEY_DEPTH_MAX);
     const height = randomInRangeInt(HC.CHIMNEY_HEIGHT_MIN, HC.CHIMNEY_HEIGHT_MAX);
@@ -87,7 +87,7 @@ class TopChimneys{
         this.type = type;
     }
 
-    get3DObject(chimneyWidth: number, chimneyDepth: number, materialMix: TYPES.MaterialMix): THREE.Group{
+    get3DObject(chimneyWidth: number, chimneyDepth: number, materialMixConfig: TYPES.MaterialShaderConfig): THREE.Group{
         const group = new THREE.Group();
 
         const maxChimneyDiameter = Math.min(chimneyWidth / this.count, chimneyDepth / this.count);
@@ -114,10 +114,10 @@ class TopChimneys{
         }
 
         for(let i = 0; i < this.count; i++){
-            const chimneyMesh = new THREE.CylinderGeometry(chimneyDiameter/2, chimneyDiameter/2, heights[i], 32);
+            const chimneyMesh = new THREE.CylinderGeometry(chimneyDiameter/2, chimneyDiameter/2, heights[i], 8);
             chimneyMesh.translate(startX + i * distX, heights[i]/2, startZ + i * distZ);
-            const chimneyMeshMesh = new THREE.Mesh(chimneyMesh, materialMix.standardMaterial);
-            chimneyMeshMesh.userData.shader = materialMix.shaderMaterial;
+            const chimneyMeshMesh = new THREE.Mesh(chimneyMesh);
+            chimneyMeshMesh.userData.materialConfig = materialMixConfig;
             group.add(chimneyMeshMesh);
         }
 
@@ -128,10 +128,10 @@ class TopChimneys{
 function topChimneysGenerator(chimneyWidth: number, chimneyDepth: number): THREE.Group{
     const count = randomInRangeInt(HC.CHIMNEY_TOP_CHIMNEYS_MIN, HC.CHIMNEY_TOP_CHIMNEYS_MAX);
     const type = randomFromObject(HC.CHIMNEY_TOP_CHIMNEYS_TYPES);
-    const topChimneysMaterial = getChimneyMaterials();
+    const topChimneysMaterial = materialShaderConfigs.SMALL_CHIMNEY_MATERIAL();
 
     const chimneys = new TopChimneys(count, type);
-    return chimneys.get3DObject(chimneyWidth, chimneyDepth, randomFromObject(topChimneysMaterial));
+    return chimneys.get3DObject(chimneyWidth, chimneyDepth, topChimneysMaterial);
 }
 
 class chimneyOnTopBuild{
@@ -145,7 +145,7 @@ class chimneyOnTopBuild{
         this.taperPercentage = taperPercentage;
     }
 
-    get3DObject(chimneyWidth:number, chimneyDepth:number, materialMix: TYPES.MaterialMix): THREE.Group{
+    get3DObject(chimneyWidth:number, chimneyDepth:number, materialMixConfig: TYPES.MaterialShaderConfig): THREE.Group{
         const group = new THREE.Group();
         const baseWidth = chimneyWidth * this.basePercentage;
         const baseDepth = chimneyDepth * this.basePercentage;
@@ -166,8 +166,8 @@ class chimneyOnTopBuild{
         geometry.computeVertexNormals();
 
 
-        const geometryMesh = new THREE.Mesh(geometry, materialMix.standardMaterial);
-        geometryMesh.userData.shader = materialMix.shaderMaterial;
+        const geometryMesh = new THREE.Mesh(geometry);
+        geometryMesh.userData.materialConfig = materialMixConfig;
         group.add(geometryMesh);
 
         return group;
@@ -178,7 +178,7 @@ function chimneyOnTopBuildGenerator(chimneyWidth: number, chimneyDepth: number):
     const height = randomInRangeInt(HC.CHIMNEY_ON_TOP_BUILD_HEIGHT_MIN, HC.CHIMNEY_ON_TOP_BUILD_HEIGHT_MAX);
     const basePercentage = randomInRangeFloat(HC.CHIMNEY_ON_TOP_BASE_PERCENTAGE_MIN, HC.CHIMNEY_ON_TOP_BASE_PERCENTAGE_MAX);
     const taperPercentage = randomInRangeFloat(HC.CHIMNEY_ON_TOP_TAPER_PERCENTAGE_MIN, HC.CHIMNEY_ON_TOP_TAPER_PERCENTAGE_MAX);
-    const chimneyTopMaterial = getBetonMaterial();
+    const chimneyTopMaterial = materialShaderConfigs.SMALL_CHIMNEY_MATERIAL();
     const chimneyOnTop = new chimneyOnTopBuild(height, basePercentage, taperPercentage);
     return chimneyOnTop.get3DObject(chimneyWidth, chimneyDepth, chimneyTopMaterial);
 }
@@ -192,7 +192,7 @@ class chimneyRoof{
         this.roofType = roofType;
     }
     
-    get3DObject(chimneyWidth: number, chimneyDepth: number, rodMaterialMix: TYPES.MaterialMix, roofMaterialMix: TYPES.MaterialMix): THREE.Group{
+    get3DObject(chimneyWidth: number, chimneyDepth: number, rodMaterialMixConfig: TYPES.MaterialShaderConfig, roofMaterialConfig: TYPES.MaterialShaderConfig): THREE.Group{
         const group = new THREE.Group();
 
         //Roof flat geometry
@@ -207,8 +207,8 @@ class chimneyRoof{
         }
 
         roofGeometry.rotateX(-Math.PI / 2);
-        const roofMesh = new THREE.Mesh(roofGeometry, roofMaterialMix.standardMaterial);
-        roofMesh.userData.shader = roofMaterialMix.shaderMaterial;
+        const roofMesh = new THREE.Mesh(roofGeometry);
+        roofMesh.userData.materialConfig = roofMaterialConfig;
         roofMesh.translateY(this.rodHeight - (this.roofType == HC.CHIMNEY_ROOF_TYPES.FLAT ? 0 : HC.CHIMNEY_ROOF_SIN_AMPLITUDE));
         group.add(roofMesh);
 
@@ -219,8 +219,8 @@ class chimneyRoof{
         const zOffset = chimneyDepth * HC.CHIMNEY_TOP_ROD_BASE_PERCENTAGE / 2;
 
         for(let i = 0; i < 4; i++){
-            const rodMesh = new THREE.Mesh(rodGeometry, rodMaterialMix.standardMaterial);
-            rodMesh.userData.shader = rodMaterialMix.shaderMaterial;
+            const rodMesh = new THREE.Mesh(rodGeometry);
+            rodMesh.userData.materialConfig = rodMaterialMixConfig;
             rodMesh.translateX((i % 2 == 0 ? -1 : 1) * xOffset);
             rodMesh.translateZ((i < 2 ? -1 : 1) * zOffset);
             group.add(rodMesh);
@@ -235,8 +235,8 @@ function chimneyRoofGenerator(chimneyWidth: number, chimneyDepth: number): THREE
     const roofType = randomFromObject(HC.CHIMNEY_ROOF_TYPES);
 
     const roof = new chimneyRoof(rodHeight, roofType);
-    const roofMaterial = randomFromObject(getChimneyRoofMaterial());
-    const rodMaterial = getFlatMetalMaterial();
+    const roofMaterial = materialShaderConfigs.CHIMNEY_ROOF_MATERIAL();
+    const rodMaterial = materialShaderConfigs.FLAT_METAL_MATERIAL();
     return roof.get3DObject(chimneyWidth, chimneyDepth, rodMaterial, roofMaterial);
 }
 

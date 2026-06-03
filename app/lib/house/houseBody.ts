@@ -3,11 +3,10 @@ import * as THREE from 'three';
 import { roofGenerator } from "./roof";
 import { windowGenerator } from "./windows";
 import {Rooms} from "./rooms";
-//import { translateLightConfigs, translateXLightConfigs } from "./lights";
 
 import { MAX_STORY_COUNT, MIN_STORY_COUNT, MAX_STORY_HEIGHT, MIN_STORY_HEIGHT, MAX_HOUSE_WIDTH, MIN_HOUSE_WIDTH, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
-import { randomInRangeInt, randomInRangeIntDividableTwo, randomFromObject } from "@/app/lib/config/utils";
-import { getHouseMaterials } from "@/app/lib/materials/materials";
+import { randomInRangeInt, randomInRangeIntDividableTwo } from "@/app/lib/config/utils";
+import { materialShaderConfigs } from "@/app/lib/materials/materials";
 import { calcUVS, subtractGeometry } from "@/app/lib/config/3dUtils";
 import * as TYPES from "@/app/types/typeIndex";
 
@@ -44,10 +43,7 @@ class HouseBody{
     get3DContent(): TYPES.ObjectLightReturn {
         const houseHeight: number = this.storyCount * this.storyHeight;
         const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(this.houseWidth, houseHeight, HOUSE_DEPTH);
-        const mixedMaterial = randomFromObject(getHouseMaterials());
-
-        const material = mixedMaterial.standardMaterial;
-        const shaderMaterial = mixedMaterial.shaderMaterial;
+        const mixedMaterial = materialShaderConfigs.HOUSE_MATERIAL();
 
         const roof: THREE.Group = roofGenerator(HOUSE_DEPTH, this.houseWidth, mixedMaterial, this.leftSize, this.rightSize, houseHeight);
         roof.position.setY(houseHeight/2);
@@ -68,8 +64,7 @@ class HouseBody{
         // Generate UVs nach der CSG-Operation
         calcUVS(houseWithoutWindows.geometry);
 
-        houseWithoutWindows.material = material;
-        houseWithoutWindows.userData = {shader: shaderMaterial};
+        houseWithoutWindows.userData.materialConfig = mixedMaterial;
         houseWithoutWindows.name = "house";
 
         this.houseGroup.add(houseWithoutWindows);

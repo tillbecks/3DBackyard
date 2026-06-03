@@ -7,7 +7,7 @@ import * as TYPES from '@/app/types/typeIndex';
 import * as HC from '@/app/lib/config/houseConfig';
 import {turnOnOffProbs} from '@/app/lib/config/lightConfig';
 import { randomBoolean, randomInRangeFloat, randomInRangeInt } from '@/app/lib/config/utils';
-import { getWallLightMaterialCommon, getWallLightMaterialRare } from '@/app/lib/materials/materials';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 import { makeUnmergeable } from '../config/meshMaterialMerger';
 
 export class Rooms{
@@ -101,6 +101,8 @@ export class Rooms{
                 geom.boundingBox!.getCenter(position);
 
                 story.push(geom);
+                const walls = createRoomWalls(geom);
+                wallLights.push(walls);
                 const wallLight = createLightWalls(geom, getId);
                 wallLights.push(wallLight.wallLight);
                 wallLightConfigs.push(wallLight.lightConfig);
@@ -116,6 +118,8 @@ export class Rooms{
             stairRoomGeometry.computeBoundingBox();
             stairRoomGeometry.translate(this.stairPosition, 0, 0);
             
+            const walls = createRoomWalls(stairRoomGeometry);
+            wallLights.push(walls);
             const wallLight = createLightWalls(stairRoomGeometry, getId, true);
             wallLights.push(wallLight.wallLight);
             wallLightConfigs.push(wallLight.lightConfig);
@@ -144,13 +148,12 @@ function windowToWallPositions(windowPositions: TYPES.WindowPositions){
     return {type: windowPositions.type, wallsX: wallPositionsX, wallsRightX: wallPositionsRightX};
 }
 
-function createRoomWallGeometries(geom: THREE.BoxGeometry): THREE.BufferGeometry {
+function createRoomWallGeometries(geom: THREE.BoxGeometry, wallThickness: number): THREE.BufferGeometry {
     if(!geom.boundingBox) geom.computeBoundingBox();
     const walls = [];
     const size = geom.boundingBox?.getSize(new THREE.Vector3()) ?? new THREE.Vector3();
     const center = new THREE.Vector3();
     geom.boundingBox?.getCenter(center);
-    const wallThickness = 0.1;
 
     // Floor
     const floorGeom = new THREE.BoxGeometry(size.x, wallThickness, size.z);
@@ -180,17 +183,25 @@ function createRoomWallGeometries(geom: THREE.BoxGeometry): THREE.BufferGeometry
     return BufferGeometryUtils.mergeGeometries(walls) || new THREE.BufferGeometry();
 }
 
+function createRoomWalls(geom: THREE.BoxGeometry): THREE.Mesh {
+    const wallsGeom = createRoomWallGeometries(geom, 0.1);
+    const material = materialShaderConfigs.WALLPAPER_MATERIAL();
+    const wallsMesh = new THREE.Mesh(wallsGeom);
+    wallsMesh.userData.materialConfig = material;
+    return wallsMesh;
+}
+
 function createLightWalls(geom: THREE.BoxGeometry, getId: () => string, isStair?: boolean): TYPES.WallLightReturn{
-    const wallsGeom = createRoomWallGeometries(geom);
+    const wallsGeom = createRoomWallGeometries(geom, 0.2);
     const wallsMesh = new THREE.Mesh(wallsGeom);
 
     const ligthness = randomInRangeFloat(HC.LIGHT_INTENSITY_MIN, HC.LIGHT_INTENSITY_MAX);
     if(randomBoolean(HC.LIGHT_UNUSUAL_COLOR_PROBABILITY)){
-        const material = getWallLightMaterialRare(ligthness);
-        wallsMesh.material = material;
+        const material = materialShaderConfigs.WALL_LIGHT_MATERIAL_RARE();
+        wallsMesh.userData.materialConfig = material;
     }else{
-        const material = getWallLightMaterialCommon(ligthness);
-        wallsMesh.material = material;
+        const material = materialShaderConfigs.WALL_LIGHT_MATERIAL_COMMON();
+        wallsMesh.userData.materialConfig = material;
     }
 
     wallsMesh.name = HC.LIGHT_ID_PREFIX + getId();

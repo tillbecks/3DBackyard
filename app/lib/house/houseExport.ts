@@ -3,15 +3,11 @@ import * as THREE from "three";
 import { houseGroupGenerator } from "./houseBody";
 
 import * as TYPES from "@/app/types/typeIndex";
-import * as BYCONFIG from "@/app/lib/config/backyardConfig";
-import * as TCONFIG from "@/app/lib/config/treeConfig";
 
 import {createCameraConfig} from "@/app/lib/config/importExportUtils";
 import { createLawn } from "@/app/lib/backyard/lawn";
-import { HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
-import {DecorationsPlacer} from "@/app/lib/config/decorations";
-import { Tree } from "@/app/lib/backyard/trees";
 import { YardWalls } from "@/app/lib/backyard/walls";
+import { mergeSameMaterial } from "../config/meshMaterialMerger";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const houses = generateHouses();
@@ -35,18 +31,22 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     const houseGroupN = houseGroupGenerator(6, [0,0,0], false);
     const groupSizeN = new THREE.Box3().setFromObject(houseGroupN.object).getSize(new THREE.Vector3());
     lightConfigs.push(...houseGroupN.lightConfigs);
+    mergeSameMaterial(houseGroupN.object);
 
     const houseGroupE = houseGroupGenerator(4, [0,0,0]);
     const groupSizeE = new THREE.Box3().setFromObject(houseGroupE.object).getSize(new THREE.Vector3());
     lightConfigs.push(...houseGroupE.lightConfigs);
+    mergeSameMaterial(houseGroupE.object);
 
     const houseGroupS = houseGroupGenerator(6, [0,0,0]);
     const groupSizeS = new THREE.Box3().setFromObject(houseGroupS.object).getSize(new THREE.Vector3());
     lightConfigs.push(...houseGroupS.lightConfigs);
+    mergeSameMaterial(houseGroupS.object);
 
     const houseGroupW = houseGroupGenerator(4, [0,0,0]);
     const groupSizeW = new THREE.Box3().setFromObject(houseGroupW.object).getSize(new THREE.Vector3());
     lightConfigs.push(...houseGroupW.lightConfigs);
+    mergeSameMaterial(houseGroupW.object);
 
     const yardWidth = Math.max(groupSizeN.x, groupSizeS.x);
     const yardDepth = Math.max(groupSizeE.x, groupSizeW.x);
@@ -72,7 +72,9 @@ export function generateHouses(): TYPES.ObjectLightReturn{
     housesGroup.add(houseGroupW.object);
 
     const walls = new YardWalls(houseGroupN.housesWidths, houseGroupE.housesWidths, houseGroupS.housesWidths, houseGroupW.housesWidths, yardWidth, yardDepth);
-    housesGroup.add(walls.get3DObject());
+    const wallGroup = walls.get3DObject();
+    mergeSameMaterial(wallGroup);
+    housesGroup.add(wallGroup);
 
     return {object: housesGroup, lightConfigs: lightConfigs};
 }

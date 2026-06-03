@@ -6,27 +6,28 @@ import * as TYPES from '@/app/types/typeIndex';
 export function mergeSameMaterial(scene: THREE.Group): THREE.Group {
     const materialToGeometries: Record<string, { 
         geometries: THREE.BufferGeometry[], 
-        material: THREE.Material, 
-        shader: TYPES.ShaderMaterialConfig,
+        materialConfig: TYPES.MaterialShaderConfig | undefined,
         originalMeshes: THREE.Mesh[]
     }> = {};
 
-    const materialToKey = (uuid: string, shaderID: string) => `${uuid}_${shaderID}`;
+    const materialToKey = (materialId: string, shaderID: string) => `${materialId}_${shaderID}`;
 
     scene.traverse((child) => {
         if (child.userData.mergeable === false) return;
         if (!(child instanceof THREE.Mesh)) return;
 
         const mesh = child as THREE.Mesh;
-        const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material as THREE.Material;
-        const shader = child.userData.shader 
-            ? child.userData.shader as TYPES.ShaderMaterialConfig 
+        const materialConfig = mesh.userData.materialConfig as TYPES.MaterialShaderConfig | undefined;
+        if(materialConfig === null || materialConfig === undefined) return;
+        
+        const shader: TYPES.ShaderMaterialConfig = materialConfig.shaderConfig !== null && materialConfig.shaderConfig !== undefined
+            ? materialConfig.shaderConfig as TYPES.ShaderMaterialConfig 
             : { id: 'none', uniforms: {} };
 
-        const materialKey = materialToKey(material.uuid, shader.id);
+        const materialKey = materialToKey(materialConfig.materialId, shader.id);
 
         if (!materialToGeometries[materialKey]) {
-            materialToGeometries[materialKey] = { geometries: [], material, shader, originalMeshes: [] };
+            materialToGeometries[materialKey] = { geometries: [], materialConfig, originalMeshes: [] };
         }
 
         mesh.updateWorldMatrix(true, false);
@@ -38,7 +39,7 @@ export function mergeSameMaterial(scene: THREE.Group): THREE.Group {
     });
 
     // Originale entfernen und gemergte hinzufügen:
-    for (const { geometries, material, shader, originalMeshes } of Object.values(materialToGeometries)) {
+    for (const { geometries, materialConfig, originalMeshes } of Object.values(materialToGeometries)) {
         if (geometries.length === 0) continue;
 
         // Originale aus Szene entfernen:
@@ -47,9 +48,8 @@ export function mergeSameMaterial(scene: THREE.Group): THREE.Group {
         const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries, false);
         if (!mergedGeometry) continue;
 
-        const newMesh = new THREE.Mesh(mergedGeometry, material);
-        newMesh.userData.shader = shader.id !== 'none' ? shader : undefined;
-        newMesh.userData.mergeable = false; // nicht nochmal mergen
+        const newMesh = new THREE.Mesh(mergedGeometry);
+        newMesh.userData.materialConfig = materialConfig;
         scene.add(newMesh);
 
         // Geklonte Geometrien aufräumen:

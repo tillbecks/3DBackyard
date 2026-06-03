@@ -4,7 +4,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 import * as HC from '@/app/lib/config/houseConfig';
 import * as UTILS from '@/app/lib/config/utils';
 import { RoofDecorations } from '@/app/lib/house/roofDecorations';
-import { getAntennaMaterial } from '../../materials/materials';
+import { materialShaderConfigs } from '../../materials/materials';
 
 class TerrestrialAntenna{
     height: number;
@@ -35,7 +35,7 @@ class AmFmAntenna extends TerrestrialAntenna{
 
     get3DObject(): THREE.Group{
         const geometries: THREE.BufferGeometry[] = [];
-        const material = getAntennaMaterial();
+        const material = materialShaderConfigs.ANTENNA_MATERIAL();
 
         const antennaBlockConfig = {
             size: 0.3,
@@ -44,12 +44,12 @@ class AmFmAntenna extends TerrestrialAntenna{
         const antennaBlock = new THREE.BoxGeometry(antennaBlockConfig.size, antennaBlockConfig.height, antennaBlockConfig.size);
         geometries.push(antennaBlock);
 
-        const stickGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.width, 16);
+        const stickGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.width, 8);
         stickGeometry.rotateX(0.5*Math.PI);
         geometries.push(stickGeometry);
 
         if(this.type == HC.AMFMANTENNA_TYPES.CROSS){
-            const stickGeometry2 = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.width, 16);
+            const stickGeometry2 = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.width, 8);
             stickGeometry2.rotateX(0.5*Math.PI);
             stickGeometry2.rotateZ(0.5*Math.PI);
             geometries.push(stickGeometry2);
@@ -58,7 +58,8 @@ class AmFmAntenna extends TerrestrialAntenna{
         const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries, false) || new THREE.BufferGeometry();
         const antennaGroup = new THREE.Group();
         
-        const mesh = new THREE.Mesh(mergedGeometry, material.standardMaterial);
+        const mesh = new THREE.Mesh(mergedGeometry);
+        mesh.userData.materialConfig = material;
         antennaGroup.add(mesh);
 
         antennaGroup.rotateY(this.direction);
@@ -93,7 +94,7 @@ class TVAntenna extends TerrestrialAntenna{
 
     get3DObject(): THREE.Group{
         const geometries: THREE.BufferGeometry[] = [];
-        const material = getAntennaMaterial();
+        const material = materialShaderConfigs.ANTENNA_MATERIAL();
 
         if(!this.hasReflector){
             const antennaBlockConfig = {
@@ -104,7 +105,7 @@ class TVAntenna extends TerrestrialAntenna{
             geometries.push(antennaBlock);
         }
 
-        const antennaMainRodGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.length, 16);
+        const antennaMainRodGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.length, 8);
         antennaMainRodGeometry.rotateX(0.5*Math.PI);
         geometries.push(antennaMainRodGeometry);
 
@@ -112,7 +113,7 @@ class TVAntenna extends TerrestrialAntenna{
         const extraOffsetY = (this.length - (elementAmount - 1) * this.elementDist) / 2;
         
         for(let i = 0; i < elementAmount; i++){
-            const elementGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.elementLength, 16);
+            const elementGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.elementLength, 8);
             elementGeometry.rotateZ(0.5*Math.PI);
             elementGeometry.translate(0, -this.length/2 + i*this.elementDist + extraOffsetY, 0);
             elementGeometry.rotateX(0.5*Math.PI);
@@ -122,7 +123,8 @@ class TVAntenna extends TerrestrialAntenna{
         const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries, false) || new THREE.BufferGeometry();
         const antennaGroup = new THREE.Group();
         
-        const mesh = new THREE.Mesh(mergedGeometry, material.standardMaterial);
+        const mesh = new THREE.Mesh(mergedGeometry);
+        mesh.userData.materialConfig = material;
         antennaGroup.add(mesh);
 
         if(this.hasReflector){
@@ -165,7 +167,7 @@ class TVAntennaWithReflector extends TVAntenna{
 
     get3DObject(): THREE.Group {
         const reflectorAntennaGroup = new THREE.Group();
-        const material = getAntennaMaterial();
+        const material = materialShaderConfigs.ANTENNA_MATERIAL();
         const geometries: THREE.BufferGeometry[] = [];
 
         // Antennenteil von super — bereits gemergte Geometrie extrahieren
@@ -177,7 +179,7 @@ class TVAntennaWithReflector extends TVAntenna{
         geometries.push(antennaGeo);
 
         // Connector (liegt horizontal, rotateZ 90°)
-        const connectorGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorWidth, 16);
+        const connectorGeometry = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorWidth, 8);
         connectorGeometry.rotateZ(0.5 * Math.PI);
         geometries.push(connectorGeometry);
 
@@ -186,9 +188,7 @@ class TVAntennaWithReflector extends TVAntenna{
 
             // Frame pieces — vertikal entlang Z verteilt
             for (let i = 0; i < HC.REFLECTOR_FRAME_PIECES; ++i) {
-                const geo = new THREE.CylinderGeometry(
-                    HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorLength, 16
-                );
+                const geo = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorLength, 8);
                 // Z-Position vor der Rotation setzen
                 const zPos = -this.reflectorWidth / 2 + i * (this.reflectorWidth / (HC.REFLECTOR_FRAME_PIECES - 1));
                 geo.translate(0, 0, zPos);
@@ -198,9 +198,7 @@ class TVAntennaWithReflector extends TVAntenna{
             const reflectorElementCount = Math.floor(this.reflectorLength / HC.REFLECTOR_ELEMENT_DIST);
             const reflectorElementDst = this.reflectorLength / reflectorElementCount;
             for (let i = 0; i < reflectorElementCount; ++i) {
-                const geo = new THREE.CylinderGeometry(
-                    HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorWidth, 16
-                );
+                const geo = new THREE.CylinderGeometry(HC.ANTENNA_ROD_DIAMETER, HC.ANTENNA_ROD_DIAMETER, this.reflectorWidth, 8);
                 const yPos = -this.reflectorLength / 2 + i * reflectorElementDst + reflectorElementDst;
                 geo.rotateX(0.5 * Math.PI); // liegt horizontal in Z-Richtung
                 geo.translate(0, yPos, 0);
@@ -229,7 +227,9 @@ class TVAntennaWithReflector extends TVAntenna{
         geometries.push(buildWing(true));
 
         const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries, false) || new THREE.BufferGeometry();
-        reflectorAntennaGroup.add(new THREE.Mesh(mergedGeometry, material.standardMaterial));
+        const mesh = new THREE.Mesh(mergedGeometry);
+        mesh.userData.materialConfig = material;
+        reflectorAntennaGroup.add(mesh);
 
         return reflectorAntennaGroup;
     }
@@ -258,7 +258,7 @@ export class AntennaPole extends RoofDecorations{
 
     get3DObject(){
         const poleGroup = new THREE.Group();
-        const material = getAntennaMaterial();
+        const material = materialShaderConfigs.ANTENNA_MATERIAL();
 
         let poleLength = HC.ANTENNA_POLE_SPACE_BOTTOM + (this.antennas.length -1) * HC.ANTENNA_POLE_DISTANCE_ANTENNAS + this.antennas.reduce((sum, ant) => sum + ant.height, 0) + UTILS.randomInRangeFloat(0, HC.ANTENNA_POLE_RANDOM_EXTRA_HEIGHT);
         if(poleLength < HC.ANTENNA_POLE_MIN_HEIGHT + HC.ANTENNA_POLE_SPACE_BOTTOM) poleLength = HC.ANTENNA_POLE_MIN_HEIGHT + HC.ANTENNA_POLE_SPACE_BOTTOM;
@@ -266,9 +266,10 @@ export class AntennaPole extends RoofDecorations{
         const clearanceBetweenOverall = poleLength - this.antennas.reduce((sum, ant) => sum + ant.height, 0) - (this.antennas.length - 1) * HC.ANTENNA_POLE_DISTANCE_ANTENNAS - HC.ANTENNA_POLE_SPACE_BOTTOM;
         const clearanceBetween = clearanceBetweenOverall / this.antennas.length;
 
-        const poleGeometry = new THREE.CylinderGeometry(HC.ANTENNA_POLE_RADIUS, HC.ANTENNA_POLE_RADIUS, poleLength, 16);
+        const poleGeometry = new THREE.CylinderGeometry(HC.ANTENNA_POLE_RADIUS, HC.ANTENNA_POLE_RADIUS, poleLength, 8);
         poleGeometry.translate(0, poleLength / 2 - HC.ANTENNA_POLE_SPACE_BOTTOM / 2, 0);
-        const poleMesh = new THREE.Mesh(poleGeometry, material.standardMaterial);
+        const poleMesh = new THREE.Mesh(poleGeometry);
+        poleMesh.userData.materialConfig = material;
         poleMesh.castShadow = true;
         poleMesh.receiveShadow = true;
         poleGroup.add(poleMesh);

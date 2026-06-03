@@ -35,6 +35,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
     - [ ] Back-Button -> Camera back to initial position
 - [ ] Linkage to Website
 - [ ] Fix Bird Trajectory
+  - [ ] Probably by adjusting behaviour parameters
+- [ ] Fix Room Floor Position
 
 - [ ] Environment Map?
   
@@ -45,11 +47,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds
-- [ ] Optimization
-  - [ ] MergeGeometries
-    - [X] MergeGeometries By Material
-    - [ ] Cleanup material creation -> All materials from materials.ts
-    - [ ] Material-Data instead of Material?
   
 ### Done
 
@@ -75,3 +72,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - [X] Positioning Walls based on partitioning ;()
   - [X] Decorations
   - [X] Fix Texture Clipping 
+- [X] Optimization
+  - [X] MergeGeometries
+    - [X] MergeGeometries By Material
+    - [X] Cleanup material creation -> All materials from materials.ts
+    - [X] Triangle Reduction
+- [X] Material-Data instead of Material?

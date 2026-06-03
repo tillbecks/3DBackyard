@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { LAWN_MIX_MATERIAL } from "@/app/lib/materials/materials";
+import { materialShaderConfigs } from "@/app/lib/materials/materials";
 
 import { LAWN_FIELDS_PER_SIZE, HOUSE_DEPTH } from "@/app/lib/config/houseConfig";
 import { createRandomHeightMap, mapHeightMapToPlane } from "@/app/lib/config/3dUtils";
@@ -22,9 +22,9 @@ export class Lawn {
 
         const BufferGeometry = mapHeightMapToPlane(geometry, createRandomHeightMap(0, 4, widthSegments + 1, depthSegments + 1), widthSegments + 1, depthSegments + 1);
         geometry.dispose();
-        const materialMix = LAWN_MIX_MATERIAL;
-        const lawnMesh = new THREE.Mesh(BufferGeometry, materialMix.standardMaterial);
-        lawnMesh.userData.shader = materialMix.shaderMaterial;
+        const materialMix = materialShaderConfigs.LAWN_MATERIAL();
+        const lawnMesh = new THREE.Mesh(BufferGeometry);
+        lawnMesh.userData.materialConfig = materialMix;
         lawnMesh.rotation.x = -Math.PI / 2; // Rotate to lie flat on the ground
         lawnMesh.receiveShadow = true;
         lawnMesh.translateY(-HOUSE_DEPTH);

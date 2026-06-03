@@ -5,12 +5,10 @@ import * as TYPES from '@/app/types/typeIndex';
 
 import * as BYCONFIG from "@/app/lib/config/backyardConfig";
 import { randomBoolean, randomFromArray, randomInRangeInt } from "@/app/lib/config/utils";
-import { calcUVS, instancedMeshToMergedMesh } from '../config/3dUtils';
-import { getTreeBarkMaterial, getTreeLeafMaterial, getWallMaterial } from '../materials/materials';
+import { calcUVS } from '../config/3dUtils';
+import { materialShaderConfigs } from '../materials/materials';
 import {Tree} from './trees';
 import {DecorationsPlacer} from '../config/decorations';
-import { instance } from 'three/tsl';
-import { TREE_BARK_COLOR } from '../materials/colors';
 
 //Following Structure:
 
@@ -61,7 +59,7 @@ export class YardWalls{
     get3DObject(): THREE.Group {
         const allGroup = new THREE.Group();
 
-        const materialMix = getWallMaterial();
+        const materialMix = materialShaderConfigs.GARDEN_WALL_MATERIAL();
 
         const wallGeometries = [];
 
@@ -73,8 +71,8 @@ export class YardWalls{
         }
         const mergedWallGeometries = BufferGeometryUtils.mergeGeometries(wallGeometries);
         calcUVS(mergedWallGeometries);
-        const mergedWallMesh = new THREE.Mesh(mergedWallGeometries, materialMix.standardMaterial);
-        mergedWallMesh.userData.shader = materialMix.shaderMaterial;
+        const mergedWallMesh = new THREE.Mesh(mergedWallGeometries);
+        mergedWallMesh.userData.materialConfig = materialMix;
         allGroup.add(mergedWallMesh);
 
         const leafGeometries = [];
@@ -90,15 +88,15 @@ export class YardWalls{
         }
 
         const leafGeometry = BufferGeometryUtils.mergeGeometries(leafGeometries.flat());
-        const leafMaterial = getTreeLeafMaterial();
-        const leafMesh = new THREE.Mesh(leafGeometry, leafMaterial.standardMaterial);
-        leafMesh.userData.shader = leafMaterial.shaderMaterial;
+        const leafMaterial = materialShaderConfigs.LEAF_MATERIAL();
+        const leafMesh = new THREE.Mesh(leafGeometry);
+        leafMesh.userData.materialConfig = leafMaterial;
         allGroup.add(leafMesh);
 
         const treeGeometry = BufferGeometryUtils.mergeGeometries(treeGeometries.flat());
-        const treeMaterial = getTreeBarkMaterial();
-        const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial.standardMaterial);
-        treeMesh.userData.shader = treeMaterial.shaderMaterial;
+        const treeMaterial = materialShaderConfigs.BARK_MATERIAL();
+        const treeMesh = new THREE.Mesh(treeGeometry);
+        treeMesh.userData.materialConfig = treeMaterial;
         allGroup.add(treeMesh);
 
         return allGroup;

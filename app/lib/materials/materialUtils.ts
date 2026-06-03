@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import * as TYPES from '@/app/types/typeIndex';
+import { getShader } from './shader/shaderConfig';
+import { getMaterialFromId } from './materials';
 
 export function addGradientToScene(object: THREE.Object3D){
     object.traverse((child) => {
@@ -47,4 +50,29 @@ function createToonGradient(): THREE.DataTexture {
     texture.magFilter = THREE.NearestFilter;
     texture.needsUpdate = true;
     return texture;
+}
+
+export function loadMaterials(scene: THREE.Scene | THREE.Group): void {
+    for (const child of scene.children) {
+        child.traverse((mesh) => {
+            if(mesh instanceof THREE.Mesh){
+                if (mesh.userData.materialConfig) {
+                    console.log(mesh.userData.materialConfig);
+                    try {
+                        const materialConfig: TYPES.MaterialShaderConfig = mesh.userData.materialConfig;
+                        let material = getMaterialFromId(materialConfig.materialId);
+                        console.log('Material found for ID:', materialConfig.materialId);
+                        console.log('Material:', material);
+                        const shaderConfig = materialConfig.shaderConfig;
+                        if(shaderConfig !== null && shaderConfig !== undefined){
+                            material = getShader(shaderConfig.id, shaderConfig.uniforms, material);
+                        }
+                        mesh.material = material;
+                    } catch (error) {
+                        mesh.material = getMaterialFromId();
+                    }
+                }
+            }
+        });
+    }
 }
