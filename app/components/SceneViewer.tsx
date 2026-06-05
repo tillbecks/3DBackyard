@@ -63,14 +63,7 @@ export default function SceneViewer() {
     return (
         <div
             ref={containerRef}
-            style={{
-                position: 'relative',
-                width: '100vw',
-                height: '100vh',
-                margin: 0,
-                padding: 0,
-                overflow: 'hidden',
-            }}
+            className = "relative w-screen h-screen m-0 p-0 overflow-hidden "
         >
             {controllerLoaded && <ButtonMenu buttonConfigs={toggleList} />}
         </div>

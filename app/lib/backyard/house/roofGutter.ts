@@ -3,8 +3,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 import { GUTTER_TUBE_DISTANCE_SIDES, ROOF_OVERHANG_SIDES } from '@/app/lib/config/houseConfig';
 import { randomFromObject } from '@/app/lib/config/utils';
-import { materialShaderConfigs } from '../materials/materials';
-import { createAxisHelper } from '../config/3dUtils';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 
 
 const GUTTER_POS: { LEFT: string; RIGHT: string } = {

@@ -34,8 +34,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
     - [ ] Camera Pan on Window
     - [ ] Back-Button -> Camera back to initial position
 - [ ] Linkage to Website
-- [ ] Fix Bird Trajectory
-  - [ ] Probably by adjusting behaviour parameters
 - [ ] Fix Room Floor Position
 
 - [ ] Environment Map?

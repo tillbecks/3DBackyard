@@ -112,9 +112,13 @@ export function bindMouseMovementToRaycaster(camera: THREE.Camera, scene: THREE.
     const highlightFunctions = bindWindowsToMaterialChange(scene);
 
     function functionOnWindowID(event: MouseEvent, f: (id: string | null) => void){
-        mouse.x = (event.clientX / container.clientWidth) * 2 - 1;
-        mouse.y = -(event.clientY / container.clientHeight) * 2 + 1;
+        const rect = container.getBoundingClientRect();
 
+        console.log('rect:', rect.left, rect.top, rect.width, rect.height);
+    
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(scene.children, true);
 

@@ -7,11 +7,7 @@ import {FlexContainer} from "@/app/components/Utils";
 
 export function Button({onClick, children}: {onClick: () => void, children: React.ReactNode}) {
     return (
-        <button onClick={onClick} style={{
-            position: 'relative',
-            backgroundColor: 'transparent',
-            border: 'none',
-        }}>
+        <button onClick={onClick} className="bg-transparent border-none">
             {children}
         </button>
     );
@@ -42,10 +38,7 @@ export function ToggleButton({onToggle, toggled, childrenToggleOn, childrenToggl
     const scale = phase === 'idle' ? 1 : phase === 'shrinking' ? 0.85 : 1;
 
     return (
-        <button onClick={handleClick} style={{
-            position: 'relative',
-            backgroundColor: 'transparent',
-            border: 'none',
+        <button onClick={handleClick} className="bg-transparent border-none" style={{
             transform: `scale(${scale})`,
             transition: `transform ${DURATION}ms ease`,
             willChange: 'transform',
@@ -58,7 +51,7 @@ export function ToggleButton({onToggle, toggled, childrenToggleOn, childrenToggl
 
 export function ButtonMenu({ buttonConfigs }: { buttonConfigs: (TYPES.ToggleButtonConfig | TYPES.ButtonConfig)[] }) {
     return (
-        <div style={{position: 'absolute', zIndex: 1000, top: '20px', right: '20px'}}>
+        <div className='absolute z-50 top-5 right-5'>
             <FlexContainer
                 childrenDistance={10}
                 direction='vertical'>

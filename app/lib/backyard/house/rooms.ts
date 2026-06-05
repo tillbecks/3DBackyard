@@ -8,7 +8,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 import {turnOnOffProbs} from '@/app/lib/config/lightConfig';
 import { randomBoolean, randomInRangeFloat, randomInRangeInt } from '@/app/lib/config/utils';
 import { materialShaderConfigs } from '@/app/lib/materials/materials';
-import { makeUnmergeable } from '../config/meshMaterialMerger';
+import { makeUnmergeable } from '@/app/lib/config/meshMaterialMerger';
 
 export class Rooms{
     storyCount: number;

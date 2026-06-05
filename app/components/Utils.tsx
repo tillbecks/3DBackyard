@@ -1,10 +1,8 @@
 'use client';
 export function FlexContainer({children, childrenDistance, direction, padding}: {children: React.ReactNode[], childrenDistance: number, direction: 'vertical' | 'horizontal', padding?: number}) {
     return (
-        <div style={{
-            position: 'relative',
-            display: 'flex',
-            flexDirection: direction === 'vertical' ? 'column' : 'row',
+        <div className={`flex ${direction === 'vertical' ? 'flex-col' : 'flex-row'} gap-2`}
+         style={{
             gap: `${childrenDistance}px`,
             padding: padding ? `${padding}px` : undefined,
         }}>

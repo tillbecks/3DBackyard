@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { generateHousesWithLawn } from '@/app/lib/house/houseExport';
+import { generateHousesWithLawn } from '@/app/lib/backyard/house/houseExport';
 import { scenarios } from '@/app/lib/config/routeConfig';
 import { objectToGLBBase64 } from '@/app/lib/config/importExportUtils';
 import {generateBirdShowcaseContent, generateShowcaseContent} from '@/app/lib/showcase/showcase';

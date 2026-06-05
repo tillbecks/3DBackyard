@@ -57,12 +57,9 @@ export function loadMaterials(scene: THREE.Scene | THREE.Group): void {
         child.traverse((mesh) => {
             if(mesh instanceof THREE.Mesh){
                 if (mesh.userData.materialConfig) {
-                    console.log(mesh.userData.materialConfig);
                     try {
                         const materialConfig: TYPES.MaterialShaderConfig = mesh.userData.materialConfig;
                         let material = getMaterialFromId(materialConfig.materialId);
-                        console.log('Material found for ID:', materialConfig.materialId);
-                        console.log('Material:', material);
                         const shaderConfig = materialConfig.shaderConfig;
                         if(shaderConfig !== null && shaderConfig !== undefined){
                             material = getShader(shaderConfig.id, shaderConfig.uniforms, material);

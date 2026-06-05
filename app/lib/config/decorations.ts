@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 
 import * as UTILS from '@/app/lib/config/utils';
-import { SceneElement } from '@/app/lib/house/houseElement';
-import { AntennaPole } from '../house/antennas/terrestrialAntenna';
+import { SceneElement } from '@/app/lib/backyard/house/houseElement';
 
 
 export abstract class Decoration extends SceneElement{

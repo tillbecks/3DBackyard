@@ -7,6 +7,7 @@ import { BUTTON_SIZE, BUTTON_COLOR } from '@/app/lib/config/uiConfig';
 export function Icon({path, size = 24, color = "currentColor", style}: {path: string, size?: number, color?: string, style?: React.CSSProperties}) {
     return (
         <div
+            className='brightness-100 hover:brightness-120'
             style={{
                 width: size,
                 height: size,
@@ -28,20 +29,13 @@ export function Icon({path, size = 24, color = "currentColor", style}: {path: st
 }
 
 export function ButtonIcon({path}: {path: string}) {
-    const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <div>
             <Icon
                 path={path}
                 size={BUTTON_SIZE}
                 color={BUTTON_COLOR}
-                style={{
-                    filter: isHovered ? 'brightness(1.2)' : 'none',
-                }}
             />
         </div>
     

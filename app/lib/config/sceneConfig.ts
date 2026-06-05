@@ -13,7 +13,7 @@ export const SUN_CONFIG = {
 
 export const AMBIENT_LIGHT_CONFIG = {
     INTENSITY_MAX: 4.5,
-    INTENSITY_MIN: 1.5,
+    INTENSITY_MIN: 0.76,
     COLOR: 0xffffff 
 };
 

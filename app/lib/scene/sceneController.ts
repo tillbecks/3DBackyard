@@ -239,7 +239,7 @@ export class SceneController{
             this.tweenGroup.update();
 
             this.renderer.render(this.scene, this.camera);
-            console.log(this.renderer.info.render);
+            //console.log(this.renderer.info.render);
             this.stats.update();
         } catch (error) {
             console.error('Render error:', error);

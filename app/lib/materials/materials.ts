@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import * as COLORS from './colors';
-import { BRICK_SHADER, ROOF_TILE_SHADER, ROOF_FLAT_TILE_SHADER, ROOF_NORFOLK_TILE_SHADER, GRASS_SHADER } from './shader/shaderConfig';
+import { BRICK_SHADER, ROOF_TILE_SHADER, ROOF_FLAT_TILE_SHADER, ROOF_NORFOLK_TILE_SHADER, GRASS_SHADER, GRAIN_SHADER } from './shader/shaderConfig';
 
 import * as TYPES from '@/app/types/typeIndex';
 import { randomFromArray } from '../config/utils';
@@ -51,7 +51,7 @@ const brickMaterialSandstoneConfig: TYPES.MaterialShaderConfig = {
 
 const housePlasterMaterialConfigs: TYPES.MaterialShaderConfig[] = COLORS.HOUSE_PLASTER_COLOR.map(color => ({
     materialId: getMaterialId('standard', color),
-    shaderConfig: null
+    shaderConfig: GRAIN_SHADER.getShaderMaterialConfig(color),
 }));
 
 const houseMaterialConfigs = [...housePlasterMaterialConfigs, brickMaterialRedConfig, brickMaterialSandstoneConfig];
@@ -201,7 +201,7 @@ function standardMaterialRegistery(color: THREE.Color | string | number): THREE.
     const threeColor = new THREE.Color(color);
     const colorKey = threeColor.getHexString();
     if (!standardMaterials[colorKey]) {
-        standardMaterials[colorKey] = new THREE.MeshPhongMaterial({
+        standardMaterials[colorKey] = new THREE.MeshStandardMaterial({
             color: threeColor,
             side: THREE.DoubleSide,
         });

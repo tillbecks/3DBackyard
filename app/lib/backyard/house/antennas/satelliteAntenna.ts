@@ -3,8 +3,8 @@ import * as THREE from 'three';
 
 import * as HC from '@/app/lib/config/houseConfig';
 import * as UTILS from '@/app/lib/config/utils';
-import {RoofDecorations} from '@/app/lib/house/roofDecorations';
-import { materialShaderConfigs } from '../../materials/materials';
+import {RoofDecorations} from '@/app/lib/backyard/house/roofDecorations';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 
 class SatelliteBowlReceiver extends RoofDecorations{
     height: number;

@@ -16,7 +16,6 @@ main:
         vec2 walvUv = vec2(0.0); // Fallback, falls keine UV-Daten da sind
     #endif
 
-    //vec3 brickColor = vec3(0.7, 0.3, 0.2);
     vec3 mortarColor = vec3(0.6, 0.6, 0.6);
 
     float offsetRows = brickSize.x / 2.0;

@@ -5,7 +5,7 @@ import * as TYPES from '@/app/types/typeIndex';
 import * as HC from '@/app/lib/config/houseConfig';
 import { BALCONY_DEPTH, BALCONY_PLATFORM_THICKNESS, BALCONY_START_BOTTOM, BALCONY_RAILING_DIAMETER_MAIN, BALCONY_RAILING_DIAMETER_SECONDARY, BALCONY_RAILING_HEIGHT, BALCONY_RAILING_DIST_EDGE, BALCONY_RAILING_LOWER_HORIZONTAL_DISTANCE, BALCONY_RAILING_SECONDARY_DISTANCE, BALCONY_RAILING_TYPES } from '@/app/lib/config/houseConfig';
 import { randomFromObject, randomInRangeFloat } from '@/app/lib/config/utils';
-import { materialShaderConfigs } from '../materials/materials';
+import { materialShaderConfigs } from '@/app/lib/materials/materials';
 
 class Balcony{
     balconyPositionX: number;

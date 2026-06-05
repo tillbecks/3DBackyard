@@ -7,7 +7,7 @@ import * as TYPES from "@/app/types/typeIndex";
 import {createCameraConfig} from "@/app/lib/config/importExportUtils";
 import { createLawn } from "@/app/lib/backyard/lawn";
 import { YardWalls } from "@/app/lib/backyard/walls";
-import { mergeSameMaterial } from "../config/meshMaterialMerger";
+import { mergeSameMaterial } from "@/app/lib/config/meshMaterialMerger";
 
 export function generateHousesWithLawn(): TYPES.ObjectLightReturn{
     const houses = generateHouses();

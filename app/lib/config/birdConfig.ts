@@ -15,7 +15,7 @@ export const STD_BIRD_CONFIG: TYPES.BirdConfig = {
     matchingFactor: 0.08,
     centeringFactor: 0.001,
     turnFactor: 0.3,
-    biasFactor: 0.005
+    biasFactor: 0.01
 }
 
 export const TARGET_ELYPSE_BIRD_CONFIG: TYPES.BirdConfig = {
@@ -23,7 +23,7 @@ export const TARGET_ELYPSE_BIRD_CONFIG: TYPES.BirdConfig = {
     matchingFactor: 0.08,
     centeringFactor: 0.001,
     turnFactor: 0.3,
-    biasFactor: 0.02
+    biasFactor: 0.04
 }
 
 export const TARGET_LOOP_BIRD_CONFIG: TYPES.BirdConfig = {
@@ -31,13 +31,13 @@ export const TARGET_LOOP_BIRD_CONFIG: TYPES.BirdConfig = {
     matchingFactor: 0.0001,
     centeringFactor: 0.001,
     turnFactor: 0.1,
-    biasFactor: 0.02
+    biasFactor: 0.04
 }
 
 export const MIN_SPEED = 1.0;
 export const MAX_SPEED = 3.0;
-export const CIRCLE_SPEED = MAX_SPEED * 0.7;
-export const TARGET_APPROACH_SPEED = MAX_SPEED * 0.7;
+export const CIRCLE_SPEED = MAX_SPEED * 0.8;
+export const TARGET_APPROACH_SPEED = MAX_SPEED * 0.8;
 
 export const PROTECTED_RANGE = 10;
 export const VISUAL_RANGE = 20;

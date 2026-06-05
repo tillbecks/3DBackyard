@@ -6,7 +6,7 @@ import * as HC from '@/app/lib/config/houseConfig';
 import { randomInRangeInt, randomInRangeFloat, randomFromObject } from '@/app/lib/config/utils';
 import { createSinusHeightMap, mapHeightMapToPlane, calcUVS  } from '@/app/lib/config/3dUtils';
 import { materialShaderConfigs } from '@/app/lib/materials/materials';
-import {RoofDecorations} from '@/app/lib/house/roofDecorations';
+import {RoofDecorations} from '@/app/lib/backyard/house/roofDecorations';
 
 class TopChimney extends RoofDecorations{
     width: number;
