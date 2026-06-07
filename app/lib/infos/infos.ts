@@ -8,7 +8,7 @@ import * as TYPES from '@/app/types/typeIndex';
     // Text
     // Pictures vor Gallery
 
-const websiteInfos: TYPES.Info = {
+export const websiteInfos: TYPES.Info = {
     type: 'General',
     header: 'Procedurally Generated Backyard',
     content: {
@@ -17,7 +17,7 @@ const websiteInfos: TYPES.Info = {
     }
 }
 
-const growInfos: TYPES.Info = {
+export const growInfos: TYPES.Info = {
     type: 'Portfolio',
     model: 'grow',
     link: 'https://tilllius.org',

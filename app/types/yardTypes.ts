@@ -11,6 +11,7 @@ export type YardWallDescription = {
     x2: number;
     z2: number;
     orientation: 0 | 1; // 0 for vertical, 1 for horizontal
+    height: number;
 }
 
 export type YardDescription = {

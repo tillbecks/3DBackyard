@@ -69,10 +69,15 @@ export function calcCirclePosZ(radius: number, posX: number): { positive: number
     return {positive: remaining, negative: -remaining};
 }
 
-export function collision(pos1: { x: number; z: number }, radius1: number, pos2: { x: number; z: number }, radius2: number, extraDistance: number = 0): boolean {
+export function calcDistance(pos1: { x: number; z: number }, pos2: { x: number; z: number }){
     const dx = pos1.x - pos2.x;
     const dz = pos1.z - pos2.z;
     const distance = Math.sqrt(dx * dx + dz * dz);
+    return distance;
+}
+
+export function collision(pos1: { x: number; z: number }, radius1: number, pos2: { x: number; z: number }, radius2: number, extraDistance: number = 0): boolean {
+    const distance = calcDistance(pos1, pos2);
     return distance < (radius1 + radius2 + extraDistance);
 }
 

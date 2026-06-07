@@ -7,3 +7,4 @@ export * from './birdTypes';
 export * from './uiTypes';
 export * from './yardTypes';
 export * from './infoTypes';
+export * from './camera';

@@ -34,14 +34,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
     - [ ] Camera Pan on Window
     - [ ] Back-Button -> Camera back to initial position
 - [ ] Linkage to Website
-- [ ] Fix Room Floor Position
 
 - [ ] Environment Map?
   
 ### In Progress
 
 - [X] Camera Follows Birds on Window-Click
-  - [ ] Smoother? -> Improve Looping behaviour
+  - [X] Smoother? -> Improve Looping behaviour
 - [ ] Sounds
   - [X] Bird Sounds
   - [ ] Backyard Sounds

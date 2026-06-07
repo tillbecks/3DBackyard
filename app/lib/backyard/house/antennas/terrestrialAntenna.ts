@@ -279,6 +279,7 @@ export class AntennaPole extends RoofDecorations{
             const antenna3D = antenna.get3DObject();
             const clearance = UTILS.randomInRangeFloat(0,clearanceBetween);
             antenna3D.position.y = currentHeight + antenna.height/2 + clearance;
+            antenna3D.rotateY(antenna.direction);
             poleGroup.add(antenna3D);
             currentHeight += antenna.height + HC.ANTENNA_POLE_DISTANCE_ANTENNAS + clearance;
         });

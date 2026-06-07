@@ -3,19 +3,24 @@
 import { useEffect, useRef, useState } from 'react';
 
 import * as TYPES from '@/app/types/typeIndex';
+import * as INFOS from '@/app/lib/infos/infos';
 
 import { SceneController } from '@/app/lib/scene/sceneController'
 import { ButtonMenu } from '@/app/components/Buttons';
 import { ButtonIcon } from '@/app/components/Icons';
+import { InformationNote } from './InformationNote';
 
 export default function SceneViewer() {
     const containerRef = useRef<HTMLDivElement>(null);
     const sceneControllerRef = useRef<SceneController | null>(null);
 
+    const websiteInfos: TYPES.Info = INFOS.websiteInfos;
 
     const [audioEnabled, setAudioEnabled] = useState(false);
     const [birdsEnabled, setBirdsEnabled] = useState(true);
     const [controllerLoaded, setControllerLoaded] = useState(false);
+    const [informationNoteVisible, setInformationNoteVisible] = useState(true);
+    const [currentInfo, setCurrentInfo] = useState(websiteInfos);
 
     const handleBirdToggle = () => {setBirdsEnabled(sceneControllerRef.current?.toggleBirds() ?? !birdsEnabled);};
 
@@ -65,6 +70,7 @@ export default function SceneViewer() {
             ref={containerRef}
             className = "relative w-screen h-screen m-0 p-0 overflow-hidden "
         >
+            {/*!informationNoteVisible && <InformationNote info={currentInfo} size={{width:40, height: 30}}/>*/}
             {controllerLoaded && <ButtonMenu buttonConfigs={toggleList} />}
         </div>
     );

@@ -65,8 +65,8 @@ export class YardWalls{
 
         for(let i= 0; i < this.wallPositioning.length; i++){
             const wall = this.wallPositioning[i];
-            const geometry = new THREE.BoxGeometry(wall.orientation === 0 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.x2 - wall.x1), BYCONFIG.WALL_HEIGHT_MAX, wall.orientation === 1 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.z2 - wall.z1));
-            geometry.translate(wall.x1 + (wall.x2 - wall.x1) / 2, BYCONFIG.WALL_HEIGHT_MAX / 2, wall.z1 + (wall.z2 - wall.z1) / 2);
+            const geometry = new THREE.BoxGeometry(wall.orientation === 0 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.x2 - wall.x1), wall.height, wall.orientation === 1 ? BYCONFIG.WALL_DEPTH : Math.abs(wall.z2 - wall.z1));
+            geometry.translate(wall.x1 + (wall.x2 - wall.x1) / 2, wall.height/2 , wall.z1 + (wall.z2 - wall.z1) / 2);
             wallGeometries.push(geometry);        
         }
         const mergedWallGeometries = BufferGeometryUtils.mergeGeometries(wallGeometries);
@@ -167,8 +167,9 @@ function callPlotWallGenerationForPartitioning(partitioning: (number | null)[][]
             let lastPlotIndex = i;
             while(partitioning[lastPlotIndex+1][j] === partition){
                 lastPlotIndex++;
-            };
-            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_NORTH, criticalIds.indexOf(partition) !== -1);
+            };    
+            const wallHeight = randomInRangeInt(BYCONFIG.WALL_HEIGHT_MIN, BYCONFIG.WALL_HEIGHT_MAX);
+            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_NORTH, wallHeight, criticalIds.indexOf(partition) !== -1);
             wallDescriptions.push(...thisWallDescriptions);
             if(thisYardDescription !== null){
                 thisYardDescription.plotId = partition;
@@ -184,7 +185,8 @@ function callPlotWallGenerationForPartitioning(partitioning: (number | null)[][]
             while(partitioning[lastPlotIndex-1][j] === partition){
                 lastPlotIndex--;
             };
-            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_SOUTH, criticalIds.indexOf(partition) !== -1);
+            const wallHeight = randomInRangeInt(BYCONFIG.WALL_HEIGHT_MIN, BYCONFIG.WALL_HEIGHT_MAX);
+            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_SOUTH, wallHeight, criticalIds.indexOf(partition) !== -1);
             wallDescriptions.push(...thisWallDescriptions);
             if(thisYardDescription !== null){
                 thisYardDescription.plotId = partition;
@@ -203,7 +205,8 @@ function callPlotWallGenerationForPartitioning(partitioning: (number | null)[][]
             while(partitioning[i][lastPlotIndex-1] === partition){
                 lastPlotIndex--;
             }   
-            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_EAST, criticalIds.indexOf(partition) !== -1);
+            const wallHeight = randomInRangeInt(BYCONFIG.WALL_HEIGHT_MIN, BYCONFIG.WALL_HEIGHT_MAX);
+            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_EAST, wallHeight, criticalIds.indexOf(partition) !== -1);
             wallDescriptions.push(...thisWallDescriptions);
             if(thisYardDescription !== null) {
                 thisYardDescription.plotId = partition;
@@ -219,7 +222,8 @@ function callPlotWallGenerationForPartitioning(partitioning: (number | null)[][]
             while(partitioning[i][lastPlotIndex+1] === partition){
                 lastPlotIndex++;
             }
-            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_WEST, criticalIds.indexOf(partition) !== -1);
+            const wallHeight = randomInRangeInt(BYCONFIG.WALL_HEIGHT_MIN, BYCONFIG.WALL_HEIGHT_MAX);
+            const [thisWallDescriptions, thisYardDescription] = generatePlotWalls(widthN, widthE, widthS, widthW, yardWidth, yardDepth, houseArrayIndex, lastPlotIndex, BYCONFIG.PLOT_DIRECTIONS.FROM_WEST, wallHeight, criticalIds.indexOf(partition) !== -1);
             wallDescriptions.push(...thisWallDescriptions);
             if(thisYardDescription !== null){
                 thisYardDescription.plotId = partition;
@@ -233,7 +237,7 @@ function callPlotWallGenerationForPartitioning(partitioning: (number | null)[][]
 }
 
 //orientation: 0 = north to south, 1 = east to west
-function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[], widthW: number[], yardWidth: number, yardDepth: number, houseArrayIndex: number, lastPlotIndex: number, direction: 0 | 1 | 2 | 3, passiveBehavior: boolean = false): [TYPES.YardWallDescription[], TYPES.YardDescription | null]{
+function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[], widthW: number[], yardWidth: number, yardDepth: number, houseArrayIndex: number, lastPlotIndex: number, direction: 0 | 1 | 2 | 3, height: number, passiveBehavior: boolean = false): [TYPES.YardWallDescription[], TYPES.YardDescription | null]{
     const wallDescriptions: TYPES.YardWallDescription[] = [];
     let yardDescription: TYPES.YardDescription | null = {plotId: -1, width: 0, depth: 0, xCenter: 0, zCenter: 0, direction: direction, corner: false};
     if(direction == BYCONFIG.PLOT_DIRECTIONS.FROM_NORTH){
@@ -256,16 +260,16 @@ function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[],
             passiveZEnd = zEndW;
 
             reallyCritical = passiveBehavior && zEnd > passiveZEnd;
-            wallDescriptions.push({x1: xCenter - width / 2, z1: zStart, x2: xCenter - width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) + BYCONFIG.WALL_DEPTH/2, orientation: 0});
-            if(houseArrayIndex !== widthN.length - 1 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1});
+            wallDescriptions.push({x1: xCenter - width / 2, z1: zStart, x2: xCenter - width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) + BYCONFIG.WALL_DEPTH/2, orientation: 0, height: height});
+            if(houseArrayIndex !== widthN.length - 1 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1, height: height});
 
         }else{
             zEnd = zEndW;
             passiveZEnd = zEndE;
 
             reallyCritical = passiveBehavior && zEnd > passiveZEnd;
-            wallDescriptions.push({x1: xCenter + width / 2, z1: zStart, x2: xCenter + width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) + BYCONFIG.WALL_DEPTH/2, orientation: 0});
-            if(houseArrayIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1});
+            wallDescriptions.push({x1: xCenter + width / 2, z1: zStart, x2: xCenter + width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) + BYCONFIG.WALL_DEPTH/2, orientation: 0, height: height});
+            if(houseArrayIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1, height: height});
         }
         if(houseArrayIndex !== widthN.length - 1){
             const depth = (reallyCritical ? passiveZEnd : zEnd) - zStart - BYCONFIG.WALL_DEPTH * 2;
@@ -296,14 +300,14 @@ function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[],
             passiveXEnd = calcCenterPosition(lastPlotIndex, widthN, yardWidth) - widthN[lastPlotIndex] / 2;
 
             reallyCritical = passiveBehavior && xEnd < passiveXEnd;
-            wallDescriptions.push({x1: xStart, z1: zCenter - depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) - BYCONFIG.WALL_DEPTH/2, z2: zCenter - depth / 2, orientation: 1});
-            if(houseArrayIndex !== widthE.length - 1 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0});
+            wallDescriptions.push({x1: xStart, z1: zCenter - depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) - BYCONFIG.WALL_DEPTH/2, z2: zCenter - depth / 2, orientation: 1, height: height});
+            if(houseArrayIndex !== widthE.length - 1 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0, height: height});
         }else{
             xEnd = calcCenterPosition(lastPlotIndex, widthN, yardWidth) - widthN[lastPlotIndex] / 2;
             passiveXEnd = - calcCenterPosition(widthS.length - 1 - lastPlotIndex, widthS, yardWidth) - widthS[widthS.length - 1 - lastPlotIndex] / 2;
             reallyCritical = passiveBehavior && xEnd < passiveXEnd;
-            wallDescriptions.push({x1: xStart, z1: zCenter + depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) - BYCONFIG.WALL_DEPTH/2, z2: zCenter + depth / 2, orientation: 1});
-            if(houseArrayIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0});
+            wallDescriptions.push({x1: xStart, z1: zCenter + depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) - BYCONFIG.WALL_DEPTH/2, z2: zCenter + depth / 2, orientation: 1, height: height});
+            if(houseArrayIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0, height: height});
         }
         if(houseArrayIndex !== widthE.length - 1){
             const width = xStart - (reallyCritical ? passiveXEnd : xEnd) - BYCONFIG.WALL_DEPTH * 2;
@@ -334,14 +338,14 @@ function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[],
             zEnd = - calcCenterPosition(westIndex, widthW, yardDepth) - widthW[westIndex] / 2;
             passiveZEnd = calcCenterPosition(lastPlotIndex, widthE, yardDepth) - widthE[lastPlotIndex] / 2;
             reallyCritical = passiveBehavior && zEnd < passiveZEnd;
-            wallDescriptions.push({x1: xCenter + width / 2, z1: zStart, x2: xCenter + width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) - BYCONFIG.WALL_DEPTH/2, orientation: 0});
-            if(zIndex !== widthS.length - 1 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1});
+            wallDescriptions.push({x1: xCenter + width / 2, z1: zStart, x2: xCenter + width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) - BYCONFIG.WALL_DEPTH/2, orientation: 0, height: height});
+            if(zIndex !== widthS.length - 1 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1, height: height});
         }else{
             zEnd = calcCenterPosition(lastPlotIndex, widthE, yardDepth) - widthE[lastPlotIndex] / 2;
             passiveZEnd = - calcCenterPosition(widthW.length - 1 - lastPlotIndex, widthW, yardDepth) - widthW[widthW.length - 1 - lastPlotIndex] / 2;
             reallyCritical = passiveBehavior && zEnd < passiveZEnd;
-            wallDescriptions.push({x1: xCenter - width / 2, z1: zStart, x2: xCenter - width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) - BYCONFIG.WALL_DEPTH/2, orientation: 0});
-            if(zIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1});
+            wallDescriptions.push({x1: xCenter - width / 2, z1: zStart, x2: xCenter - width / 2, z2: (reallyCritical ? passiveZEnd : zEnd) - BYCONFIG.WALL_DEPTH/2, orientation: 0, height: height});
+            if(zIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xCenter - width / 2, z1: zEnd, x2: xCenter + width / 2, z2: zEnd, orientation: 1, height: height});
         }
         if(zIndex !== widthS.length - 1){
             const depth = zStart - (reallyCritical ? passiveZEnd : zEnd) - BYCONFIG.WALL_DEPTH * 2;
@@ -370,15 +374,15 @@ function generatePlotWalls(widthN: number[], widthE: number[], widthS: number[],
             xEnd = calcCenterPosition(lastPlotIndex, widthN, yardWidth) + widthN[lastPlotIndex] / 2;
             passiveXEnd = - calcCenterPosition(widthS.length - 1 - lastPlotIndex, widthS, yardWidth) + widthS[widthS.length - 1 - lastPlotIndex] / 2;
             reallyCritical = passiveBehavior && xEnd > passiveXEnd;
-            wallDescriptions.push({x1: xStart, z1: zCenter + depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) + BYCONFIG.WALL_DEPTH/2, z2: zCenter + depth / 2, orientation: 1});
-            if(westIndex !== widthW.length - 1 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0});
+            wallDescriptions.push({x1: xStart, z1: zCenter + depth / 2, x2: (reallyCritical ? passiveXEnd : xEnd) + BYCONFIG.WALL_DEPTH/2, z2: zCenter + depth / 2, orientation: 1, height: height});
+            if(westIndex !== widthW.length - 1 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0, height: height});
         }else{
             const southIndex = widthS.length - 1 - lastPlotIndex;
             xEnd = - calcCenterPosition(southIndex, widthS, yardWidth) + widthS[southIndex] / 2;
             passiveXEnd = calcCenterPosition(lastPlotIndex, widthN, yardWidth) + widthN[lastPlotIndex] / 2;
             reallyCritical = passiveBehavior && xEnd > passiveXEnd;
-            wallDescriptions.push({x1: xStart, z1: zCenter - depth / 2 , x2: (reallyCritical ? passiveXEnd : xEnd) + BYCONFIG.WALL_DEPTH/2, z2: zCenter - depth / 2, orientation: 1});
-            if(westIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0});
+            wallDescriptions.push({x1: xStart, z1: zCenter - depth / 2 , x2: (reallyCritical ? passiveXEnd : xEnd) + BYCONFIG.WALL_DEPTH/2, z2: zCenter - depth / 2, orientation: 1, height: height});
+            if(westIndex !== 0 && !reallyCritical) wallDescriptions.push({x1: xEnd, z1: zCenter - depth / 2, x2: xEnd, z2: zCenter + depth / 2, orientation: 0, height: height});
         }
         if(westIndex !== widthW.length - 1){
             const width = (reallyCritical ? passiveXEnd : xEnd) - xStart - BYCONFIG.WALL_DEPTH * 2;

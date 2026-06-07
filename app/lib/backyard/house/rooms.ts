@@ -89,12 +89,12 @@ export class Rooms{
             storyRoomGeometries.push(roomGeometry);
         }    
 
-        const generalYTranslation =  - this.storyHeight/2 + this.storyCount * this.storyHeight/2 - this.storyHeight * HC.BALCONY_DOOR_START_BOTTOM;
+        const generalYTranslation =  - (this.storyCount * this.storyHeight)/2 + this.storyHeight/2  ;
         for(let i = 0; i < this.storyCount; i++){
             const story = [];
             for(const room of storyRoomGeometries){
                 const geom = room.clone();
-                const yTransition = i * this.storyHeight - generalYTranslation;
+                const yTransition = i * this.storyHeight + generalYTranslation;
                 geom.translate(0, yTransition , 0);
                 geom.computeBoundingBox();
                 const position = new THREE.Vector3();

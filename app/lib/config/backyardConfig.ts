@@ -14,7 +14,7 @@ export const TREE_DISTANCE_EDGES = 40;
 export const TREES_PLACED = 4;
 
 export const WALL_HEIGHT_MIN = 15;
-export const WALL_HEIGHT_MAX = 20;
+export const WALL_HEIGHT_MAX = 23;
 export const WALL_DEPTH = 4;
 export const WALL_EXTRA_TO_HOUSE = 5;
 

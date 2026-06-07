@@ -42,7 +42,6 @@ export class SceneController{
     private tweenGroup: Group;
     private loadAbortController: AbortController | null = null;
 
-
     constructor(containerRef: React.RefObject<HTMLDivElement | null>, document: Document, audioToggle: boolean, birdToggle: boolean){ 
         this.scenario = scenarios.backyard;
 
@@ -197,23 +196,24 @@ export class SceneController{
     getOnWindowClick (){
         return (windows: THREE.Object3D[]) => {
             const center = calcCenterOfGeometries(windows);
+            const windowCloneMesh = new THREE.Mesh();
+            windowCloneMesh.position.copy(center);
+            windowCloneMesh.rotation.copy(windows[0].rotation)
             if(this.birdController){
                 this.controls.enabled = false;
-                //this.states.lookAtTargetBuffer = new THREE.Vector3();
-
-                const followFunction = (deltaSeconds: number) => 
-                    {
-                        const birdsActivated = () => this.birdToggle;
-                        if(birdsActivated())
-                            this.cameraController.followObject(this.birdController!.birds[0].birdGeometry, deltaSeconds, true, -2, 2);
-                        else
-                            this.cameraController.followObject(center, deltaSeconds, false, -10, 0.5);
-                    }
-                this.animations.push(followFunction);
-                const functionIndex = this.animations.length - 1;
+               
+                const birdsActivated = () => this.birdToggle;
+                const windowTarget: TYPES.cameraTripTarget = {object: windowCloneMesh, followGoal: center, objectViewDirection: new THREE.Vector3(0,0,1), enforceEndView: true, tolerance: 1, objectDistance: 5}
+                if(birdsActivated()){
+                    const birdFollowTarget: TYPES.cameraTripTarget = {object: this.birdController!.birds[0].birdGeometry, followGoal: center, objectViewDirection: new THREE.Vector3(0,0,-1), enforceEndView: false, tolerance: 10, objectDistance: -5, lerpSpeed: 3};
+                    this.cameraController.setCameraTrip([birdFollowTarget, windowTarget]);}
+                else
+                    this.cameraController.setCameraTrip([windowTarget]);
+                 
+                this.animations.push(this.cameraController.followTargets.bind(this.cameraController));
 
                 this.birdController!.switchToTarget(center, 
-                    () => {this.animations.splice(functionIndex, 1);});
+                    () => {});
             }
         }
     };
